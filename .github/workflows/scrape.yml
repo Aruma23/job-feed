@@ -1,10 +1,5 @@
 
-Runs on GitHub Actions twice a day. Searches Indeed and LinkedIn's public job listings
-for NYC finance and planning roles and saves them to jobs.csv. It never signs in to any
-account, so there is no account that could be restricted. The job finder in the Google
-Sheet reads jobs.csv, filters it with the same rules as the company boards, and adds
-new matches to Leads.
-"""
+
 import csv
 import math
 import random
