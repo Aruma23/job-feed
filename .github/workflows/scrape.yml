@@ -1,4 +1,3 @@
-"""Job feed for Gabriel's Job Search Tracker.
 
 Runs on GitHub Actions twice a day. Searches Indeed and LinkedIn's public job listings
 for NYC finance and planning roles and saves them to jobs.csv. It never signs in to any
