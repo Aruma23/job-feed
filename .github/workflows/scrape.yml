@@ -1,76 +1,28 @@
+name: Scrape jobs
 
+on:
+  schedule:
+    - cron: "41 10,16 * * *"   # about 6:41am and 12:41pm New York time (UTC clock)
+  workflow_dispatch:            # adds a "Run workflow" button
 
-import csv
-import math
-import random
-import sys
-import time
-from datetime import date
-from jobspy import scrape_jobs
+permissions:
+  contents: write               # lets the run save jobs.csv back to this repository
 
-LOCATION = "New York, NY"
-DISTANCE_MILES = 30          # covers Jersey City, Hoboken and Stamford
-HOURS_OLD = 72               # only postings from the last 3 days (the best odds)
-SEARCHES = [                 # (site, search). Indeed has no practical limit; LinkedIn blocks after ~10 pages per run.
-    ("indeed", "FP&A analyst"),
-    ("indeed", "financial planning and analysis"),
-    ("indeed", "financial analyst"),
-    ("indeed", "strategic finance"),
-    ("indeed", "workforce planning analyst"),
-    ("indeed", "business planning analyst"),
-    ("linkedin", "FP&A analyst"),
-    ("linkedin", "financial analyst"),
-    ("linkedin", "strategic finance"),
-]
-RESULTS = {"indeed": 60, "linkedin": 25}
-COLS = ["id", "site", "title", "company", "location", "is_remote", "date_posted",
-        "job_url", "job_url_direct", "min_amount", "max_amount", "interval", "description"]
-
-
-def clean(value):
-    """Turns pandas blanks into empty text and keeps every value on one line."""
-    if value is None or (isinstance(value, float) and math.isnan(value)):
-        return ""
-    if isinstance(value, date):
-        return value.isoformat()
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
-    return str(value).replace("\r", "").replace("\n", "\\n")
-
-
-def main():
-    rows, seen = [], set()
-    for site, term in SEARCHES:
-        try:
-            df = scrape_jobs(site_name=[site], search_term=term, location=LOCATION,
-                             distance=DISTANCE_MILES, results_wanted=RESULTS[site],
-                             hours_old=HOURS_OLD, country_indeed="USA",
-                             description_format="markdown", verbose=0)
-        except Exception as exc:  # one blocked search should not stop the others
-            print(f"{site} / {term}: skipped ({exc})", file=sys.stderr)
-            continue
-        added = 0
-        for rec in df.to_dict("records"):
-            url = rec.get("job_url")
-            if not url or url in seen:
-                continue
-            seen.add(url)
-            row = {c: clean(rec.get(c)) for c in COLS}
-            row["description"] = row["description"][:8000]
-            rows.append(row)
-            added += 1
-        print(f"{site} / {term}: {added} new")
-        time.sleep(random.uniform(5, 10))   # spaced out like a person browsing
-
-    if not rows:
-        print("Nothing came back this run; keeping the previous jobs.csv.")
-        return
-    with open("jobs.csv", "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=COLS)
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Saved {len(rows)} jobs to jobs.csv")
-
-
-if __name__ == "__main__":
-    main()
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install python-jobspy==1.4.1
+      - run: python scrape.py
+      - name: Save jobs.csv
+        run: |
+          git config user.name "job-feed"
+          git config user.email "job-feed@users.noreply.github.com"
+          git add jobs.csv || true
+          git commit -m "Update jobs" || echo "No changes"
+          git push
