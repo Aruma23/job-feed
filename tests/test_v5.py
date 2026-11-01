@@ -236,12 +236,15 @@ class Requirements(unittest.TestCase):
         d = ("3+ years of experience in FP&A or corporate finance. Advanced Excel (pivot tables, XLOOKUP), SQL and Tableau. "
              "Experience with Anaplan is a plus. Bachelor's degree in Finance required; MBA preferred. Build the annual operating plan and monthly forecast.")
         x = reqs.requirements("Senior Financial Analyst", d)
-        for s in ("advanced Excel", "SQL", "Tableau", "Anaplan", "annual planning", "forecasting", "MBA"):
+        for s in ("Excel", "SQL", "Tableau", "Planning software (Anaplan, Adaptive, Hyperion...)", "Budgeting / planning", "Forecasting",
+                  "FP&A / corporate finance experience"):
             self.assertIn(s, x["skills"])
         self.assertEqual(x["years_min"], "3")
-        self.assertEqual(x["education"], "Bachelor's; MBA (preferred)")
+        self.assertEqual(x["education"], "degree; graduate degree (preferred)")
         self.assertEqual(x["seniority"], "senior")
-        self.assertEqual(reqs.requirements("Financial Analyst", "2-4 years of relevant experience")["years_min"], "2")
+        self.assertEqual(reqs.requirements("Financial Analyst", "2-4 years of relevant experience")["years_min"], "2-4")
+        self.assertEqual(reqs.years_asked("a 4-year degree; for over 20 years we have grown"), (0, 0), "not experience")
+        self.assertIn("CPA", reqs.requirements("Analyst", "Active CPA license required.")["education"])
         self.assertEqual(reqs.annual_pay({"min_amount": "40", "max_amount": "50", "interval": "hourly"}), ("83200", "104000"))
         self.assertEqual(reqs.annual_pay({"min_amount": "", "max_amount": ""}), ("", ""))
 
