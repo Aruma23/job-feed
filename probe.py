@@ -9,7 +9,7 @@ import ccindex
 
 PREFIXES = {"workable": "com,workable,apply)/", "breezy": "hr,breezy,", "recruitee": "com,recruitee,", "teamtailor": "com,teamtailor,",
             "pinpoint": "com,pinpointhq,", "rippling": "com,rippling,ats)/", "personio": "de,personio,jobs,",
-            "greenhouse": "io,greenhouse,boards)/", "lever": "co,lever,jobs)/", "ashby": "com,ashbyhq,jobs)/", "workday": "com,myworkdayjobs,"}
+            "greenhouse": "io,greenhouse,boards)/", "greenhouse2": "io,greenhouse,job-boards)/", "smartrecruiters": "com,smartrecruiters,jobs)/", "lever": "co,lever,jobs)/", "ashby": "com,ashbyhq,jobs)/", "workday": "com,myworkdayjobs,"}
 ENDPOINTS = {"workable": ["https://apply.workable.com/api/v1/widget/accounts/{t}?details=true"],
              "breezy": ["https://{t}.breezy.hr/json"],
              "recruitee": ["https://{t}.recruitee.com/api/offers/"],
@@ -50,7 +50,11 @@ def cc():
             recs = ccindex.read_block(crawl, lines[min(1, len(lines) - 1)])
             btoks = sorted({ats.board_of(u) for _, u in recs} - {""})
             print(f"   one block: {len(recs)} records, {len(btoks)} boards, e.g. {btoks[:6]} {recs[0][1][:90] if recs else ''}")
-            tokens[kind] = (btoks or toks)[:12]
+            allt = set(btoks)
+            for b in lines[:40]:                       # every block of the prefix: how many boards in all
+                allt |= {ats.board_of(u) for _, u in ccindex.read_block(crawl, b)} - {""}
+            print(f"   all {min(40, len(lines))} blocks: {len(allt)} boards")
+            tokens[kind] = sorted(allt)[:60]
     print("cc total", round(time.time() - t0, 1), "s; requests", json.dumps(ats.STATS))
     json.dump(tokens, open("probe_tokens.json", "w"))
     return tokens
@@ -58,22 +62,24 @@ def cc():
 
 def ats_check(tokens):
     for kind, eps in ENDPOINTS.items():
-        found = 0
+        shown = tried = 0
         for t in [x.split(":", 1)[1] for x in tokens.get(kind, [])]:
-            for ep in eps:
-                u = ep.format(t=t)
-                try:
-                    body = ats.http(u, want_json=not u.endswith(("xml", "rss")), tries=1)
-                except Exception as e:
-                    print(f"{kind} {u}: {type(e).__name__} {str(e)[:80]}")
-                    continue
-                if isinstance(body, str):
-                    print(f"{kind} {u}: text {len(body)} chars: {body[:600]!r}")
-                else:
-                    print(f"{kind} {u}: JSON {json.dumps(shape(body))[:2500]}")
-                found += 1
-            if found >= 2:
+            if shown >= 1 or tried >= 40:
                 break
+            ep = eps[-1] if kind in ("rippling",) else eps[0]
+            u = ep.format(t=t)
+            tried += 1
+            try:
+                body = ats.http(u, want_json=True, tries=1)
+            except Exception as e:
+                print(f"{kind} {u}: {type(e).__name__} {str(e)[:80]}")
+                continue
+            items = body if isinstance(body, list) else (body.get("items") or body.get("data") or body.get("jobs") or body.get("offers") or [])
+            if not items:
+                continue
+            shown += 1
+            print(f"{kind} {u} ({tried} tried): {len(items)} items; first: {json.dumps(items[0])[:3500]}")
+        print(f"{kind}: {tried} boards tried, {shown} with jobs")
 
 
 if __name__ == "__main__":
