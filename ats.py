@@ -200,10 +200,10 @@ def board_of(url):
     if m and m.group(1).lower() not in ("api", "b", "meeting"):
         return "ashby:" + urllib.parse.unquote(m.group(1))
     m = re.search(r"(?:jobs|careers)\.smartrecruiters\.com/([A-Za-z0-9_-]+)", u)
-    if m:
+    if m and m.group(1).lower() not in ("external-referrals", "oneclick-ui", "api", "sr-jobs", "static", "robots", "sitemap"):
         return "smartrecruiters:" + m.group(1)
     m = re.search(r"https?://([a-z0-9-]+)\.(wd\d+)\.myworkdayjobs\.com/(?:[a-z]{2}-[A-Za-z]{2}/)?([A-Za-z0-9_-]+)", u)
-    if m and m.group(3).lower() not in ("wday", "job"):
+    if m and m.group(3).lower() not in ("wday", "job", "robots", "login", "sitemap") and len(m.group(3)) > 2 and m.group(1) not in ("www", "api"):
         return f"workday:{m.group(1)}|{m.group(2)}|{m.group(3)}"
     m = re.search(r"apply\.workable\.com/([A-Za-z0-9_-]+)", u)
     if m and m.group(1).lower() not in ("api", "j", "careers", "static", "assets"):
@@ -328,7 +328,8 @@ def ashby(slug, want, get=http):
 
 
 def smartrecruiters(company, want, get=http):
-    out, offset = [], 0
+    out, offset = Jobs(), 0
+    out.complete = False
     while offset < 300:
         data = get(f"https://api.smartrecruiters.com/v1/companies/{company}/postings?limit=100&offset={offset}")
         items = data.get("content") or []
@@ -346,54 +347,242 @@ def smartrecruiters(company, want, get=http):
                     pass
             out.append(job)
         if len(items) < 100 or offset + 100 >= int(data.get("totalFound") or 0):
+            out.complete = True
             break
         offset += 100
     return out
 
 
 WORKDAY_SEARCHES = ["financial planning", "FP&A", "financial analyst", "strategic finance", "workforce planning", "business planning"]
+WORKDAY_PAGES = 3          # 20 a page; a page that adds nothing new ends the search (Workday can repeat results across pages)
 
 
 def workday(spec, want, get=http):
     tenant, shard, site = spec.split("|")
     base = f"https://{tenant}.{shard}.myworkdayjobs.com"
     api = f"{base}/wday/cxs/{tenant}/{site}"
-    seen, out = set(), []
+    seen, out = set(), Jobs()
+    out.complete = False                      # searches, not the whole board: a missing job is checked on its own page
     for q in WORKDAY_SEARCHES:
-        try:
-            data = get(f"{api}/jobs", data={"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": q})
-        except HttpError as e:
-            if e.code in (404, 400, 422):
-                raise
-            continue
-        for j in data.get("jobPostings") or []:
-            path = j.get("externalPath")
-            if not path or path in seen:
-                continue
-            seen.add(path)
-            job = {"id": f"workday:{path.split('_')[-1]}", "title": j.get("title", ""), "company": tenant, "location": j.get("locationsText", ""),
-                   "remote": "remote" in str(j.get("locationsText", "")).lower(), "url": f"{base}/{site}{path}", "posted": wd_posted(j.get("postedOn")), "description": ""}
-            if want(job):
-                try:
-                    d = get(f"{api}{path}").get("jobPostingInfo") or {}
-                    job["description"] = text_of(d.get("jobDescription"))
-                    if d.get("startDate"):
-                        job["posted"] = str(d["startDate"])[:10]
-                    if d.get("location"):
-                        job["location"] = "; ".join([d["location"]] + (d.get("additionalLocations") or []))
-                except Exception:
-                    pass
-            out.append(job)
-        time.sleep(0.5)
+        total = None
+        for page in range(WORKDAY_PAGES):
+            try:
+                data = get(f"{api}/jobs", data={"appliedFacets": {}, "limit": 20, "offset": 20 * page, "searchText": q})
+            except HttpError as e:
+                if e.code in (404, 400, 422) and not out and page == 0 and q == WORKDAY_SEARCHES[0]:
+                    raise
+                break
+            if total is None:
+                total = int(data.get("total") or 0)        # only the first page carries the real total
+            fresh = 0
+            for j in data.get("jobPostings") or []:
+                path = j.get("externalPath")
+                if not path or path in seen:
+                    continue
+                seen.add(path)
+                fresh += 1
+                job = {"id": f"workday:{path.split('_')[-1]}", "title": j.get("title", ""), "company": tenant, "location": j.get("locationsText", ""),
+                       "remote": "remote" in str(j.get("locationsText", "")).lower(), "url": f"{base}/{site}{path}", "posted": wd_posted(j.get("postedOn")), "description": ""}
+                if want(job):
+                    try:
+                        d = get(f"{api}{path}").get("jobPostingInfo") or {}
+                        job["description"] = text_of(d.get("jobDescription"))
+                        if d.get("startDate"):
+                            job["posted"] = str(d["startDate"])[:10]
+                        if d.get("location"):
+                            job["location"] = "; ".join([d["location"]] + (d.get("additionalLocations") or []))
+                    except Exception:
+                        pass
+                out.append(job)
+            if not fresh or 20 * (page + 1) >= (total or 0):
+                break
     return out
 
 
-FETCH = {"greenhouse": greenhouse, "lever": lever, "ashby": ashby, "smartrecruiters": smartrecruiters, "workday": workday}
+# ---- more application systems (Nov 1 2026; formats checked live with probe.py) ----
+def _loc(*parts):
+    return ", ".join(p for p in (str(x or "").strip() for x in parts) if p)
+
+
+def _flat_location(x):
+    """A location object of unknown shape -> 'City, Region, Country' from whatever string fields it has."""
+    if isinstance(x, str):
+        return x
+    if isinstance(x, list):
+        return "; ".join(filter(None, (_flat_location(i) for i in x)))
+    if isinstance(x, dict):
+        for k in ("name", "label", "full_name", "location"):
+            if isinstance(x.get(k), str) and x[k].strip():
+                return x[k]
+        return _loc(*(x.get(k) if isinstance(x.get(k), str) else (x.get(k) or {}).get("name", "") if isinstance(x.get(k), dict) else ""
+                      for k in ("city", "addressLocality", "province", "state", "region", "addressRegion", "country", "addressCountry")))
+    return ""
+
+
+def workable(slug, want, get=http):
+    data = get(f"https://apply.workable.com/api/v1/widget/accounts/{slug}?details=true")
+    out = Jobs()
+    for j in data.get("jobs") or []:
+        locs = j.get("locations") or [{"city": j.get("city"), "region": j.get("state"), "country": j.get("country")}]
+        loc = "; ".join(_loc(l.get("city"), l.get("region"), l.get("country")) for l in locs if not l.get("hidden"))
+        out.append({"id": f"workable:{j.get('shortcode')}", "title": j.get("title", ""), "company": data.get("name") or slug,
+                    "location": loc + ("; Remote" if j.get("telecommuting") else ""), "remote": bool(j.get("telecommuting")),
+                    "url": j.get("url") or f"https://apply.workable.com/{slug}/j/{j.get('shortcode')}/", "posted": str(j.get("published_on") or j.get("created_at") or "")[:10],
+                    "description": text_of(j.get("description"))})
+    return out
+
+
+def breezy(slug, want, get=http):
+    data = get(f"https://{slug}.breezy.hr/json")
+    out = Jobs()
+    for j in data if isinstance(data, list) else []:
+        l = j.get("location") or {}
+        loc = _loc(l.get("city"), (l.get("state") or {}).get("id") if isinstance(l.get("state"), dict) else l.get("state"),
+                   (l.get("country") or {}).get("name") if isinstance(l.get("country"), dict) else l.get("country")) or l.get("name", "")
+        job = {"id": f"breezy:{j.get('id')}", "title": j.get("name", ""), "company": ((j.get("company") or {}).get("name")) or slug,
+               "location": loc + ("; Remote" if l.get("is_remote") else ""), "remote": bool(l.get("is_remote")), "url": j.get("url", ""),
+               "posted": str(j.get("published_date") or "")[:10], "description": ""}
+        pay = re.findall(r"\$\s?(\d{2,3}(?:,\d{3})+)", str(j.get("salary") or ""))
+        if len(pay) >= 2:
+            job.update(pay_min=pay[0].replace(",", ""), pay_max=pay[1].replace(",", ""), interval="yearly")
+        if want(job) and job["url"]:
+            try:
+                page = get(job["url"], want_json=False)
+                m = re.search(r'(?is)<div class="description">(.*?)</div>\s*(?:<div class="apply|<footer|<div class="(?:job-)?footer)', page)
+                job["description"] = text_of(m.group(1) if m else "")
+            except Exception:
+                pass
+        out.append(job)
+    return out
+
+
+def recruitee(slug, want, get=http):
+    data = get(f"https://{slug}.recruitee.com/api/offers/")
+    out = Jobs()
+    for j in data.get("offers") or []:
+        locs = j.get("locations") or []
+        loc = "; ".join(_loc(l.get("city"), l.get("state"), l.get("country")) for l in locs) or _loc(j.get("city"), j.get("state_name"), j.get("country"))
+        sal = j.get("salary") or {}
+        out.append({"id": f"recruitee:{j.get('id') or j.get('guid')}", "title": j.get("title", ""), "company": j.get("company_name") or slug,
+                    "location": loc + ("; Remote" if j.get("remote") else ""), "remote": bool(j.get("remote")), "url": j.get("careers_url", ""),
+                    "posted": str(j.get("published_at") or "")[:10], "description": text_of(j.get("description")) + "\n\n" + text_of(j.get("requirements")),
+                    "pay_min": sal.get("min") or "", "pay_max": sal.get("max") or "",
+                    "interval": "yearly" if "year" in str(sal.get("period") or "").lower() else (sal.get("period") or "")})
+    return out
+
+
+def teamtailor(slug, want, get=http):
+    data = get(f"https://{slug}.teamtailor.com/jobs.json")
+    out = Jobs()
+    for j in data.get("items") or []:
+        jp = j.get("_jobposting") or {}
+        locs = jp.get("jobLocation") or []
+        loc = _flat_location([(l.get("address") if isinstance(l, dict) else l) for l in (locs if isinstance(locs, list) else [locs])])
+        remote = "TELECOMMUTE" in str(jp.get("jobLocationType") or "").upper()
+        out.append({"id": f"teamtailor:{j.get('id')}", "title": j.get("title", ""), "company": (jp.get("hiringOrganization") or {}).get("name") or data.get("title") or slug,
+                    "location": loc + ("; Remote" if remote else ""), "remote": remote, "url": j.get("url", ""), "posted": str(j.get("date_published") or "")[:10],
+                    "description": text_of(j.get("content_html"))})
+    return out
+
+
+def pinpoint(slug, want, get=http):
+    data = get(f"https://{slug}.pinpointhq.com/postings.json")
+    out = Jobs()
+    for j in data.get("data") or []:
+        wt = str(j.get("workplace_type") or "").lower()
+        freq = str(j.get("compensation_frequency") or "").lower()
+        out.append({"id": f"pinpoint:{j.get('id')}", "title": j.get("title", ""), "company": slug, "location": _flat_location(j.get("location")) + ("; Remote" if wt == "remote" else ""),
+                    "remote": wt == "remote", "url": j.get("url", ""), "posted": "",
+                    "description": "\n\n".join(text_of(j.get(k)) for k in ("description", "key_responsibilities", "skills_knowledge_expertise")),
+                    "pay_min": j.get("compensation_minimum") or "", "pay_max": j.get("compensation_maximum") or "",
+                    "interval": {"year": "yearly", "hour": "hourly", "month": "monthly"}.get(freq, freq)})
+    return out
+
+
+def rippling(slug, want, get=http, pages=10):
+    out, page = Jobs(), 0
+    out.complete = False
+    while page < pages:
+        data = get(f"https://ats.rippling.com/api/v2/board/{slug}/jobs?page={page}&pageSize=50")
+        for j in data.get("items") or []:
+            locs = j.get("locations") or []
+            remote = any(str(l.get("workplaceType") or "").upper() == "REMOTE" for l in locs)
+            job = {"id": f"rippling:{j.get('id')}", "title": j.get("name", ""), "company": slug,
+                   "location": "; ".join(_loc(l.get("city"), l.get("stateCode") or l.get("state"), l.get("country")) or l.get("name", "") for l in locs) + ("; Remote" if remote else ""),
+                   "remote": remote, "url": j.get("url", ""), "posted": "", "description": ""}
+            if want(job):
+                try:
+                    d = get(f"https://ats.rippling.com/api/v2/board/{slug}/jobs/{j.get('id')}")
+                    job["description"] = text_of(d.get("description") or (d.get("descriptions") or {}).get("role") or d.get("content") or "")
+                except Exception:
+                    pass
+            out.append(job)
+        page += 1
+        if page >= int(data.get("totalPages") or 0):
+            out.complete = True
+            break
+    return out
+
+
+def personio(slug, want, get=http):
+    data = get(f"https://{slug}.jobs.personio.de/search.json")
+    out = Jobs()
+    for j in data if isinstance(data, list) else []:
+        out.append({"id": f"personio:{j.get('id')}", "title": j.get("name", ""), "company": j.get("subcompany") or slug,
+                    "location": "; ".join(j.get("offices") or [j.get("office") or ""]), "remote": "remote" in str(j.get("office") or "").lower(),
+                    "url": f"https://{slug}.jobs.personio.de/job/{j.get('id')}", "posted": "", "description": str(j.get("description") or "")})
+    return out
+
+
+FETCH = {"greenhouse": greenhouse, "lever": lever, "ashby": ashby, "smartrecruiters": smartrecruiters, "workday": workday,
+         "workable": workable, "breezy": breezy, "recruitee": recruitee, "teamtailor": teamtailor, "pinpoint": pinpoint,
+         "rippling": rippling, "personio": personio}
+KINDS = tuple(FETCH)
 
 
 def fetch_board(board, want, get=http):
     kind, _, slug = board.partition(":")
-    return FETCH[kind](slug, want, get)
+    jobs = FETCH[kind](slug, want, get)
+    if not isinstance(jobs, Jobs):
+        jobs = Jobs(jobs)
+    return jobs
+
+
+def peek(board, get=http):
+    """Light check of a board for the registry: its jobs without descriptions. Workday: one search near New York."""
+    kind, _, slug = board.partition(":")
+    if kind == "workday":
+        tenant, shard, site = slug.split("|")
+        data = get(f"https://{tenant}.{shard}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs",
+                   data={"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": "New York"}, tries=2)
+        return Jobs({"title": j.get("title", ""), "location": j.get("locationsText", ""), "remote": "remote" in str(j.get("locationsText", "")).lower(),
+                     "company": tenant} for j in data.get("jobPostings") or [])
+    if kind == "rippling":
+        return rippling(slug, lambda j: False, get, pages=3)
+    return fetch_board(board, lambda j: False, get)
+
+
+def still_open(job_url, get=http):
+    """For jobs missing from a partial read: True (its page is up), False (gone), None (can't tell)."""
+    u = str(job_url or "")
+    m = re.match(r"(https://([a-z0-9-]+)\.(wd\d+)\.myworkdayjobs\.com)/(?:[a-z]{2}-[A-Za-z]{2}/)?([^/]+)(/job/.+)$", u)
+    try:
+        if m:
+            get(f"{m.group(1)}/wday/cxs/{m.group(2)}/{m.group(4)}{m.group(5)}", tries=2)
+            return True
+        m = re.match(r"https://jobs\.smartrecruiters\.com/([^/]+)/(\d+)", u)
+        if m:
+            get(f"https://api.smartrecruiters.com/v1/companies/{m.group(1)}/postings/{m.group(2)}", tries=2)
+            return True
+        m = re.match(r"https://ats\.rippling\.com/([^/]+)/jobs/([0-9a-f-]+)", u)
+        if m:
+            get(f"https://ats.rippling.com/api/v2/board/{m.group(1)}/jobs/{m.group(2)}", tries=2)
+            return True
+    except HttpError as e:
+        return False if e.code in (404, 410) else None
+    except Exception:
+        return None
+    return None
 
 
 def probe(name, get=http):

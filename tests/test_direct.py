@@ -177,7 +177,7 @@ class EndToEnd(unittest.TestCase):
         self.assertGreaterEqual(d["rows_direct"], 4)
         self.assertGreater(d["pct_direct"], 50)
         self.assertEqual(d.get("unconventional"), 1)
-        self.assertIn("cc_error", d, "Common Crawl down: noted, run goes on")
+        self.assertIn("harvest_error", d, "Common Crawl down: noted, run goes on")
         db = json.load(open(os.path.join(self.d, "boards.json")))
         self.assertEqual(db["boards"]["lever:beta"]["src"], "feed-link")
         self.assertEqual(db["neg"].get("zeta health"), "2026-11-01", "a seed with no board is remembered for 2 weeks")

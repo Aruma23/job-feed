@@ -61,25 +61,26 @@ def cc():
 
 
 def ats_check(tokens):
-    for kind, eps in ENDPOINTS.items():
+    """Each new system through its real adapter: the normalized first job of the first boards that have jobs."""
+    for kind in ("workable", "breezy", "recruitee", "teamtailor", "pinpoint", "rippling", "personio"):
         shown = tried = 0
-        for t in [x.split(":", 1)[1] for x in tokens.get(kind, [])]:
-            if shown >= 1 or tried >= 40:
+        for b in tokens.get(kind, []):
+            if shown >= 2 or tried >= 25:
                 break
-            ep = eps[-1] if kind in ("rippling",) else eps[0]
-            u = ep.format(t=t)
             tried += 1
             try:
-                body = ats.http(u, want_json=True, tries=1)
+                jobs = ats.fetch_board(b, lambda j: True, ats.http)
             except Exception as e:
-                print(f"{kind} {u}: {type(e).__name__} {str(e)[:80]}")
+                print(f"{b}: {type(e).__name__} {str(e)[:80]}")
                 continue
-            items = body if isinstance(body, list) else (body.get("items") or body.get("data") or body.get("jobs") or body.get("offers") or [])
-            if not items:
+            if not jobs:
                 continue
             shown += 1
-            print(f"{kind} {u} ({tried} tried): {len(items)} items; first: {json.dumps(items[0])[:3500]}")
-        print(f"{kind}: {tried} boards tried, {shown} with jobs")
+            j = jobs[0]
+            print(f"{b}: {len(jobs)} jobs, complete={jobs.complete}; first: id={j['id']} | {j['title'][:50]} | loc={j['location'][:70]!r} | remote={j['remote']} | "
+                  f"posted={j.get('posted')} | url={j['url'][:80]} | pay={j.get('pay_min')}-{j.get('pay_max')} {j.get('interval', '')} | "
+                  f"desc {len(j.get('description') or '')} chars: {(j.get('description') or '')[:120]!r} | board_of(url)={ats.board_of(j['url'])}")
+        print(f"{kind}: {tried} tried, {shown} with jobs")
 
 
 if __name__ == "__main__":

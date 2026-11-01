@@ -256,41 +256,6 @@ class Discovery(unittest.TestCase):
         self.assertFalse(D.due({"polls": 20, "hits": 0, "nyc": 4, "ok": "2026-11-01"}, "greenhouse:x", "2026-11-01"), "dry board: once a day")
         self.assertTrue(D.due({"polls": 20, "hits": 0, "nyc": 4, "ok": "2026-10-31"}, "greenhouse:x", "2026-11-01"))
 
-    def test_common_crawl_rotates_systems_including_workday(self):
-        db = D.load_db("/nonexistent")
-        db["cc"] = {"last": "", "candidates": ["greenhouse:old1", "greenhouse:old2"], "cursor": 1}   # v3 layout migrates
-        seen = []
-
-        def text(u):
-            seen.append(u)
-            if u.endswith("collinfo.json"):
-                return json.dumps([{"id": "CC-MAIN-2026-40"}])
-            if "showNumPages" in u:
-                return json.dumps({"pages": 3})
-            if "myworkdayjobs" in u:
-                return "\n".join(json.dumps({"url": f"https://t{i}.wd5.myworkdayjobs.com/en-US/Ext/job/x_{i}"}) for i in range(3))
-            return json.dumps({"url": "https://job-boards.greenhouse.io/newco/jobs/1"})
-
-        def get(url, **k):
-            if "greenhouse" in url and "newco" in url:
-                return {"jobs": [{"id": 1, "title": "FP&A Analyst", "location": {"name": "Yonkers, NY"}, "absolute_url": "https://job-boards.greenhouse.io/newco/jobs/1"}]} if url.endswith("/jobs") else {"name": "NewCo"}
-            if "myworkdayjobs" in url:
-                return {"jobPostings": [{"title": "Analyst", "externalPath": "/job/x_1", "locationsText": "Remote, Canada"}]}
-            raise ats.HttpError(404, url)
-
-        stats = {"boards_new": 0}
-        D.CC_DOMAINS_SAVED = D.CC_DOMAINS
-        D.cc_step(db, "2026-11-01", stats, get, text)
-        self.assertIn("greenhouse:newco", db["boards"], "a Yonkers job qualifies the board")
-        self.assertEqual(db["boards"]["greenhouse:newco"]["fin_at_add"], 1)
-        db["cc"]["queue"] = []
-        db["cc"]["last"] = ""
-        for _ in range(3):
-            db["cc"]["last"] = ""
-            D.cc_step(db, "2026-11-02", stats, get, text)
-        self.assertTrue(any("matchType=domain" in u and "myworkdayjobs" in u for u in seen), "Workday found by a domain query")
-        self.assertTrue(any(b.startswith("workday:") for b in db["cc"]["rejected"]), "Canada-only Workday board checked and set aside")
-
     def test_smartrecruiters_probe(self):
         def get(url, **k):
             if "smartrecruiters.com/v1/companies/ZetaHealth/postings" in url:

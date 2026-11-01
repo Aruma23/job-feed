@@ -39,7 +39,8 @@ jobs:
           s = json.load(open("feed_status.json"))
           print(json.dumps({k: s[k] for k in ("partial", "failed", "rows_written", "empty_sites")}))
           d = s.get("direct") or {}
-          print(json.dumps({k: d.get(k) for k in ("boards_total", "boards_ok", "boards_failed", "boards_new", "rows_direct", "pct_direct", "unconventional", "held_for_review", "cc_source", "cc_candidates", "cc_queue", "cc_error", "error")}))
+          print(json.dumps({k: d.get(k) for k in ("boards_total", "boards_ok", "boards_failed", "boards_new", "rows_direct", "pct_direct", "unconventional", "held_for_review", "harvest_blocks", "harvest_new", "harvest_progress", "harvest_error", "verified", "verified_by_status", "registry_size", "registry_waiting", "closed_confirmed", "still_open", "error")}))
+          print(json.dumps({"history": s.get("history"), "requests": d.get("requests")}))
           print(json.dumps({"regions": s.get("regions"), "relevance": s.get("relevance")}))
           print(json.dumps({k: v for k, v in (s.get("scheduler") or {}).get("decisions", {}).items() if v not in ("active", "trial")}))
           EOF
@@ -52,6 +53,9 @@ jobs:
             boards.json
             search_stats.json
             review.json
+            registry.tsv
+            harvest_state.json
+            history.json
           retention-days: 3
 
   classify:                           # our own code only (no third-party packages); reads the feed as data, may call Gemini
@@ -108,6 +112,9 @@ jobs:
           test -f boards.json && python3 -c "import json; d=json.load(open('boards.json')); assert isinstance(d.get('boards'), dict)" && git add boards.json
           test -f search_stats.json && python3 -c "import json; d=json.load(open('search_stats.json')); assert isinstance(d.get('searches'), dict)" && git add search_stats.json
           test -f classify_cache.json && python3 -c "import json; d=json.load(open('classify_cache.json')); assert isinstance(d.get('jobs'), dict)" && git add classify_cache.json
+          test -f history.json && python3 -c "import json; d=json.load(open('history.json')); assert isinstance(d.get('jobs'), dict)" && git add history.json
+          test -f harvest_state.json && python3 -c "import json; d=json.load(open('harvest_state.json')); assert isinstance(d.get('done'), dict)" && git add harvest_state.json
+          test -f registry.tsv && head -1 registry.tsv | grep -q "^board" && git add registry.tsv
           git add jobs.csv feed_status.json
           git commit -m "Update jobs" || echo "No changes"
           git push

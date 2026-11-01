@@ -44,8 +44,10 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 import geo
+import history
 import identity
 import relevance
+import reqs
 import scheduler
 
 LOCATION = "New York, NY"
@@ -85,7 +87,8 @@ SEARCHES = [
 COLS = ["id", "site", "title", "company", "location", "is_remote", "date_posted",
         "job_url", "job_url_direct", "min_amount", "max_amount", "interval", "description",
         "first_seen", "last_seen", "also_on",
-        "region", "req_id", "source_ids", "fit_score", "fit_category", "fit_why", "fit_by"]
+        "region", "req_id", "source_ids", "fit_score", "fit_category", "fit_why", "fit_by",
+        "status", "changes", "last_change", "age_days", "skills", "years_min", "education", "seniority", "pay_low", "pay_high"]
 QUALIFY_MIN = 50             # rules score for a job to count as qualified in the search stats
 REVIEW_MAX = 400
 
@@ -232,18 +235,19 @@ def collect(scrape, searches=None, pause=(4, 9), sleep=time.sleep, previous=None
     return fresh, status
 
 
-NATIVE = re.compile(r"^(greenhouse|lever|ashby|workday|smartrecruiters):")
+NATIVE = re.compile(r"^(greenhouse|lever|ashby|workday|smartrecruiters|workable|breezy|recruitee|teamtailor|pinpoint|rippling|personio):")
+STILL_OPEN_CHECKS = 40       # jobs missing from a partial board read, checked on their own page each run
 DIRECT_CAP = 1500
 
 
-def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, cc_text=None, weekday=None):
+def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, cc_text=None, weekday=None, range_get=None):
     """Grows the board list, reads every board, and returns (direct rows, borderline rows, stats). Never raises: a failed
     step is noted."""
     import ats
     import discover as D
     get = get or ats.http
     resolve = resolve or ats.resolve_redirect
-    stats = {"boards_new": 0, "version": "v4"}
+    stats = {"boards_new": 0, "version": "v5"}
     db = D.load_db(db_path)
     try:
         better = D.from_rows(db, agg_rows, today, stats, resolve)
@@ -262,9 +266,11 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
     except Exception as e:
         stats["probe_error"] = f"{type(e).__name__}: {str(e)[:120]}"
     try:
-        D.cc_step(db, today, stats, get, cc_text, weekday)
+        import harvest
+        crawl_list = (lambda: [c["id"] for c in json.loads(cc_text("https://index.commoncrawl.org/collinfo.json"))]) if cc_text else None
+        harvest.step(db, os.path.dirname(db_path) or ".", today, stats, D.place_ok, D.title_kind, D.add_board, get, range_get, crawl_list)
     except Exception as e:
-        stats["cc_error"] = f"{type(e).__name__}: {str(e)[:120]}"
+        stats["harvest_error"] = f"{type(e).__name__}: {str(e)[:120]}"
     jobs, ok_boards, border = D.sweep(db, today, stats, get)
     rows, held, prev, owner = {}, {}, {r["id"]: r for r in prev_direct}, {}
 
@@ -285,23 +291,39 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
     for j in border:
         if j["id"] not in rows:
             put(j, held)
-    kept_old = 0
+    kept_old, closed, checks, still = 0, [], 0, 0
+    cutoff = (datetime.fromisoformat(today) - timedelta(days=KEEP_DAYS)).date().isoformat()
     for k, r in prev.items():
         if k in rows or k in held:
             continue
         b = ats.board_of(r.get("job_url"))
-        if b in ok_boards:            # read fine and the job is gone: closed
+        if b in ok_boards and ok_boards[b]:          # the whole board was read and the job isn't on it: closed
+            closed.append(k)
             continue
-        if r.get("last_seen", today) >= (datetime.fromisoformat(today) - timedelta(days=KEEP_DAYS)).date().isoformat():
+        if b in ok_boards and checks < STILL_OPEN_CHECKS:   # partial read (Workday searches): ask the job's own page
+            checks += 1
+            v = ats.still_open(r.get("job_url"), get)
+            if v is False:
+                closed.append(k)
+                continue
+            if v:
+                still += 1
+                rows[k] = dict(r, last_seen=today)
+                continue
+        if r.get("last_seen", today) >= cutoff:        # board unreadable, or no answer: keep it a while
             rows[k] = r
             kept_old += 1
     out = sorted(rows.values(), key=lambda r: (r.get("date_posted") or r.get("first_seen") or ""), reverse=True)[:DIRECT_CAP]
     stats["rows_direct"] = len(out)
     stats["kept_unread"] = kept_old
+    stats["closed_confirmed"] = len(closed)
+    stats["still_open_checked"] = checks
+    stats["still_open"] = still
+    stats["requests"] = {k: v for k, v in sorted(ats.STATS.items(), key=lambda kv: -kv[1]["requests"])[:12]}
     stats["new_today"] = sum(1 for r in out if r.get("first_seen") == today)
     stats["employers"] = len({D.emp_key(r.get("company")) for r in out})
     D.save_db(db, db_path)
-    return out, list(held.values()), stats
+    return out, list(held.values()), stats, closed
 
 
 def annotate(agg_rows, direct_rows):
@@ -342,6 +364,8 @@ def finish(rows, cache):
         r["req_id"] = identity.req_label(identity.req_keys(r))
         v = verdict(r, cache)
         relevance.apply(r, v)
+        r.update(reqs.requirements(r.get("title"), r.get("description")))
+        r["pay_low"], r["pay_high"] = reqs.annual_pay(r)
         if v.get("review"):
             queue.append(r)
     import discover as D
@@ -354,7 +378,8 @@ def finish(rows, cache):
 DIRECT_DEFAULT = True
 
 
-def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, direct=None, get=None, resolve=None, cc_text=None, weekday=None):
+def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, direct=None, get=None, resolve=None, cc_text=None, weekday=None,
+         range_get=None):
     if scrape is None:
         from jobspy import scrape_jobs as scrape
     now = now or datetime.now(timezone.utc)
@@ -383,13 +408,13 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     empty_sites = sorted(k for k, d in by_site.items() if d["new"] == 0)
     rows = merge(previous, fresh, today)
     direct = DIRECT_DEFAULT if direct is None else direct
-    direct_rows, held, dstats = [], [], {"version": "v4", "skipped": True}
+    direct_rows, held, dstats, closed = [], [], {"version": "v5", "skipped": True}, []
     if direct and os.environ.get("NO_DIRECT") != "1":
         try:
-            direct_rows, held, dstats = direct_step(rows, prev_direct, today, os.path.join(here, "boards.json"), get, resolve, cc_text, weekday)
+            direct_rows, held, dstats, closed = direct_step(rows, prev_direct, today, os.path.join(here, "boards.json"), get, resolve, cc_text, weekday, range_get)
             dstats["aggregator_rows_matched"] = annotate(rows, direct_rows)
         except Exception as exc:   # the aggregator part of the feed never fails because of the direct part
-            dstats = {"version": "v4", "error": f"{type(exc).__name__}: {str(exc)[:200]}"}
+            dstats = {"version": "v5", "error": f"{type(exc).__name__}: {str(exc)[:200]}"}
             direct_rows = prev_direct
     # unconventional board titles held back: in if an earlier review rescued them, otherwise queued for review
     rescued = [h for h in held if (relevance.cached(cache, h) or {}).get("score", 0) >= relevance.MODEL_RESCUE
@@ -404,6 +429,9 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     dstats["rescued_by_review"] = len(rescued)
     rows = rows + direct_rows
     queue = finish(rows, cache)
+    hist = history.load(os.path.join(here, "history.json"))
+    hstats = history.update(hist, rows, today, closed)
+    history.save(hist, os.path.join(here, "history.json"))
     for h in waiting:
         h["region"] = geo.label(geo.resolve(h.get("location"), h.get("is_remote") == "True", h.get("description") or ""))
         relevance.apply(h, verdict(h))
@@ -417,6 +445,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
                "relevance": {"by_category": cats, "strong_fits": sum(1 for r in rows if int(r["fit_score"] or 0) >= 70),
                              "queued_for_review": len(queue) + len(waiting), "reviewed_by_model": sum(1 for r in rows if r["fit_by"] == "model")},
                "regions": _count(r["region"] for r in rows),
+               "history": hstats, "seniority": _count(r["seniority"] for r in rows),
                "scheduler": dict(scheduler.report(sched, today), decisions=decisions)}
     if not fresh:
         summary["note"] = "Nothing came back this run; earlier jobs kept."

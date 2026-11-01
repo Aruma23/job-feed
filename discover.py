@@ -7,8 +7,8 @@ Every run:
      - companies in those rows that have no known board, most relevant first (tried on Greenhouse, Lever, Ashby and
        SmartRecruiters),
      - seeds.txt, NYC employers that hire for finance and planning (tried a few dozen a run),
-     - Common Crawl's public index of board pages on all five systems (Greenhouse, Ashby, Lever, SmartRecruiters, and Workday
-       through a domain query), one page of one system at a time, rotating, biggest boards checked first.
+     - the board registry (harvest.py): every board name in Common Crawl's index files for twelve application systems over
+       the newest 16 crawls, checked a few hundred a run.
      A board is kept only when it lists at least one job in a commute region (geo.py) or remote in the US.
   2. Reads every board directly and keeps finance and planning jobs in the commute regions or remote US. Boards that
      produced matches lately are read first and every run; boards that list local jobs but never a match are read once a
@@ -146,7 +146,6 @@ def load_db(path=DB_PATH):
     db.setdefault("boards", {})
     db.setdefault("neg", {})
     db.setdefault("seed_cursor", 0)
-    db.setdefault("cc", {"last": "", "candidates": [], "cursor": 0})
     return db
 
 
@@ -225,134 +224,6 @@ def seeds(path=SEEDS):
         return []
 
 
-# ---- Common Crawl: the public web crawl's index of board pages. It throttles cloud runners hard, so: one system's page per
-# refill (two requests), a refill only when the queue runs low (about every three days), long backoff, never fails a run. ----
-CC_DOMAINS = [("greenhouse", "job-boards.greenhouse.io", "prefix"), ("ashby", "jobs.ashbyhq.com", "prefix"),
-              ("lever", "jobs.lever.co", "prefix"), ("workday", "myworkdayjobs.com", "domain"),
-              ("smartrecruiters", "jobs.smartrecruiters.com", "prefix"), ("greenhouse", "boards.greenhouse.io", "prefix"),
-              ("lever", "jobs.eu.lever.co", "prefix"), ("smartrecruiters", "careers.smartrecruiters.com", "prefix")]
-CC_LOW = 160               # refill the queue when fewer candidates than this are waiting
-CC_WORKDAY_PER_RUN = 10
-CC_REJECT_DAYS = 90        # a board checked with no local jobs is not checked again for this long
-
-
-def _cc_get(get_text, url):
-    for wait in (0, 20, 40):
-        time.sleep(wait)
-        try:
-            return get_text(url)
-        except Exception:
-            continue
-    return ""
-
-
-def cc_page(get_text, idx, kind, dom, match, page):
-    """One page of the crawl index for one system -> ({board: pages seen}, number of pages)."""
-    q = {"url": dom + ("/*" if match == "prefix" else ""), "output": "json"}
-    if match == "domain":
-        q["matchType"] = "domain"
-    meta = _cc_get(get_text, f"https://index.commoncrawl.org/{idx}-index?" + urllib.parse.urlencode(dict(q, showNumPages="true")))
-    try:
-        pages = max(1, int(json.loads(meta.splitlines()[0])["pages"]))
-    except Exception:
-        pages = 1
-    body = _cc_get(get_text, f"https://index.commoncrawl.org/{idx}-index?" + urllib.parse.urlencode(dict(q, fl="url", page=page % pages)))
-    seen = {}
-    for line in body.splitlines():
-        try:
-            u = json.loads(line)["url"]
-        except Exception:
-            continue
-        b = ats.board_of(u)
-        if b and b.startswith(kind + ":"):
-            seen[b] = seen.get(b, 0) + 1
-    return seen, pages
-
-
-def cc_candidates(get_text, limit=3000):
-    """Kept for callers of v3: every system's first page."""
-    idx = json.loads(get_text("https://index.commoncrawl.org/collinfo.json"))[0]["id"]
-    out = set()
-    for kind, dom, match in CC_DOMAINS:
-        out |= set(cc_page(get_text, idx, kind, dom, match, 0)[0])
-    return sorted(out)
-
-
-def _cc_state(db):
-    cc = db.setdefault("cc", {})
-    if "queue" not in cc:                                  # v3 layout: candidates + cursor
-        old = cc.get("candidates") or []
-        cc["queue"] = [[b, 1] for b in old[cc.get("cursor", 0):]]
-    for k, v in (("pages", {}), ("rejected", {}), ("dom_cursor", 0), ("crawl", ""), ("last", "")):
-        cc.setdefault(k, v)
-    cc.pop("candidates", None)
-    cc.pop("cursor", None)
-    return cc
-
-
-def cc_refill(db, today, stats, get_text):
-    cc = _cc_state(db)
-    idx = json.loads(get_text("https://index.commoncrawl.org/collinfo.json"))[0]["id"]
-    if idx != cc["crawl"]:
-        cc.update(crawl=idx, pages={})
-    kind, dom, match = CC_DOMAINS[cc["dom_cursor"] % len(CC_DOMAINS)]
-    cc["dom_cursor"] += 1
-    page = cc["pages"].get(dom, 0)
-    seen, pages = cc_page(get_text, idx, kind, dom, match, page)
-    cc["pages"][dom] = (page + 1) % pages
-    queued = {b for b, _ in cc["queue"]}
-    fresh = [[b, n] for b, n in seen.items() if b not in db["boards"] and b not in queued and b not in cc["rejected"]]
-    cc["queue"] = sorted(cc["queue"] + fresh, key=lambda x: -x[1])[:4000]   # boards with more crawled pages (bigger hirers) first
-    cc["last"] = today
-    stats.update(cc_source=f"{kind} {dom} page {page + 1}/{pages}", cc_candidates=len(fresh))
-
-
-def cc_step(db, today, stats, get=ats.http, get_text=None, weekday=None):
-    cc = _cc_state(db)
-    get_text = get_text or (lambda u: ats.http(u, want_json=False, tries=1, timeout=60))
-    if len(cc["queue"]) < CC_LOW and cc.get("last") != today:
-        try:
-            cc_refill(db, today, stats, get_text)
-        except Exception as e:
-            stats["cc_error"] = f"{type(e).__name__}: {str(e)[:120]}"
-            cc["last"] = today
-    checked = added = wd = 0
-    budget = CC_VERIFY
-    while cc["queue"] and budget > 0:
-        b, _ = cc["queue"].pop(0)
-        if b in db["boards"]:
-            continue
-        if b.startswith("workday:"):
-            if wd >= CC_WORKDAY_PER_RUN:
-                cc["queue"].append([b, 0])
-                if all(x[0].startswith("workday:") for x in cc["queue"]):
-                    break
-                continue
-            wd += 1
-            budget -= 3
-        else:
-            budget -= 1
-        checked += 1
-        try:
-            jobs = ats.fetch_board(b, lambda j: False, get)
-        except Exception:
-            cc["rejected"][b] = today
-            continue
-        local = [j for j in jobs if place_ok(j["location"], j.get("remote"))]
-        if local:
-            fin = sum(1 for j in local if title_kind(j["title"]))
-            add_board(db, b, (jobs[0].get("company") if jobs else "") or b.split(":", 1)[1], "commoncrawl", today, stats)
-            db["boards"][b].update(nyc=len(local), fin_at_add=fin)
-            added += 1
-        else:
-            cc["rejected"][b] = today
-    d0 = date.fromisoformat(today)
-    cc["rejected"] = {b: d for b, d in cc["rejected"].items() if (d0 - date.fromisoformat(d)).days < CC_REJECT_DAYS}
-    stats["cc_checked"] = checked
-    stats["cc_added"] = added
-    stats["cc_queue"] = len(cc["queue"])
-
-
 # ---- reading every board ----
 def due(info, board, today):
     """Every run for boards with a match in the last 14 days; once a day for Workday (heavier) and for boards that list local
@@ -379,7 +250,7 @@ def priority(info, today):
 def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
     t0 = time.time()
     boards = sorted((b for b, info in db["boards"].items() if due(info, b, today)), key=lambda b: priority(db["boards"][b], today))
-    rows, borderline, ok_boards, failed = [], [], set(), []
+    rows, borderline, ok_boards, failed = [], [], {}, []
 
     def one(b):
         if time.time() - t0 > seconds:
@@ -404,7 +275,7 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
                 failed.append(b)
             continue
         info.update(ok=today, fails=0, jobs=len(jobs), polls=info.get("polls", 0) + 1)
-        ok_boards.add(b)
+        ok_boards[b] = getattr(jobs, "complete", True)
         places = [geo.resolve(j["location"], j.get("remote")).status for j in jobs]
         info["nyc"] = sum(1 for p in places if p in ("local", "remote_us"))
         info["quiet"] = 0 if any(p in ("local", "remote_us", "maybe") for p in places) else info.get("quiet", 0) + 1
