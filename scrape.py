@@ -1,4 +1,4 @@
-"""Job feed for Gabriel's Job Search Tracker (v2, Oct 31 2026).
+"""Job feed for Gabriel's Job Search Tracker (v3, Nov 1 2026; v2 Oct 31).
 
 Runs on GitHub Actions four times a day. Pulls public job listings (no sign-in to any account)
 from Indeed, LinkedIn, Glassdoor, ZipRecruiter and Google Jobs for NYC finance and planning
@@ -14,10 +14,18 @@ v2 vs v1
   so the finder never sees it as new twice.
 - feed_status.json records what each search returned or why it failed, and whether the run
   was partial.
+
+v3 (Nov 1): jobs straight from employers' own boards (discover.py, ats.py). The feed keeps a growing list of verified
+Greenhouse, Lever, Ashby, SmartRecruiters and Workday boards (boards.json), learned from the aggregator rows' links
+(short and tracking links opened), from company names, from seeds.txt and weekly from Common Crawl, and reads each board
+directly. Direct rows carry the board's own job ID ("greenhouse:123"), the same key the tracker's finder uses, so a job
+seen both ways is one lead. A direct job that leaves its board leaves the feed at once; if a board can't be read, its jobs
+are kept. Aggregator rows that match a direct job get its link. feed_status.json gains a "direct" section.
 """
 import csv
 import json
 import math
+import os
 import random
 import re
 import sys
@@ -177,12 +185,97 @@ def collect(scrape, searches=None, pause=(4, 9), sleep=time.sleep):
     return fresh, status
 
 
-def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None):
+NATIVE = re.compile(r"^(greenhouse|lever|ashby|workday|smartrecruiters):")
+DIRECT_CAP = 1500
+
+
+def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, cc_text=None, weekday=None):
+    """Grows the board list, reads every board, and returns (direct rows, stats). Never raises: a failed step is noted."""
+    import ats
+    import discover as D
+    get = get or ats.http
+    resolve = resolve or ats.resolve_redirect
+    stats = {"boards_new": 0, "version": "v3"}
+    db = D.load_db(db_path)
+    try:
+        better = D.from_rows(db, agg_rows, today, stats, resolve)
+        for r in agg_rows:
+            if r.get("id") in better:
+                r["job_url_direct"] = better[r["id"]]
+    except Exception as e:
+        stats["links_error"] = f"{type(e).__name__}: {str(e)[:120]}"
+    try:
+        names = [r.get("company") for r in agg_rows if D.title_kind(r.get("title"))]
+        sd = D.seeds(os.path.join(os.path.dirname(db_path) or ".", D.SEEDS))
+        cur = db.get("seed_cursor", 0) % max(1, len(sd)) if sd else 0
+        D.probe_names(db, names, today, stats, get, budget=15)
+        D.probe_names(db, sd[cur:cur + 20], today, stats, get, budget=20)
+        db["seed_cursor"] = cur + 20
+    except Exception as e:
+        stats["probe_error"] = f"{type(e).__name__}: {str(e)[:120]}"
+    try:
+        D.cc_step(db, today, stats, get, cc_text, weekday)
+    except Exception as e:
+        stats["cc_error"] = f"{type(e).__name__}: {str(e)[:120]}"
+    jobs, ok_boards = D.sweep(db, today, stats, get)
+    rows, prev = {}, {r["id"]: r for r in prev_direct}
+    for j in jobs:
+        info = db["boards"].get(ats.board_of(j["url"])) or {}
+        r = D.to_row(j, info.get("company"), today)
+        if j["id"] in prev:
+            r["first_seen"] = prev[j["id"]].get("first_seen") or today
+        if j.get("unconventional"):
+            stats["unconventional"] = stats.get("unconventional", 0) + 1
+        rows[j["id"]] = r
+    kept_old = 0
+    for k, r in prev.items():
+        if k in rows:
+            continue
+        b = ats.board_of(r.get("job_url"))
+        if b in ok_boards:            # read fine and the job is gone: closed
+            continue
+        if r.get("last_seen", today) >= (datetime.fromisoformat(today) - timedelta(days=KEEP_DAYS)).date().isoformat():
+            rows[k] = r
+            kept_old += 1
+    out = sorted(rows.values(), key=lambda r: (r.get("date_posted") or r.get("first_seen") or ""), reverse=True)[:DIRECT_CAP]
+    stats["rows_direct"] = len(out)
+    stats["kept_unread"] = kept_old
+    stats["new_today"] = sum(1 for r in out if r.get("first_seen") == today)
+    stats["employers"] = len({D.emp_key(r.get("company")) for r in out})
+    D.save_db(db, db_path)
+    return out, stats
+
+
+def annotate(agg_rows, direct_rows):
+    """An aggregator row for a job also found on the company's own board gets that board's link."""
+    import discover as D
+    by = {}
+    for r in direct_rows:
+        by.setdefault((D.emp_key(r["company"]), D.title_key(r["title"])), r)
+    n = 0
+    for r in agg_rows:
+        d = by.get((D.emp_key(r.get("company")), D.title_key(r.get("title"))))
+        if not d:
+            continue
+        site = d["site"]
+        r["also_on"] = ";".join(sorted(set(filter(None, (r.get("also_on") or "").split(";"))) | {site}))
+        if not re.search(r"greenhouse\.io|lever\.co|ashbyhq|myworkdayjobs|smartrecruiters", r.get("job_url_direct") or ""):
+            r["job_url_direct"] = d["job_url"]
+        n += 1
+    return n
+
+
+DIRECT_DEFAULT = True
+
+
+def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, direct=None, get=None, resolve=None, cc_text=None, weekday=None):
     if scrape is None:
         from jobspy import scrape_jobs as scrape
     now = now or datetime.now(timezone.utc)
     today = now.date().isoformat()
-    previous = load_previous(out)
+    previous_all = load_previous(out)
+    previous = [r for r in previous_all if not NATIVE.match(r.get("id") or "")]
+    prev_direct = [r for r in previous_all if NATIVE.match(r.get("id") or "")]
     fresh, status = collect(scrape)
     failed = [s for s in status if s["error"]]
     by_site = {}
@@ -195,10 +288,23 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None):
     # search came back empty also counts as a partial run.
     empty_sites = sorted(k for k, d in by_site.items() if d["new"] == 0)
     rows = merge(previous, fresh, today)
+    direct = DIRECT_DEFAULT if direct is None else direct
+    direct_rows, dstats = [], {"version": "v3", "skipped": True}
+    if direct and os.environ.get("NO_DIRECT") != "1":
+        try:
+            direct_rows, dstats = direct_step(rows, prev_direct, today, os.path.join(os.path.dirname(out) or ".", "boards.json"), get, resolve, cc_text, weekday)
+            dstats["aggregator_rows_matched"] = annotate(rows, direct_rows)
+        except Exception as exc:   # the aggregator part of the feed never fails because of the direct part
+            dstats = {"version": "v3", "error": f"{type(exc).__name__}: {str(exc)[:200]}"}
+            direct_rows = prev_direct
+    total = len(rows) + len(direct_rows)
+    dstats["rows_aggregator"] = len(rows)
+    dstats["pct_direct"] = round(100 * len(direct_rows) / total) if total else 0
+    rows = rows + direct_rows
     summary = {"ran_at": now.isoformat(timespec="seconds"), "partial": bool(failed or empty_sites),
                "empty_sites": empty_sites,
                "searches": len(status), "failed": len(failed), "fresh_rows": len(fresh),
-               "rows_written": len(rows), "by_site": by_site, "detail": status}
+               "rows_written": len(rows), "by_site": by_site, "detail": status, "direct": dstats}
     if not fresh:
         summary["note"] = "Nothing came back this run; earlier jobs kept."
     with open(status_path, "w", encoding="utf-8") as f:

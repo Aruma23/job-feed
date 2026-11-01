@@ -14,7 +14,7 @@ concurrency:
 jobs:
   collect:                            # runs third-party code (JobSpy), so it can read the repo but never write to it
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 50
     permissions:
       contents: read
     steps:
@@ -38,6 +38,8 @@ jobs:
           assert all(r["job_url"].startswith("http") for r in rows), "a row without a web link"
           s = json.load(open("feed_status.json"))
           print(json.dumps({k: s[k] for k in ("partial", "failed", "rows_written", "empty_sites")}))
+          d = s.get("direct") or {}
+          print(json.dumps({k: d.get(k) for k in ("boards_total", "boards_ok", "boards_failed", "boards_new", "rows_direct", "pct_direct", "unconventional", "cc_candidates", "cc_error", "error")}))
           EOF
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9   # v7.0.2
         with:
@@ -45,6 +47,7 @@ jobs:
           path: |
             jobs.csv
             feed_status.json
+            boards.json
           retention-days: 3
 
   publish:                            # only job that can write; runs no third-party Python
@@ -62,6 +65,7 @@ jobs:
         run: |
           git config user.name "job-feed"
           git config user.email "job-feed@users.noreply.github.com"
+          test -f boards.json && python3 -c "import json; d=json.load(open('boards.json')); assert isinstance(d.get('boards'), dict)" && git add boards.json
           git add jobs.csv feed_status.json
           git commit -m "Update jobs" || echo "No changes"
           git push

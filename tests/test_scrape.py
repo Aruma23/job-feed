@@ -14,6 +14,7 @@ import scrape  # noqa: E402
 
 scrape.random.uniform = lambda a, b: 0
 scrape.time.sleep = lambda s: None
+scrape.DIRECT_DEFAULT = False   # these tests cover the aggregator part; test_direct.py covers the boards
 
 
 class FakeDF:
