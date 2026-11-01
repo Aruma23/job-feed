@@ -35,6 +35,11 @@ confirmed closing are restored and the run marked incomplete; coverage drops, un
 reported with what to do. intel.py adds employer_signal and related_ids, and employers.json. A board job still listed but no
 longer matching is dropped as reclassified, not recorded as closed.
 
+v8 (Nov 1): footprint.py. Each board keeps an access profile (fingerprint, unchanged streak, read interval, new fitting jobs
+per read, fields carried, failure kinds); unchanged boards are read less often (up to every 2 runs with a recent match, 8
+otherwise, never more than 2 days apart), productive ones every run; sources.json maps employer -> site -> board -> public
+endpoint -> fitting jobs.
+
 v4 (Nov 1):
 - Location: geo.py's commute regions (NYC, Westchester, Long Island, Rockland, North and Central Jersey, Fairfield County)
   replace the seven-name list; remote-US eligibility is decided separately. Column "region". Rows the tracker's finder would
@@ -59,6 +64,7 @@ from datetime import date, datetime, timedelta, timezone
 import freshness
 import geo
 import audit
+import footprint
 import history
 import identity
 import intel
@@ -315,10 +321,14 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
     for j in border:
         if j["id"] not in rows:
             put(j, held)
-    kept_old, closed, checks, still, reclassified = 0, [], 0, 0, []
+    kept_old, closed, checks, still, reclassified, kept_skipped = 0, [], 0, 0, [], 0
     cutoff = (datetime.fromisoformat(today) - timedelta(days=KEEP_DAYS)).date().isoformat()
     for k, r in prev.items():
         if k in rows or k in held:
+            continue
+        if ats.board_of(r.get("job_url")) in D.SKIPPED or (r.get("_board") and r["_board"] in D.SKIPPED):
+            rows[k] = r                             # not due this run (unchanged board): kept as last confirmed
+            kept_skipped += 1
             continue
         if "~" in k and k.split("~")[0] in rows and rows[k.split("~")[0]].get("_board", "").lower() == ats.board_of(r.get("job_url")).lower():
             reclassified.append(k)                  # the same job read earlier under a second spelling of its board
@@ -349,6 +359,7 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
     stats["reclassified"] = len(reclassified)
     stats["rows_direct"] = len(out)
     stats["kept_unread"] = kept_old
+    stats["kept_not_due"] = kept_skipped
     stats["closed_confirmed"] = len(closed)
     stats["still_open_checked"] = checks
     stats["still_open"] = still
@@ -494,6 +505,11 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     for r in rows[n_before:]:
         r["location"] = geo.finder_location(r.get("location") or "", geo.resolve(r.get("location"), str(r.get("is_remote")) == "True"))
     audit.save_log(log, dict(now_counts, ran=now.isoformat(timespec="seconds"), level=report["level"]), log_path)
+    try:
+        dstats["sources"] = footprint.source_graph(D.load_db(os.path.join(here, "boards.json")), rows, coverage(rows)["uncovered_hosts"],
+                                                   today, os.path.join(here, "sources.json"))
+    except Exception as e:
+        dstats["sources"] = {"error": f"{type(e).__name__}: {str(e)[:120]}"}
     with open(os.path.join(here, "AUDIT.md"), "w", encoding="utf-8") as f:
         f.write(audit.markdown(report, now.isoformat(timespec="minutes")))
     for h in waiting:

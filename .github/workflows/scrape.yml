@@ -46,7 +46,7 @@ jobs:
           print(json.dumps({"audit": a.get("level"), "restored": a.get("restored"), "findings": [i["level"] + ": " + i["title"] for i in a.get("items", [])]}))
           print(json.dumps({"intel": [e["employer"] + ": " + "; ".join(e["signals"][:2]) for e in (s.get("intel") or {}).get("top", [])[:6]]}))
           print(json.dumps({"contract": s.get("contract"), "coverage": (s.get("coverage") or {}).get("uncovered_hosts", [])[:6]}))
-          print(json.dumps({k: (s.get("direct") or {}).get(k) for k in ("drops", "drops_sample", "adapters_degraded", "routes_gone", "employers_checked", "employers_verified", "verify_error")}))
+          print(json.dumps({k: (s.get("direct") or {}).get(k) for k in ("drops", "drops_sample", "adapters_degraded", "routes_gone", "employers_checked", "employers_verified", "verify_error", "aggregator_rows_folded", "kept_not_due", "footprint", "sources")}))
           print(json.dumps({k: s[k] for k in ("partial", "failed", "rows_written", "empty_sites")}))
           d = s.get("direct") or {}
           print(json.dumps({k: d.get(k) for k in ("boards_total", "boards_ok", "boards_failed", "boards_new", "rows_direct", "pct_direct", "unconventional", "held_for_review", "harvest_blocks", "harvest_new", "harvest_progress", "harvest_error", "verified", "verified_by_status", "registry_size", "registry_waiting", "closed_confirmed", "still_open", "error")}))
@@ -69,6 +69,7 @@ jobs:
             AUDIT.md
             employers.json
             audit_log.json
+            sources.json
           retention-days: 3
 
   classify:                           # our own code only (no third-party packages); reads the feed as data, may call Gemini
@@ -133,6 +134,7 @@ jobs:
           test -f employers.json && python3 -c "import json; d=json.load(open('employers.json')); assert isinstance(d.get('employers'), list)" && git add employers.json
           test -f audit_log.json && python3 -c "import json; assert isinstance(json.load(open('audit_log.json')), list)" && git add audit_log.json
           test -f AUDIT.md && head -1 AUDIT.md | grep -q "^# Feed audit" && git add AUDIT.md
+          test -f sources.json && python3 -c "import json; assert isinstance(json.load(open('sources.json')).get('employers'), dict)" && git add sources.json
           git add jobs.csv feed_status.json
           git commit -m "Update jobs" || echo "No changes"
           for i in 1 2 3; do git push && exit 0; sleep 5; git pull --rebase origin main || exit 1; done

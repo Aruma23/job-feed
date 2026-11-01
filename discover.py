@@ -256,6 +256,7 @@ def priority(info, today):
 DROP_SHARE = 0.4      # a complete read below 40% of the board's usual count (usual >= 10) is suspect, not a mass closing
 DROP_ACCEPT = 3       # ... until it repeats on 3 reads in a row: then the board really shrank
 PRESENT = {}          # board -> requisition keys a trusted complete read exposed this run (freshness.route_gone)
+SKIPPED = set()       # boards due by schedule but skipped this run as unchanged (footprint.py); their jobs are kept
 
 
 def _median(xs):
@@ -321,13 +322,29 @@ def adapter_health(db, today, per):
     return out, bad
 
 
+def _h(per, b):
+    return per.setdefault(b.split(":")[0], {"due": 0, "read": 0, "failed": 0, "drops": 0, "repeated": 0, "kept": 0, "no_desc": 0,
+                                            "no_loc": 0, "no_link": 0, "skipped": 0, "new": 0})
+
+
 def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
+    import footprint
     import freshness
     t0 = time.time()
     PRESENT.clear()
-    boards = sorted((b for b, info in db["boards"].items() if due(info, b, today)), key=lambda b: priority(db["boards"][b], today))
-    rows, borderline, ok_boards, failed = [], [], {}, []
+    SKIPPED.clear()
+    run = db["run"] = db.get("run", 0) + 1
     per, drops = {}, []
+    scheduled = [b for b, info in db["boards"].items() if due(info, b, today)]
+    boards = []
+    for b in scheduled:
+        if footprint.due(db["boards"][b], run, today):
+            boards.append(b)
+        else:
+            SKIPPED.add(b)
+            _h(per, b)["skipped"] += 1
+    boards.sort(key=lambda b: priority(db["boards"][b], today))
+    rows, borderline, ok_boards, failed = [], [], {}, []
 
     def one(b):
         if time.time() - t0 > seconds:
@@ -346,8 +363,7 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
                 results.append(f.result())
     for b, jobs, err in results:
         info = db["boards"][b]
-        h = per.setdefault(b.split(":")[0], {"due": 0, "read": 0, "failed": 0, "drops": 0, "repeated": 0, "kept": 0, "no_desc": 0,
-                                             "no_loc": 0, "no_link": 0})
+        h = _h(per, b)
         if err != "out of time":
             h["due"] += 1
         if jobs is None:
@@ -355,6 +371,7 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
                 info["fails"] = info.get("fails", 0) + 1
                 failed.append(b)
                 h["failed"] += 1
+                footprint.after_failure(info, err, run)
             continue
         h["read"] += 1
         jobs, complete, note = guard(info, jobs)
@@ -381,6 +398,7 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
             info["last_hit"] = today
         if jobs and jobs[0].get("company") and info.get("company") in ("", b.split(":", 1)[1]):
             info["company"] = jobs[0]["company"]
+        h["new"] += footprint.after_read(info, jobs, hits, run, today, suspect)
         for j in hits:
             rows.append(j)
             h["kept"] += 1
@@ -391,7 +409,8 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
     stats.update(boards_total=len(db["boards"]), boards_due=len(boards), boards_ok=len(ok_boards), boards_failed=len(failed),
                  failed_sample=failed[:8], sweep_seconds=round(time.time() - t0, 1), borderline=len(borderline),
                  boards_hot=sum(1 for i in db["boards"].values() if i.get("last_hit") and (date.fromisoformat(today) - date.fromisoformat(i["last_hit"])).days <= 14),
-                 drops=len(drops), drops_sample=drops[:8], adapter_health=health, adapters_degraded=degraded)
+                 drops=len(drops), drops_sample=drops[:8], adapter_health=health, adapters_degraded=degraded,
+                 footprint=footprint.report(per, len(SKIPPED), run))
     return rows, ok_boards, borderline
 
 
