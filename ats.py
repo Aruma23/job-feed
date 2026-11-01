@@ -13,9 +13,12 @@ repomesh/ashby-job-scraper and blakegrudzien/find-jobs):
   rate-limited with HTML pages, so few threads and backoff.
 - Redirect links in aggregator rows (grnh.se short links, recruitics/appcast trackers) are opened to find the real board.
 """
+import email.utils
 import html as _html
 import json
+import random
 import re
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -32,31 +35,126 @@ class HttpError(Exception):
         self.code = code
 
 
-def http(url, data=None, method=None, tries=3, timeout=TIMEOUT, want_json=True, opener=None):
-    """GET/POST with retries on 429/5xx and on HTML error pages where JSON was expected. 404 raises at once."""
+# ---- request manager: one place for limits, retries and backoff, shared by every board and discovery call ----
+# Requests per second per provider. Concurrency alone doesn't cap the rate (a few fast workers can still exceed a limit), so
+# every request waits for its provider's next free slot. Workday is limited per employer host, the rest per provider.
+LIMITS = [("boards-api.greenhouse.io", 8), ("api.eu.lever.co", 2), ("api.lever.co", 2), ("api.ashbyhq.com", 4),
+          ("api.smartrecruiters.com", 4), ("myworkdayjobs.com", 2), ("breezy.hr", 2), ("recruitee.com", 3), ("teamtailor.com", 2),
+          ("workable.com", 1), ("pinpointhq.com", 2), ("rippling.com", 2), ("personio.de", 2), ("personio.com", 2),
+          ("data.commoncrawl.org", 15), ("index.commoncrawl.org", 0.5)]
+PER_HOST = ("myworkdayjobs.com",)
+DEFAULT_RPS = 4
+STATS = {}                 # provider -> {"requests", "retries", "throttled", "failed"} for feed_status.json
+_LOCK = threading.Lock()
+_NEXT = {}
+
+
+def _provider(url):
+    host = urllib.parse.urlsplit(url).netloc.lower().split(":")[0]
+    for suffix, rps in LIMITS:
+        if host == suffix or host.endswith("." + suffix):
+            return (host if suffix in PER_HOST else suffix), rps
+    return host, DEFAULT_RPS
+
+
+def _wait_turn(key, rps):
+    with _LOCK:
+        now = time.time()
+        t = max(now, _NEXT.get(key, 0.0))
+        _NEXT[key] = t + 1.0 / rps
+    if t > now:
+        time.sleep(t - now)
+
+
+def _hold(key, seconds):
+    """A provider said slow down: every thread waits."""
+    with _LOCK:
+        _NEXT[key] = max(_NEXT.get(key, 0.0), time.time() + seconds)
+
+
+def _retry_after(headers):
+    v = (headers or {}).get("Retry-After") if headers else None
+    if not v:
+        return None
+    try:
+        return max(1.0, float(v))
+    except ValueError:
+        try:
+            return max(1.0, email.utils.parsedate_to_datetime(v).timestamp() - time.time())
+        except Exception:
+            return None
+
+
+def _backoff(i):
+    return min(30.0, 2 * 3 ** i) * (0.75 + random.random() / 2)
+
+
+def _count(key, field):
+    with _LOCK:
+        d = STATS.setdefault(key, {"requests": 0, "retries": 0, "throttled": 0, "failed": 0})
+        d[field] += 1
+
+
+def http(url, data=None, method=None, tries=3, timeout=TIMEOUT, want_json=True, opener=None, raw=False, headers=None):
+    """GET/POST through the provider's rate limit. 429/503 honour Retry-After (capped at 60 s, and every thread backs off);
+    other 5xx, timeouts and HTML pages where JSON was expected back off exponentially with jitter. 400/401/403/404/410 raise
+    at once: the board doesn't exist or isn't public, which is different from a request that failed."""
     body = json.dumps(data).encode() if data is not None else None
+    key, rps = _provider(url)
     last = None
     for i in range(tries):
+        _wait_turn(key, rps)
+        _count(key, "requests")
         req = urllib.request.Request(url, data=body, method=method or ("POST" if body else "GET"),
-                                     headers={"User-Agent": UA, "Accept": "application/json" if want_json else "*/*",
-                                              **({"Content-Type": "application/json"} if body else {})})
+                                     headers=dict({"User-Agent": UA, "Accept": "application/json" if want_json else "*/*",
+                                                   **({"Content-Type": "application/json"} if body else {})}, **(headers or {})))
         try:
             with (opener or urllib.request.urlopen)(req, timeout=timeout) as r:
-                raw = r.read()
+                payload = r.read()
+                if raw:
+                    return payload
                 if not want_json:
-                    return raw.decode("utf-8", "replace")
+                    return payload.decode("utf-8", "replace")
                 try:
-                    return json.loads(raw.decode("utf-8", "replace"))
+                    return json.loads(payload.decode("utf-8", "replace"))
                 except ValueError:
                     last = HttpError(-1, url)            # an HTML "slow down" page instead of JSON
+                    wait = _backoff(i)
         except urllib.error.HTTPError as e:
             if e.code in (404, 410, 400, 401, 403):
                 raise HttpError(e.code, url)
             last = HttpError(e.code, url)
+            if e.code in (429, 503):
+                _count(key, "throttled")
+                wait = min(60.0, _retry_after(e.headers) or _backoff(i + 1))
+                _hold(key, wait)
+            else:
+                wait = _backoff(i)
         except Exception as e:  # timeouts, resets
             last = e
-        time.sleep(min(30, 2 * 3 ** i))
+            wait = _backoff(i)
+        if i < tries - 1:
+            _count(key, "retries")
+            time.sleep(wait)
+    _count(key, "failed")
     raise last
+
+
+def content_length(url):
+    """Size of a file, from a one-byte range request."""
+    req = urllib.request.Request(url, headers={"User-Agent": UA, "Range": "bytes=0-0"})
+    key, rps = _provider(url)
+    _wait_turn(key, rps)
+    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+        cr = r.headers.get("Content-Range") or ""
+        m = re.search(r"/(\d+)$", cr)
+        return int(m.group(1)) if m else int(r.headers.get("Content-Length") or 0)
+
+
+class Jobs(list):
+    """A board's jobs. complete=False when the read covers only part of the board (Workday searches, capped paging): a job
+    missing from a partial read is not closed until its own page says so."""
+    complete = True
 
 
 def text_of(h):
@@ -104,10 +202,28 @@ def board_of(url):
     m = re.search(r"(?:jobs|careers)\.smartrecruiters\.com/([A-Za-z0-9_-]+)", u)
     if m:
         return "smartrecruiters:" + m.group(1)
-    m = re.search(r"https?://([a-z0-9-]+)\.(wd\d+)\.myworkdayjobs\.com/(?:[a-z]{2}-[A-Z]{2}/)?([A-Za-z0-9_-]+)", u)
+    m = re.search(r"https?://([a-z0-9-]+)\.(wd\d+)\.myworkdayjobs\.com/(?:[a-z]{2}-[A-Za-z]{2}/)?([A-Za-z0-9_-]+)", u)
     if m and m.group(3).lower() not in ("wday", "job"):
         return f"workday:{m.group(1)}|{m.group(2)}|{m.group(3)}"
+    m = re.search(r"apply\.workable\.com/([A-Za-z0-9_-]+)", u)
+    if m and m.group(1).lower() not in ("api", "j", "careers", "static", "assets"):
+        return "workable:" + m.group(1).lower()
+    m = re.search(r"ats\.rippling\.com/(?:[a-z]{2}-[A-Z]{2}/)?([A-Za-z0-9_-]+)", u)
+    if m and m.group(1).lower() not in ("api", "static", "assets", "_next"):
+        return "rippling:" + m.group(1).lower()
+    m = re.search(r"https?://([a-z0-9-]+)\.jobs\.personio\.(de|com)\b", u, re.I)
+    if m and m.group(1).lower() not in ("www", "api"):
+        return "personio:" + m.group(1).lower()
+    m = re.search(r"https?://([a-z0-9-]+)\.(breezy\.hr|recruitee\.com|teamtailor\.com|pinpointhq\.com)\b", u, re.I)
+    if m and m.group(1).lower() not in SUBDOMAIN_RESERVED:
+        kind = {"breezy.hr": "breezy", "recruitee.com": "recruitee", "teamtailor.com": "teamtailor", "pinpointhq.com": "pinpoint"}[m.group(2).lower()]
+        return kind + ":" + m.group(1).lower()
     return ""
+
+
+SUBDOMAIN_RESERVED = {"www", "app", "api", "help", "support", "blog", "status", "docs", "marketing", "career", "careers", "partner",
+                      "partners", "developers", "developer", "cdn", "assets", "static", "mail", "go", "info", "jobs", "demo", "login",
+                      "auth", "admin", "sandbox", "staging", "test", "academy", "community", "updates", "changelog", "security"}
 
 
 REDIRECTS = re.compile(r"^https?://(grnh\.se|click\.appcast\.io|jsv3\.recruitics\.com|[a-z0-9.-]*jobs?\.?redirect)", re.I)
