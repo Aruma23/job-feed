@@ -400,6 +400,10 @@ def workday(spec, want, get=http):
 
 
 # ---- more application systems (Nov 1 2026; formats checked live with probe.py) ----
+def _num(x):
+    return "" if x in (None, "") else (str(int(x)) if isinstance(x, float) and x.is_integer() else str(x))
+
+
 def _loc(*parts):
     return ", ".join(p for p in (str(x or "").strip() for x in parts) if p)
 
@@ -427,7 +431,7 @@ def workable(slug, want, get=http):
         loc = "; ".join(_loc(l.get("city"), l.get("region"), l.get("country")) for l in locs if not l.get("hidden"))
         out.append({"id": f"workable:{j.get('shortcode')}", "title": j.get("title", ""), "company": data.get("name") or slug,
                     "location": loc + ("; Remote" if j.get("telecommuting") else ""), "remote": bool(j.get("telecommuting")),
-                    "url": j.get("url") or f"https://apply.workable.com/{slug}/j/{j.get('shortcode')}/", "posted": str(j.get("published_on") or j.get("created_at") or "")[:10],
+                    "url": f"https://apply.workable.com/{slug}/j/{j.get('shortcode')}/", "posted": str(j.get("published_on") or j.get("created_at") or "")[:10],
                     "description": text_of(j.get("description"))})
     return out
 
@@ -494,7 +498,7 @@ def pinpoint(slug, want, get=http):
         out.append({"id": f"pinpoint:{j.get('id')}", "title": j.get("title", ""), "company": slug, "location": _flat_location(j.get("location")) + ("; Remote" if wt == "remote" else ""),
                     "remote": wt == "remote", "url": j.get("url", ""), "posted": "",
                     "description": "\n\n".join(text_of(j.get(k)) for k in ("description", "key_responsibilities", "skills_knowledge_expertise")),
-                    "pay_min": j.get("compensation_minimum") or "", "pay_max": j.get("compensation_maximum") or "",
+                    "pay_min": _num(j.get("compensation_minimum")), "pay_max": _num(j.get("compensation_maximum")),
                     "interval": {"year": "yearly", "hour": "hourly", "month": "monthly"}.get(freq, freq)})
     return out
 
@@ -513,7 +517,10 @@ def rippling(slug, want, get=http, pages=10):
             if want(job):
                 try:
                     d = get(f"https://ats.rippling.com/api/v2/board/{slug}/jobs/{j.get('id')}")
-                    job["description"] = text_of(d.get("description") or (d.get("descriptions") or {}).get("role") or d.get("content") or "")
+                    desc = d.get("description") or d.get("descriptions") or d.get("content") or ""
+                    if isinstance(desc, dict):                 # {"company": "...", "role": "..."}: the role first
+                        desc = "\n\n".join(str(desc[k]) for k in sorted(desc, key=lambda k: k != "role") if desc[k])
+                    job["description"] = text_of(desc)
                 except Exception:
                     pass
             out.append(job)

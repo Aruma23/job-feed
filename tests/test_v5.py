@@ -137,7 +137,7 @@ class NewSystems(unittest.TestCase):
                 "location": {"city": "Stamford", "province": "CT", "name": "Stamford, CT"}, "description": "<div>Budgets</div>", "compensation_minimum": 40, "compensation_maximum": 50, "compensation_frequency": "hour"}]},
             "https://ats.rippling.com/api/v2/board/acme/jobs?page=0&pageSize=50": {"items": [{"id": "68e6", "name": "Financial Analyst", "url": "https://ats.rippling.com/acme/jobs/68e6",
                 "locations": [{"name": "Jersey City, NJ", "country": "United States", "stateCode": "NJ", "city": "Jersey City", "workplaceType": "HYBRID"}]}], "totalPages": 1},
-            "https://ats.rippling.com/api/v2/board/acme/jobs/68e6": {"description": "<p>Forecasting</p>"},
+            "https://ats.rippling.com/api/v2/board/acme/jobs/68e6": {"description": {"company": "About Acme", "role": "<p>Forecasting</p>"}},
             "https://acme.jobs.personio.de/search.json": [{"id": 78, "name": "Controller", "offices": ["Berlin"], "office": "Berlin", "description": ""}],
         }
 
