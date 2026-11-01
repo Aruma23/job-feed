@@ -105,6 +105,27 @@ class Boards(unittest.TestCase):
         finally:
             shutil.rmtree(d)
 
+    def test_second_spelling_copy_leaves_without_closing(self):
+        d = tempfile.mkdtemp()
+        try:
+            json.dump({"boards": {"ashby:Cohere": {"company": "Cohere", "hits": 3}, "ashby:cohere": {"company": "Cohere"}}},
+                      open(os.path.join(d, "boards.json"), "w"))
+            prev = [row(id="ashby:a1~cohere", site="ashby", company="Cohere", title="FP&A Analyst", location="New York, NY",
+                        job_url="https://jobs.ashbyhq.com/cohere/a1", last_seen="2026-10-31")]
+
+            def api(url, data=None, **k):
+                if "posting-api/job-board/Cohere" in url:
+                    return {"jobs": [{"id": "a1", "title": "FP&A Analyst", "location": "New York, NY", "jobUrl": "https://jobs.ashbyhq.com/Cohere/a1",
+                                      "isListed": True, "descriptionPlain": "Own the forecast, budget and variance analysis."}]}
+                raise ats.HttpError(404, url)
+            out, held, stats, closed = scrape.direct_step([], prev, TODAY, os.path.join(d, "boards.json"), api, lambda u: u,
+                                                          lambda u: (_ for _ in ()).throw(OSError("offline")))
+            self.assertEqual([r["id"] for r in out], ["ashby:a1"])
+            self.assertEqual(closed, [])
+            self.assertIn("ashby:a1~cohere", stats["_explained"])
+        finally:
+            shutil.rmtree(d)
+
     def test_still_listed_but_no_longer_matching_is_not_closed(self):
         d = tempfile.mkdtemp()
         try:

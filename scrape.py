@@ -320,6 +320,9 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
     for k, r in prev.items():
         if k in rows or k in held:
             continue
+        if "~" in k and k.split("~")[0] in rows and rows[k.split("~")[0]].get("_board", "").lower() == ats.board_of(r.get("job_url")).lower():
+            reclassified.append(k)                  # the same job read earlier under a second spelling of its board
+            continue
         b = ats.board_of(r.get("job_url"))
         if b in ok_boards and ok_boards[b]:          # the whole board was read and the job isn't on it: closed
             if k in D.PRESENT.get(b, ()):           # still listed, just no longer a match: not a closing
