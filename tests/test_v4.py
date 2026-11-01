@@ -154,8 +154,9 @@ class Relevance(unittest.TestCase):
     def fake_post(self, verdicts, calls):
         def post(url, body, token, timeout=60):
             calls.append(body)
-            ids = [ln.split('"')[1] for ln in body["messages"][1]["content"].splitlines() if ln.startswith("<job id=")]
-            return {"choices": [{"message": {"content": json.dumps({"jobs": [dict(verdicts[i], id=i) for i in ids if i in verdicts]})}}]}
+            assert url.endswith(":generateContent") and body["generationConfig"]["responseMimeType"] == "application/json"
+            ids = [ln.split('"')[1] for ln in body["contents"][0]["parts"][0]["text"].splitlines() if ln.startswith("<job id=")]
+            return {"candidates": [{"content": {"parts": [{"text": json.dumps({"jobs": [dict(verdicts[i], id=i) for i in ids if i in verdicts]})}]}}]}
         return post
 
     def test_review_parses_caches_and_respects_budget(self):
@@ -169,12 +170,16 @@ class Relevance(unittest.TestCase):
         self.assertEqual(v["why"], "Strong match: forecasting, variance analysis. Gap: no long-range planning.")
         self.assertIsNone(R.cached(cache, dict(items[0], description="changed")), "a changed description is reviewed again")
 
-    def test_review_stops_on_rate_limit_and_without_token(self):
-        def post(*a, **k):
-            raise urllib.error.HTTPError("u", 429, "slow down", {}, io.BytesIO(b""))
-        st = R.run_reviews([row("in-1", "indeed", "A", "B", desc=FPA_DESC)], {"jobs": {}}, "tok", post, sleep=lambda s: None)
+    def test_review_falls_back_then_stops_on_quota_and_without_key(self):
+        urls = []
+
+        def post(url, *a, **k):
+            urls.append(url)
+            raise urllib.error.HTTPError(url, 429, "quota", {}, io.BytesIO(b""))
+        st = R.run_reviews([row("in-1", "indeed", "A", "B", desc=FPA_DESC)], {"jobs": {}}, "key", post, sleep=lambda s: None)
         self.assertEqual((st["calls"], st["error"]), (0, "HTTP 429"))
-        self.assertIn("no GITHUB_TOKEN", R.run_reviews([1], {"jobs": {}}, "")["error"])
+        self.assertEqual(len(urls), 2, "Flash-Lite's quota used up: Flash tried once, then stop")
+        self.assertIn("no GEMINI_API_KEY", R.run_reviews([1], {"jobs": {}}, "")["error"])
 
     def test_classify_job_rescues_and_demotes(self):
         d = tempfile.mkdtemp()

@@ -7,9 +7,11 @@ Rows the rules can't settle are queued for review:
   - an unconventional title with two or more planning signals (on a company board it is left out unless the review rescues it),
   - a finance title whose description reads accounting-heavy,
   - a broad title ("Business Analyst", "Finance ...") with a middling score.
-Stage 2 (the workflow's classify job, free): a small model on GitHub Models reads the duties of queued jobs only, four
-per request, within a daily request budget. Verdicts are cached by job and description, so a job is reviewed once.
-If the model is unreachable nothing breaks: the rules' verdicts stand and the old keyword rule decides inclusion.
+Stage 2 (the workflow's classify job, free): Gemini Flash-Lite on Google's free tier reads the duties of queued jobs only,
+four per request, within a request budget per run. Only the posting and a generic description of the target roles are sent,
+nothing personal. Needs the repository secret GEMINI_API_KEY. Verdicts are cached by job and description, so a job is
+reviewed once. Without the key, or if the model is unreachable, nothing breaks: the rules' verdicts stand and the old
+keyword rule decides inclusion. (GitHub Models, tried first, was retired on July 30 2026: it answers 200 "OK" to everything.)
 
 Run as the classify job: python -I relevance.py <feed dir> <cache path>
 """
@@ -143,11 +145,11 @@ def apply(row, verdict):
     row["fit_by"] = verdict.get("by", "rules")
 
 
-# ---------------- stage 2: a small model on GitHub Models ----------------
-ENDPOINT = "https://models.github.ai/inference/chat/completions"
-MODELS = ["openai/gpt-4o-mini", "openai/gpt-4.1-mini"]
+# ---------------- stage 2: a small model (Gemini free tier) ----------------
+ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+MODELS = ["gemini-flash-lite-latest", "gemini-flash-latest"]     # the -latest aliases follow Google's current stable models
 PER_REQUEST = 4
-MAX_CALLS = int(os.environ.get("CLASSIFY_MAX_CALLS", "30"))   # GitHub Models free tier: about 150 requests a day for small models
+MAX_CALLS = int(os.environ.get("CLASSIFY_MAX_CALLS", "30"))      # 4 runs a day: well inside the free tier's daily requests
 SYSTEM = (
     "You screen job postings for one candidate. He wants analyst, senior analyst or associate roles in FP&A (forecasting, "
     "budgeting, variance analysis, planning), corporate or strategic finance, commercial finance and business partnering, or "
@@ -181,72 +183,15 @@ class ModelUnavailable(Exception):
     pass
 
 
-class _KeepPost(urllib.request.HTTPRedirectHandler):
-    """Follow a redirect without turning the POST into an empty GET (urllib's default)."""
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        return urllib.request.Request(newurl, data=req.data, method=req.get_method(), headers=dict(req.header_items()))
-
-
-_OPENER = urllib.request.build_opener(_KeepPost)
-
-
-def _urllib_post(url, body, token, timeout, headers):
+def http_post(url, body, token, timeout=60):
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST",
-                                 headers=dict({"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, **headers))
-    with _OPENER.open(req, timeout=timeout) as r:
+                                 headers={"x-goog-api-key": token, "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
         raw = r.read().decode("utf-8", "replace")
-        try:
-            return json.loads(raw)
-        except ValueError:
-            raise ValueError(f"not JSON from {r.geturl()[:80]} (HTTP {r.status}): {raw[:160]!r}")
-
-
-def _curl_post(url, body, token, timeout, headers):
-    """The request exactly as GitHub's documentation sends it, with curl (headers from a private temp file, not argv)."""
-    import subprocess
-    import tempfile
-    with tempfile.NamedTemporaryFile("w", delete=False) as hf:
-        os.chmod(hf.name, 0o600)
-        hf.write(f"Authorization: Bearer {token}\nContent-Type: application/json\n" + "".join(f"{k}: {v}\n" for k, v in headers.items()))
-    try:
-        p = subprocess.run(["curl", "-sS", "-L", "--max-time", str(timeout), "-X", "POST", "-H", "@" + hf.name, "--data-binary", "@-",
-                            "-w", "\n%{http_code}", url], input=json.dumps(body).encode(), capture_output=True, timeout=timeout + 10)
-    finally:
-        os.unlink(hf.name)
-    out = p.stdout.decode("utf-8", "replace")
-    raw, _, code = out.rpartition("\n")
-    if code in ("401", "403", "429"):
-        raise urllib.error.HTTPError(url, int(code), raw[:200], {}, None)
-    if code in ("400", "404", "422"):
-        raise urllib.error.HTTPError(url, int(code), raw[:200], {}, None)
     try:
         return json.loads(raw)
     except ValueError:
-        raise ValueError(f"not JSON via curl (HTTP {code}): {raw[:160]!r} {p.stderr.decode()[:100]!r}")
-
-
-# Ways to send the request, tried in order until one returns JSON; the one that works is used for the rest of the run.
-TRANSPORTS = [
-    ("python, OpenAI-style headers", lambda u, b, t, to: _urllib_post(u, b, t, to, {"Accept": "application/json", "User-Agent": "job-feed/4"})),
-    ("curl, GitHub docs headers", lambda u, b, t, to: _curl_post(u, b, t, to, {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"})),
-    ("python, GitHub docs headers", lambda u, b, t, to: _urllib_post(u, b, t, to, {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"})),
-]
-_WORKING = []
-
-
-def http_post(url, body, token, timeout=60):
-    errors = []
-    for name, send in ([t for t in TRANSPORTS if t[0] in _WORKING] or TRANSPORTS):
-        try:
-            data = send(url, body, token, timeout)
-            if name not in _WORKING:
-                _WORKING[:] = [name]
-            return data
-        except ValueError as e:
-            errors.append(f"{name}: {e}")
-            continue
-    raise ValueError(" | ".join(errors)[:600])
+        raise ValueError(f"not JSON (HTTP {r.status}): {raw[:160]!r}")
 
 
 def _norm_cat(c):
@@ -262,19 +207,16 @@ def _norm_cat(c):
 def review(batch, token, model, post=http_post):
     """batch: [(id, title, company, description)] -> {id: verdict}."""
     jobs = "\n\n".join(f'<job id="{i}">\nTitle: {t}\nCompany: {c}\nDuties: {excerpt(d)}\n</job>' for i, t, c, d in batch)
-    body = {"model": model, "temperature": 0, "max_tokens": 220 * len(batch), "response_format": {"type": "json_object"},
-            "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": jobs}]}
+    body = {"systemInstruction": {"parts": [{"text": SYSTEM}]}, "contents": [{"role": "user", "parts": [{"text": jobs}]}],
+            "generationConfig": {"temperature": 0, "maxOutputTokens": 4096, "responseMimeType": "application/json"}}   # room for "thinking" models
     try:
-        data = post(ENDPOINT, body, token)
+        data = post(ENDPOINT.format(model=model), body, token)
     except urllib.error.HTTPError as e:
-        if e.code in (401, 403, 429):
-            raise ModelUnavailable(f"HTTP {e.code}")
-        if e.code in (400, 422):
-            body.pop("response_format", None)
-            data = post(ENDPOINT, body, token)
-        else:
-            raise
-    text = (((data.get("choices") or [{}])[0].get("message") or {}).get("content") or "").strip()
+        if e.code in (401, 403):
+            raise ModelUnavailable(f"HTTP {e.code} (check the GEMINI_API_KEY secret)")
+        raise
+    parts = (((data.get("candidates") or [{}])[0].get("content") or {}).get("parts") or [{}])
+    text = "".join(p.get("text", "") for p in parts).strip()
     text = re.sub(r"^```(?:json)?|```$", "", text).strip()
     if not text.startswith("{"):
         raise ValueError(f"no JSON in the reply: {json.dumps(data)[:200]}")
@@ -302,7 +244,7 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
     today = today or date.today().isoformat()
     stats = {"queued": len(items), "calls": 0, "reviewed": 0, "model": "", "error": ""}
     if not token:
-        stats["error"] = "no GITHUB_TOKEN (rules only)"
+        stats["error"] = "no GEMINI_API_KEY secret (rules only)"
         return stats
     models = list(MODELS)
     i = 0
@@ -314,7 +256,7 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
             stats["error"] = str(e)
             break
         except urllib.error.HTTPError as e:
-            if e.code == 404 and len(models) > 1:          # model retired: try the next one
+            if e.code in (404, 429) and len(models) > 1:   # model retired, or its free quota used up: try the next one
                 models.pop(0)
                 continue
             stats["error"] = f"HTTP {e.code}"
@@ -329,7 +271,6 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
             continue
         stats["calls"] += 1
         stats["model"] = models[0]
-        stats["transport"] = ",".join(_WORKING)
         for r in batch:
             v = got.get(r["id"])
             if v:
@@ -337,7 +278,7 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
                 cache["jobs"][r["id"]] = v
                 stats["reviewed"] += 1
         i += PER_REQUEST
-        (sleep or time.sleep)(4.5)                         # stay under the per-minute limit
+        (sleep or time.sleep)(6.5)                         # stay under the free tier's per-minute limit
     stats["left"] = max(0, len(items) - i)
     return stats
 
@@ -357,7 +298,7 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
     import identity
     import scrape
     today = today or datetime.now(timezone.utc).date().isoformat()
-    token = os.environ.get("GITHUB_TOKEN", "") if token is None else token
+    token = os.environ.get("GEMINI_API_KEY", "").strip() if token is None else token
     jobs_path, st_path, rv_path = (os.path.join(feed_dir, n) for n in ("jobs.csv", "feed_status.json", "review.json"))
     csv.field_size_limit(10 ** 8)
     with open(jobs_path, newline="", encoding="utf-8") as f:
