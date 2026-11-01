@@ -14,7 +14,8 @@ Never longer than MAX_DAYS between reads of a board, so its jobs stay confirmed 
 
 sources.json: the source graph, employer -> own website (and whether it links to the board) -> board -> public endpoint ->
 fitting jobs, with each board's profile and role (primary, secondary when the same employer has a more productive board,
-failing, quiet), plus employers seen only through job sites with the apply site the feed can't read yet.
+failing, quiet), for employers that have had a match or have a fitting job now, plus employers seen only through job sites with
+the apply site the feed can't read yet.
 feed_status "direct.footprint": boards read and skipped as unchanged, new fitting jobs per 100 requests by system.
 """
 import hashlib
@@ -88,12 +89,17 @@ def after_failure(info, err, run):
     info["next"] = run + info["every"]
 
 
+HOST = {"ashby": "ashbyhq", "workday": "myworkdayjobs", "pinpoint": "pinpointhq"}
+
+
 def report(per, skipped, run):
-    """feed_status direct.footprint."""
+    """feed_status direct.footprint. Requests count every call to that system this run (board reads, registry checks and
+    still-open checks), so new fitting jobs per 100 requests is the system's whole cost."""
     import ats
     out = {"run": run, "skipped_unchanged": skipped, "by_system": {}}
     for prov, h in sorted(per.items()):
-        req = (ats.STATS.get(prov) or {}).get("requests") or sum(v.get("requests", 0) for k, v in ats.STATS.items() if k.startswith(prov))
+        frag = HOST.get(prov, prov)
+        req = sum(v.get("requests", 0) for k, v in ats.STATS.items() if frag in k)
         out["by_system"][prov] = {"read": h.get("read", 0), "skipped": h.get("skipped", 0), "requests": req,
                                   "new_fitting": h.get("new", 0), "per_100_requests": round(100 * h.get("new", 0) / req, 1) if req else None}
     out["read"] = sum(v["read"] for v in out["by_system"].values())
@@ -110,8 +116,9 @@ def source_graph(db, rows, coverage_hosts, today, path):
         if int(r.get("fit_score") or 0) >= 50:
             fitting.setdefault(trust.emp_tokens(r.get("company"))[0], []).append(r.get("id"))
     graph = {}
+    keep = {trust.emp_tokens(info.get("company"))[0] for info in db.get("boards", {}).values() if info.get("hits")} | set(fitting)
     for b, info in db.get("boards", {}).items():
-        if not (info.get("nyc") or info.get("hits")):
+        if not (info.get("nyc") or info.get("hits")) or trust.emp_tokens(info.get("company"))[0] not in keep:
             continue
         k = trust.emp_tokens(info.get("company"))[0] or b
         e = graph.setdefault(k, {"employer": info.get("company") or b, "boards": []})

@@ -64,6 +64,13 @@ class Profile(unittest.TestCase):
         self.assertEqual((info["every"], info["next"]), (4, 14))
         self.assertEqual(info["errs"], ["HttpError: 503"])
 
+    def test_requests_counted_by_host(self):
+        ats.STATS.clear()
+        ats.STATS.update({"boards-api.greenhouse.io": {"requests": 40}, "acme.wd5.myworkdayjobs.com": {"requests": 6}})
+        r = F.report({"greenhouse": {"read": 30, "new": 4}, "workday": {"read": 2, "new": 3}}, 5, 7)
+        self.assertEqual((r["by_system"]["greenhouse"]["per_100_requests"], r["by_system"]["workday"]["requests"]), (10.0, 6))
+        ats.STATS.clear()
+
     def test_endpoints(self):
         self.assertEqual(F.endpoint("greenhouse:acme"), "https://boards-api.greenhouse.io/v1/boards/acme/jobs")
         self.assertEqual(F.endpoint("workday:t|wd5|Ext"), "https://t.wd5.myworkdayjobs.com/wday/cxs/t/Ext/jobs")
@@ -100,7 +107,8 @@ class Graph(unittest.TestCase):
         try:
             db = {"boards": {"greenhouse:acme": {"company": "Acme", "nyc": 5, "hits": 4, "yield": [1, 0, 2], "ok": TODAY},
                              "workday:acme|wd1|Ext": {"company": "Acme", "nyc": 5, "hits": 0, "yield": [0], "ok": TODAY},
-                             "lever:dead": {"company": "Dead Co", "nyc": 2, "fails": 4}},
+                             "lever:dead": {"company": "Dead Co", "nyc": 2, "fails": 4, "hits": 1},
+                             "lever:idle": {"company": "Idle Inc", "nyc": 3}},
                   "employers": {"acme": {"domain": "acme.com", "linked": ["greenhouse:acme"]}}}
             rows = [dict(id="greenhouse:1", company="Acme", fit_score="80")]
             s = F.source_graph(db, rows, [{"host": "jcp.com", "qualified": 4}], TODAY, os.path.join(d, "sources.json"))
@@ -110,6 +118,7 @@ class Graph(unittest.TestCase):
             self.assertEqual(g["acme"]["fitting_jobs"], ["greenhouse:1"])
             self.assertEqual(g["dead"]["boards"][0]["role"], "failing")
             self.assertIn("site:jcp.com", g)
+            self.assertNotIn("idle", g, "never matched and nothing fitting now: left out to keep the file small")
             self.assertEqual(s["employers_with_2_boards"], 1)
         finally:
             shutil.rmtree(d)
