@@ -61,7 +61,7 @@ _TITLE_CAT = [(WFP, r"workforce|headcount|capacity|staffing"), (FPA, r"fp\s*&\s*
               (COMM, r"business finance|business partner|commercial finance|revenue|pricing|sales finance"),
               (ADJ, r"investment|portfolio|treasury|asset management|real estate|econom|research|valuation|credit"),
               (ACCT, r"account|audit|tax|payroll|controller|bookkeep")]
-MODEL_RESCUE = 60          # a reviewed unconventional title joins the feed at this score or above
+MODEL_RESCUE = 65          # a reviewed unconventional title joins the feed at this score or above (65+: a real partial fit or better)
 
 
 def _hits(text):

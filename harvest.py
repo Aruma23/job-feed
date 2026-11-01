@@ -31,8 +31,8 @@ PREFIXES = [("greenhouse", "io,greenhouse,job-boards)/"), ("greenhouse", "io,gre
 CRAWLS_BACK = 16
 HARVEST_SECONDS = 100
 HARVEST_BLOCKS = 200
-VERIFY_SECONDS = 150
-VERIFY_MAX = 500
+VERIFY_SECONDS = 200
+VERIFY_MAX = 800
 WORKDAY_VERIFY_MAX = 25
 # systems whose employers are mostly American first; European-heavy ones last
 KIND_ORDER = ["greenhouse", "ashby", "lever", "workday", "rippling", "smartrecruiters", "workable", "breezy", "pinpoint", "recruitee",

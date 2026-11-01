@@ -570,6 +570,10 @@ def peek(board, get=http):
                      "company": tenant} for j in data.get("jobPostings") or [])
     if kind == "rippling":
         return rippling(slug, lambda j: False, get, pages=3)
+    if kind == "greenhouse":                         # the list without descriptions: a fraction of the bytes
+        data = get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs")
+        return Jobs({"title": j.get("title", ""), "location": (j.get("location") or {}).get("name", ""), "company": j.get("company_name") or slug,
+                     "remote": "remote" in str((j.get("location") or {}).get("name", "")).lower()} for j in data.get("jobs") or [])
     return fetch_board(board, lambda j: False, get)
 
 
