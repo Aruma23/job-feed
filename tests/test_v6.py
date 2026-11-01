@@ -258,7 +258,7 @@ class Priority(unittest.TestCase):
             self.assertEqual(r["priority"], "D", why)
         self.assertNotEqual(priority.assess(dict(good, education="degree; CPA (preferred)"))["priority"], "D", "preferred never gates")
         self.assertEqual(priority.assess(dict(good, fit_score="40"))["priority"], "C", "a weak fit never tops the list")
-        r = priority.assess(dict(good, freshness="stale", ghost_risk="high"))
+        r = priority.assess(dict(good, fit_score="98", freshness="stale", ghost_risk="high"))
         self.assertEqual(r["priority"], "C", "high ghost risk never tops the list")
         self.assertIn("ghost-job risk", r["priority_why"])
 

@@ -30,6 +30,11 @@ v6 (Nov 1): the job record contract (CONTRACT.md). New columns, all computed fro
 - discover.py: a board that suddenly returns far fewer jobs keeps its last good snapshot; per-system health in feed_status.
 - feed_status "coverage": the employer apply sites the feed can't read yet, by qualifying jobs, to pick the next adapter.
 
+v7 (Nov 1): audit.py checks every run before it is published (AUDIT.md, feed_status "audit"): jobs that vanished without a
+confirmed closing are restored and the run marked incomplete; coverage drops, unconfirmed jobs, identity and priority problems are
+reported with what to do. intel.py adds employer_signal and related_ids, and employers.json. A board job still listed but no
+longer matching is dropped as reclassified, not recorded as closed.
+
 v4 (Nov 1):
 - Location: geo.py's commute regions (NYC, Westchester, Long Island, Rockland, North and Central Jersey, Fairfield County)
   replace the seven-name list; remote-US eligibility is decided separately. Column "region". Rows the tracker's finder would
@@ -53,8 +58,10 @@ from datetime import date, datetime, timedelta, timezone
 
 import freshness
 import geo
+import audit
 import history
 import identity
+import intel
 import priority
 import relevance
 import reqs
@@ -101,8 +108,8 @@ COLS = ["id", "site", "title", "company", "location", "is_remote", "date_posted"
         "region", "req_id", "source_ids", "fit_score", "fit_category", "fit_why", "fit_by",
         "status", "changes", "last_change", "age_days", "skills", "years_min", "education", "seniority", "pay_low", "pay_high",
         "freshness", "ghost_risk", "freshness_why", "reposts", "repost_of", "trust", "trust_why", "priority", "priority_score",
-        "priority_why"]
-CONTRACT_VERSION = 6
+        "priority_why", "employer_signal", "related_ids"]
+CONTRACT_VERSION = 7
 QUALIFY_MIN = 50             # rules score for a job to count as qualified in the search stats
 REVIEW_MAX = 400
 
@@ -290,6 +297,8 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
 
     def put(j, target):
         board = ats.board_of(j["url"])
+        if j["id"] in owner and owner[j["id"]].lower() == board.lower() and owner[j["id"]] != board:
+            return                                              # one board stored under two spellings: the same job
         if j["id"] in owner and owner[j["id"]] != board:        # the same Workday req number at two employers
             j = dict(j, id=j["id"] + "~" + board.split(":", 1)[1].split("|")[0])
         owner[j["id"]] = board
@@ -306,13 +315,16 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
     for j in border:
         if j["id"] not in rows:
             put(j, held)
-    kept_old, closed, checks, still = 0, [], 0, 0
+    kept_old, closed, checks, still, reclassified = 0, [], 0, 0, []
     cutoff = (datetime.fromisoformat(today) - timedelta(days=KEEP_DAYS)).date().isoformat()
     for k, r in prev.items():
         if k in rows or k in held:
             continue
         b = ats.board_of(r.get("job_url"))
         if b in ok_boards and ok_boards[b]:          # the whole board was read and the job isn't on it: closed
+            if k in D.PRESENT.get(b, ()):           # still listed, just no longer a match: not a closing
+                reclassified.append(k)
+                continue
             closed.append(k)
             continue
         if b in ok_boards and checks < STILL_OPEN_CHECKS:   # partial read (Workday searches): ask the job's own page
@@ -328,7 +340,10 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
         if r.get("last_seen", today) >= cutoff:        # board unreadable, or no answer: keep it a while
             rows[k] = r
             kept_old += 1
-    out = sorted(rows.values(), key=lambda r: (r.get("date_posted") or r.get("first_seen") or ""), reverse=True)[:DIRECT_CAP]
+    ranked = sorted(rows.values(), key=lambda r: (r.get("date_posted") or r.get("first_seen") or ""), reverse=True)
+    out = ranked[:DIRECT_CAP]
+    stats["_explained"] = [r["id"] for r in ranked[DIRECT_CAP:]] + reclassified + list(held)
+    stats["reclassified"] = len(reclassified)
     stats["rows_direct"] = len(out)
     stats["kept_unread"] = kept_old
     stats["closed_confirmed"] = len(closed)
@@ -354,8 +369,9 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
 
 
 def annotate(agg_rows, direct_rows):
-    """An aggregator row for a job also found on the company's own board gets that board's link. Matched by the board's job
-    link or requisition ID, else by company + title + location when exactly one board job fits."""
+    """An aggregator row for a job also found on the company's own board is folded into that board row: the board row gains the
+    site in also_on, the aggregator id in source_ids, and pay it lacked. Matched by the board's job link or requisition ID, else
+    by company + title + location when exactly one board job fits. Returns the folded aggregator ids (contract invariant 1)."""
     import discover as D
     by_key, by_ctl = {}, {}
     for r in direct_rows:
@@ -363,7 +379,7 @@ def annotate(agg_rows, direct_rows):
             by_key.setdefault(k, r)
         ck = (D.emp_key(r["company"]), D.title_key(r["title"]), geo.loc_key(r["location"], r.get("is_remote") == "True"))
         by_ctl.setdefault(ck, []).append(r)
-    n = 0
+    folded = set()
     for r in agg_rows:
         d = next((by_key[k] for k in sorted(identity.url_keys(r) | identity.req_keys(r)) if k in by_key), None)
         if not d:
@@ -371,13 +387,15 @@ def annotate(agg_rows, direct_rows):
             d = cands[0] if len(cands) == 1 else None
         if not d:
             continue
-        site = d["site"]
-        r["also_on"] = ";".join(sorted(set(filter(None, (r.get("also_on") or "").split(";"))) | {site}))
-        r["source_ids"] = ";".join(dict.fromkeys(identity.source_ids(r) + [d["id"]]))
-        if not re.search(r"greenhouse\.io|lever\.co|ashbyhq|myworkdayjobs|smartrecruiters", r.get("job_url_direct") or ""):
-            r["job_url_direct"] = d["job_url"]
-        n += 1
-    return n
+        sites = set(filter(None, (d.get("also_on") or "").split(";"))) | {r.get("site")} | set(filter(None, (r.get("also_on") or "").split(";")))
+        d["also_on"] = ";".join(sorted(sites - {d.get("site"), ""}))
+        d["source_ids"] = ";".join(dict.fromkeys(identity.source_ids(d) + identity.source_ids(r)))
+        if r.get("first_seen") and r["first_seen"] < (d.get("first_seen") or "9"):
+            d["first_seen"] = r["first_seen"]
+        if not (d.get("min_amount") or d.get("max_amount")) and (r.get("min_amount") or r.get("max_amount")):
+            d.update(min_amount=r.get("min_amount", ""), max_amount=r.get("max_amount", ""), interval=r.get("interval", ""))
+        folded.add(r["id"])
+    return folded
 
 
 def finish(rows, cache):
@@ -439,7 +457,9 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     if direct and os.environ.get("NO_DIRECT") != "1":
         try:
             direct_rows, held, dstats, closed = direct_step(rows, prev_direct, today, os.path.join(here, "boards.json"), get, resolve, cc_text, weekday, range_get)
-            dstats["aggregator_rows_matched"] = annotate(rows, direct_rows)
+            folded = annotate(rows, direct_rows)
+            rows = [r for r in rows if r["id"] not in folded]
+            dstats["aggregator_rows_folded"] = len(folded)
         except Exception as exc:   # the aggregator part of the feed never fails because of the direct part
             dstats = {"version": "v5", "error": f"{type(exc).__name__}: {str(exc)[:200]}"}
             direct_rows = prev_direct
@@ -460,13 +480,26 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     hstats = history.update(hist, rows, today, closed)
     history.save(hist, os.path.join(here, "history.json"))
     contract = annotate_v6(rows, hist, here, today)
+    import discover as D
+    intel_summary = intel.annotate(rows, today, os.path.join(here, "employers.json"), D.NEVER)
+    explained = set(closed) | set(dstats.pop("_explained", [])) | {h["id"] for h in held}
+    now_counts = {"rows_by_site": _count(audit._site(r) for r in rows), "boards": {"boards read": dstats.get("boards_ok", 0)}}
+    log_path = os.path.join(here, "audit_log.json")
+    log = audit.load_log(log_path)
+    n_before = len(rows)
+    rows, report = audit.run(previous_all, rows, explained, today, KEEP_DAYS, log, now_counts)
+    for r in rows[n_before:]:
+        r["location"] = geo.finder_location(r.get("location") or "", geo.resolve(r.get("location"), str(r.get("is_remote")) == "True"))
+    audit.save_log(log, dict(now_counts, ran=now.isoformat(timespec="seconds"), level=report["level"]), log_path)
+    with open(os.path.join(here, "AUDIT.md"), "w", encoding="utf-8") as f:
+        f.write(audit.markdown(report, now.isoformat(timespec="minutes")))
     for h in waiting:
         h["region"] = geo.label(geo.resolve(h.get("location"), h.get("is_remote") == "True", h.get("description") or ""))
         relevance.apply(h, verdict(h))
     cats = {}
     for r in rows:
         cats[r["fit_category"]] = cats.get(r["fit_category"], 0) + 1
-    summary = {"ran_at": now.isoformat(timespec="seconds"), "partial": bool(failed or empty_sites),
+    summary = {"ran_at": now.isoformat(timespec="seconds"), "partial": bool(failed or empty_sites or not report["complete"]),
                "empty_sites": empty_sites,
                "searches": len(status), "failed": len(failed), "fresh_rows": len(fresh),
                "rows_written": len(rows), "by_site": by_site, "detail": status, "direct": dstats,
@@ -475,7 +508,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
                "regions": _count(r["region"] for r in rows),
                "history": hstats, "seniority": _count(r["seniority"] for r in rows),
                "scheduler": dict(scheduler.report(sched, today), decisions=decisions),
-               "contract": contract, "coverage": coverage(rows)}
+               "contract": contract, "coverage": coverage(rows), "intel": intel_summary, "audit": report}
     if not fresh:
         summary["note"] = "Nothing came back this run; earlier jobs kept."
     with open(status_path, "w", encoding="utf-8") as f:

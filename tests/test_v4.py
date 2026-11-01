@@ -123,9 +123,9 @@ class Identity(unittest.TestCase):
         direct = [dict(row("greenhouse:1", "greenhouse", "Financial Analyst", "Acme", "Stamford, CT", url="https://job-boards.greenhouse.io/acme/jobs/1"), is_remote="False"),
                   dict(row("greenhouse:2", "greenhouse", "Financial Analyst", "Acme", "New York, NY", url="https://job-boards.greenhouse.io/acme/jobs/2"), is_remote="False")]
         agg = [row("in-1", "indeed", "Financial Analyst", "Acme", "New York, NY")]
-        self.assertEqual(scrape.annotate(agg, direct), 1)
-        self.assertEqual(agg[0]["job_url_direct"], "https://job-boards.greenhouse.io/acme/jobs/2")
-        self.assertIn("greenhouse:2", agg[0]["source_ids"])
+        self.assertEqual(scrape.annotate(agg, direct), {"in-1"})       # v7: folded into the New York board row
+        self.assertIn("in-1", direct[1]["source_ids"])
+        self.assertNotIn("in-1", direct[0].get("source_ids", ""), "not the Stamford opening")
 
 
 ACCT_DESC = ("Prepare journal entries and maintain the general ledger. Perform account reconciliations and support month-end close, "

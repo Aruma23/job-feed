@@ -146,6 +146,12 @@ def load_db(path=DB_PATH):
     db.setdefault("boards", {})
     db.setdefault("neg", {})
     db.setdefault("seed_cursor", 0)
+    seen = {}
+    for b in sorted(db["boards"], key=lambda b: (-db["boards"][b].get("hits", 0), b)):   # one board, two spellings: keep one
+        if b.lower() in seen:
+            del db["boards"][b]
+        else:
+            seen[b.lower()] = b
     return db
 
 
@@ -157,7 +163,7 @@ def save_db(db, path=DB_PATH):
 
 
 def add_board(db, board, company, src, today, stats):
-    if not board or board in db["boards"]:
+    if not board or board in db["boards"] or board.lower() in {b.lower() for b in db["boards"]}:
         return False
     db["boards"][board] = {"company": company or board.split(":", 1)[1], "src": src, "added": today, "ok": "", "fails": 0, "jobs": 0, "nyc": 0,
                            "hits": 0, "last_hit": "", "polls": 0, "quiet": 0}
@@ -361,7 +367,7 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
         info.update(ok=today, fails=0, polls=info.get("polls", 0) + 1)
         ok_boards[b] = complete
         if complete:
-            PRESENT[b] = freshness.board_keys(jobs)
+            PRESENT[b] = freshness.board_keys(jobs) | {j["id"] for j in jobs}
         if not suspect:
             info["jobs"] = len(jobs)
             places = [geo.resolve(j["location"], j.get("remote")).status for j in jobs]

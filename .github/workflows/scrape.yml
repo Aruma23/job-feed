@@ -42,6 +42,9 @@ jobs:
           bad = [(r["id"], c, r.get(c)) for r in rows for c, ok in enums.items() if r.get(c) not in ok]
           assert not bad, f"values outside CONTRACT.md: {bad[:5]}"
           s = json.load(open("feed_status.json"))
+          a = s.get("audit") or {}
+          print(json.dumps({"audit": a.get("level"), "restored": a.get("restored"), "findings": [i["level"] + ": " + i["title"] for i in a.get("items", [])]}))
+          print(json.dumps({"intel": [e["employer"] + ": " + "; ".join(e["signals"][:2]) for e in (s.get("intel") or {}).get("top", [])[:6]]}))
           print(json.dumps({"contract": s.get("contract"), "coverage": (s.get("coverage") or {}).get("uncovered_hosts", [])[:6]}))
           print(json.dumps({k: (s.get("direct") or {}).get(k) for k in ("drops", "drops_sample", "adapters_degraded", "routes_gone", "employers_checked", "employers_verified", "verify_error")}))
           print(json.dumps({k: s[k] for k in ("partial", "failed", "rows_written", "empty_sites")}))
@@ -63,6 +66,9 @@ jobs:
             registry.tsv
             harvest_state.json
             history.json
+            AUDIT.md
+            employers.json
+            audit_log.json
           retention-days: 3
 
   classify:                           # our own code only (no third-party packages); reads the feed as data, may call Gemini
@@ -124,6 +130,9 @@ jobs:
           test -f history.json && python3 -c "import json; d=json.load(open('history.json')); assert isinstance(d.get('jobs'), dict)" && git add history.json
           test -f harvest_state.json && python3 -c "import json; d=json.load(open('harvest_state.json')); assert isinstance(d.get('done'), dict)" && git add harvest_state.json
           test -f registry.tsv && head -1 registry.tsv | grep -q "^board" && git add registry.tsv
+          test -f employers.json && python3 -c "import json; d=json.load(open('employers.json')); assert isinstance(d.get('employers'), list)" && git add employers.json
+          test -f audit_log.json && python3 -c "import json; assert isinstance(json.load(open('audit_log.json')), list)" && git add audit_log.json
+          test -f AUDIT.md && head -1 AUDIT.md | grep -q "^# Feed audit" && git add AUDIT.md
           git add jobs.csv feed_status.json
           git commit -m "Update jobs" || echo "No changes"
           for i in 1 2 3; do git push && exit 0; sleep 5; git pull --rebase origin main || exit 1; done

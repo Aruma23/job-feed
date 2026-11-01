@@ -169,8 +169,11 @@ class EndToEnd(unittest.TestCase):
         self.assertNotIn("greenhouse:102", rows)
         self.assertIn("ashby:g-1", rows)
         self.assertIn("lever:aaaa-1", rows, "a short link in an Indeed row led to a new board (Lever, EU host)")
-        self.assertEqual(rows["in-1"]["job_url_direct"], "https://job-boards.greenhouse.io/acme/jobs/101", "Indeed row gets the board link")
-        self.assertIn("greenhouse", rows["in-1"]["also_on"])
+        # v7: the Indeed copy of a board job is folded into the board row (one row per opening, CONTRACT.md invariant 1)
+        self.assertNotIn("in-1", rows)
+        self.assertIn("in-1", rows["greenhouse:101"]["source_ids"].split(";"))
+        self.assertIn("indeed", rows["greenhouse:101"]["also_on"])
+        self.assertGreaterEqual(s["direct"]["aggregator_rows_folded"], 1)
         d = s["direct"]
         self.assertGreaterEqual(d["boards_new"], 1)
         self.assertEqual(d["boards_failed"], 0)
