@@ -4,7 +4,7 @@ Stage 1 (every row, every run, free): Python rules count distinct duty signals i
 analysis, budgeting, business partnering, headcount and capacity planning, treasury ...) against accounting-operations
 signals (journal entries, reconciliations, close ...). Result: score 0-100, one of six categories, a short evidence line.
 Rows the rules can't settle are queued for review:
-  - an unconventional title on a company board with some planning signal (it is left out unless the review rescues it),
+  - an unconventional title with two or more planning signals (on a company board it is left out unless the review rescues it),
   - a finance title whose description reads accounting-heavy,
   - a broad title ("Business Analyst", "Finance ...") with a middling score.
 Stage 2 (the workflow's classify job, free): a small model on GitHub Models reads the duties of queued jobs only, four
@@ -108,7 +108,7 @@ def rules(title, description, kind):
     if gaps:
         why += " Gap: " + "; ".join(gaps[:2]) + "."
     review = has_desc and bool(kind) and (
-        (kind == "ambiguous" and core >= 1) or
+        (kind == "ambiguous" and core >= 2) or
         (kind in ("strong", "broad") and acct >= 3 and acct >= core) or
         (kind == "broad" and 40 <= score <= 70))
     return {"score": score, "category": cat, "why": why, "by": "rules", "review": review, "core": core, "acct": acct}
@@ -181,12 +181,26 @@ class ModelUnavailable(Exception):
     pass
 
 
+class _KeepPost(urllib.request.HTTPRedirectHandler):
+    """Follow a redirect without turning the POST into an empty GET (urllib's default)."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return urllib.request.Request(newurl, data=req.data, method=req.get_method(), headers=dict(req.header_items()))
+
+
+_OPENER = urllib.request.build_opener(_KeepPost)
+
+
 def http_post(url, body, token, timeout=60):
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST",
                                  headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json",
                                           "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.loads(r.read().decode("utf-8", "replace"))
+    with _OPENER.open(req, timeout=timeout) as r:
+        raw = r.read().decode("utf-8", "replace")
+        try:
+            return json.loads(raw)
+        except ValueError:
+            raise ValueError(f"not JSON from {r.geturl()[:80]} (HTTP {r.status}): {raw[:160]!r}")
 
 
 def _norm_cat(c):
@@ -216,6 +230,8 @@ def review(batch, token, model, post=http_post):
             raise
     text = (((data.get("choices") or [{}])[0].get("message") or {}).get("content") or "").strip()
     text = re.sub(r"^```(?:json)?|```$", "", text).strip()
+    if not text.startswith("{"):
+        raise ValueError(f"no JSON in the reply: {json.dumps(data)[:200]}")
     out = {}
     ids = {b[0] for b in batch}
     for j in (json.loads(text).get("jobs") or []):
@@ -258,8 +274,11 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
             stats["error"] = f"HTTP {e.code}"
             break
         except Exception as e:
-            stats["error"] = f"{type(e).__name__}: {str(e)[:120]}"
+            stats["error"] = f"{type(e).__name__}: {str(e)[:300]}"
             stats["calls"] += 1
+            stats["failed_calls"] = stats.get("failed_calls", 0) + 1
+            if stats["failed_calls"] >= 3 and not stats["reviewed"]:
+                break                                      # something is wrong with every call: stop and report
             i += PER_REQUEST
             continue
         stats["calls"] += 1

@@ -109,7 +109,7 @@ def judge(job):
     if core >= 4 and core > acct:
         job["unconventional"] = True
         return "keep"
-    if relevance.rules(job["title"], d, k)["core"] >= 1:
+    if relevance.rules(job["title"], d, k)["core"] >= 2:
         job["borderline"] = True
         return "borderline"
     return "drop"

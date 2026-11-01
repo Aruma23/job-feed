@@ -147,7 +147,7 @@ class Relevance(unittest.TestCase):
         self.assertEqual(w["category"], R.WFP)
 
     def test_borderline_board_job_is_held_not_dropped(self):
-        j = {"title": "Operations Associate", "location": "New York, NY", "remote": False, "company": "Acme", "description": "You will help with the budget."}
+        j = {"title": "Operations Associate", "location": "New York, NY", "remote": False, "company": "Acme", "description": "You will help with the budget and the monthly forecast."}
         self.assertEqual(D.judge(j), "borderline")
         self.assertEqual(D.judge(dict(j, description="Run the warehouse schedule.")), "drop")
 
