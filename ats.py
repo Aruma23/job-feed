@@ -296,4 +296,12 @@ def probe(name, get=http):
                     return f"{kind}:{s}"
             except Exception:
                 pass
+    # SmartRecruiters company IDs are usually the name in CamelCase ("BoschGroup"); an unknown one answers 200 with no jobs
+    for s in dict.fromkeys(["".join(w.capitalize() for w in words), "".join(words)]):
+        try:
+            d = get(f"https://api.smartrecruiters.com/v1/companies/{s}/postings?limit=1", tries=1)
+            if isinstance(d, dict) and int(d.get("totalFound") or 0) > 0:
+                return f"smartrecruiters:{s}"
+        except Exception:
+            pass
     return ""

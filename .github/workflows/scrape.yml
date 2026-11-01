@@ -39,7 +39,9 @@ jobs:
           s = json.load(open("feed_status.json"))
           print(json.dumps({k: s[k] for k in ("partial", "failed", "rows_written", "empty_sites")}))
           d = s.get("direct") or {}
-          print(json.dumps({k: d.get(k) for k in ("boards_total", "boards_ok", "boards_failed", "boards_new", "rows_direct", "pct_direct", "unconventional", "cc_candidates", "cc_error", "error")}))
+          print(json.dumps({k: d.get(k) for k in ("boards_total", "boards_ok", "boards_failed", "boards_new", "rows_direct", "pct_direct", "unconventional", "held_for_review", "cc_source", "cc_candidates", "cc_queue", "cc_error", "error")}))
+          print(json.dumps({"regions": s.get("regions"), "relevance": s.get("relevance")}))
+          print(json.dumps({k: v for k, v in (s.get("scheduler") or {}).get("decisions", {}).items() if v not in ("active", "trial")}))
           EOF
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9   # v7.0.2
         with:
@@ -48,10 +50,45 @@ jobs:
             jobs.csv
             feed_status.json
             boards.json
+            search_stats.json
+            review.json
+          retention-days: 3
+
+  classify:                           # our own code only (no third-party packages); reads the feed as data, may call GitHub Models
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      models: read                    # free GitHub Models access for the built-in token; nothing else
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0   # v7.1.0
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333   # v8.0.2
+        with:
+          name: feed
+          path: in                    # data from the collect job stays out of the code directory
+      - name: Review borderline jobs (relevance stage 2)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python relevance.py in classify_cache.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9   # v7.0.2
+        with:
+          name: classified
+          path: |
+            in/jobs.csv
+            in/feed_status.json
+            in/classify_cache.json
+          if-no-files-found: ignore
           retention-days: 3
 
   publish:                            # only job that can write; runs no third-party Python
-    needs: collect
+    needs: [collect, classify]
+    if: ${{ always() && needs.collect.result == 'success' }}   # a failed review step never holds back the feed
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -61,11 +98,17 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333   # v8.0.2
         with:
           name: feed
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333   # v8.0.2
+        continue-on-error: true
+        with:
+          name: classified            # the reviewed feed replaces the collected one when the review step ran
       - name: Save jobs.csv and feed_status.json
         run: |
           git config user.name "job-feed"
           git config user.email "job-feed@users.noreply.github.com"
           test -f boards.json && python3 -c "import json; d=json.load(open('boards.json')); assert isinstance(d.get('boards'), dict)" && git add boards.json
+          test -f search_stats.json && python3 -c "import json; d=json.load(open('search_stats.json')); assert isinstance(d.get('searches'), dict)" && git add search_stats.json
+          test -f classify_cache.json && python3 -c "import json; d=json.load(open('classify_cache.json')); assert isinstance(d.get('jobs'), dict)" && git add classify_cache.json
           git add jobs.csv feed_status.json
           git commit -m "Update jobs" || echo "No changes"
           git push

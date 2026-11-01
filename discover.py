@@ -1,17 +1,20 @@
-"""Continuous employer and career-page discovery for the job feed (v3, Nov 1 2026).
+"""Continuous employer and career-page discovery for the job feed (v4, Nov 1 2026; v3 earlier the same day).
 
 Every run:
   1. Grows boards.json, the list of verified company job boards, from four places:
      - links in the aggregator rows (Indeed and LinkedIn often link to the company's own board; short links such as
        grnh.se and tracking links such as recruitics are opened to find it),
-     - companies in those rows that have no known board (their name is tried on Greenhouse, Lever and Ashby),
+     - companies in those rows that have no known board, most relevant first (tried on Greenhouse, Lever, Ashby and
+       SmartRecruiters),
      - seeds.txt, NYC employers that hire for finance and planning (tried a few dozen a run),
-     - once a week, Common Crawl's public index of Greenhouse and Ashby board pages (rate-limited, so slow and small).
-     A board is kept only when it lists at least one job in the NYC area or remote in the US.
-  2. Reads every board directly (no aggregator in between) and keeps finance and planning jobs in the NYC area or
-     remote US, including ones with unconventional titles when the description is plainly planning / FP&A work.
-  3. Measures itself: jobs found directly, new employers, boards that failed.
-Boards that fail five runs in a row are tried weekly; boards with no NYC jobs three runs in a row are read weekly.
+     - Common Crawl's public index of board pages on all five systems (Greenhouse, Ashby, Lever, SmartRecruiters, and Workday
+       through a domain query), one page of one system at a time, rotating, biggest boards checked first.
+     A board is kept only when it lists at least one job in a commute region (geo.py) or remote in the US.
+  2. Reads every board directly and keeps finance and planning jobs in the commute regions or remote US. Boards that
+     produced matches lately are read first and every run; boards that list local jobs but never a match are read once a
+     day; boards with no local jobs or that keep failing, once a week.
+  3. Unconventional titles: kept when the description is plainly planning work (the old keyword rule); ones with some
+     planning signal go to review (relevance.py) instead of being dropped.
 """
 import json
 import os
@@ -22,11 +25,14 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime, timezone
 
 import ats
+import geo
+import identity
+import relevance
 
 DB_PATH = "boards.json"
 SEEDS = "seeds.txt"
 PROBE_BUDGET = 30          # company names tried per run
-CC_VERIFY = 80             # Common Crawl candidates checked per run
+CC_VERIFY = 80             # Common Crawl candidates checked per run (Workday ones count three times: heavier)
 SWEEP_SECONDS = 12 * 60    # time for reading boards
 DESC_CAP = 6000
 
@@ -46,9 +52,6 @@ HARD_EXCLUDE = ["intern", "internship", "summer", "class of", "co-op", "coop", "
 SOFT_EXCLUDE = ["sales", "marketing", "account executive", "account manager", "business development"]
 AMBIG = re.compile(r"\b(strategy|strategic|operations|ops|planning|insights|analytics|analyst|associate|performance|decision support|commercial|"
                    r"revenue|business|capital|budget|reporting|portfolio|treasury|investor relations|corporate development|pricing)\b", re.I)
-LOCAL = ["new york", "nyc", "manhattan", "brooklyn", "jersey city", "hoboken", "stamford"]
-FOREIGN = ["canada", "london", "united kingdom", "india", "emea", "europe", "apac", "singapore", "dublin", "toronto", "sydney", "paris",
-           "berlin", "tokyo", "mexico", "brazil", "israel"]
 CORE = re.compile(r"forecast|budget|variance analysis|financial model|fp&a|p&l|planning (and|&) analysis|headcount plan|long[- ]range plan|annual plan|scenario (planning|analysis)", re.I)
 ACCT = re.compile(r"journal entr|general ledger|\bgl\b|reconcil|month[- ]end|accruals?|accounts (payable|receivable)|invoice|audit|gaap", re.I)
 NEVER = re.compile(r"\b(spectrum|charter communications|cox (communications|enterprises|automotive)|time warner cable|bright house|xumo)\b", re.I)
@@ -62,15 +65,9 @@ def has(t, w):
     return (" " + w + " ") in t or (" " + w.rstrip(".") + " ") in t
 
 
-def place_ok(loc, remote=False):
-    l = str(loc or "").lower()
-    if any(p in l for p in LOCAL):
-        return True
-    foreign = any(p in l for p in FOREIGN)
-    us = bool(re.search(r"united states|usa|\bus\b|u\.s\.|north america", l))
-    if remote or "remote" in l or "anywhere" in l:
-        return not foreign or us
-    return False
+def place_ok(loc, remote=False, text=""):
+    """In a commute region (geo.REGIONS, tiers in geo.ENABLED_TIERS) or remote within the US."""
+    return geo.place_ok(loc, remote, text)
 
 
 def title_kind(title):
@@ -88,35 +85,44 @@ def title_kind(title):
 
 
 def want(job):
-    """Worth fetching the description for."""
-    return bool(title_kind(job["title"])) and place_ok(job["location"], job.get("remote")) and not NEVER.search(job.get("company", "") + " " + job.get("title", ""))
-
-
-def keep(job):
-    """Kept in the feed: a finance title, or an unconventional title whose description is planning work."""
-    if not want(job):
+    """Worth fetching the description for. 'Maybe' places ("2 Locations", "Multiple locations") qualify: the detail page or
+    the description says where."""
+    if not title_kind(job["title"]) or NEVER.search(job.get("company", "") + " " + job.get("title", "")):
         return False
+    return geo.resolve(job["location"], job.get("remote")).status in ("local", "remote_us", "maybe")
+
+
+def judge(job):
+    """'keep', 'borderline' (unconventional title with some planning signal: review decides) or 'drop'."""
+    if not want(job):
+        return "drop"
+    if not place_ok(job["location"], job.get("remote"), job.get("description") or ""):
+        return "drop"
     k = title_kind(job["title"])
     t = words(job["title"])
     if k != "strong" and any(has(t, w) for w in SOFT_EXCLUDE):   # sales / marketing seats with "financial" in the name
-        return False
+        return "drop"
     if k in ("strong", "broad"):
-        return True
+        return "keep"
     d = job.get("description") or ""
     core, acct = len(CORE.findall(d)), len(ACCT.findall(d))
     if core >= 4 and core > acct:
         job["unconventional"] = True
-        return True
-    return False
+        return "keep"
+    if relevance.rules(job["title"], d, k)["core"] >= 1:
+        job["borderline"] = True
+        return "borderline"
+    return "drop"
 
 
-# ---- identity, shared with the finder: same employer + same normalized title + compatible place ----
-SUFFIX = re.compile(r"\b(inc|incorporated|llc|ltd|limited|corp|corporation|co|company|companies|plc|lp|llp|na|group|holdings|usa|us|the|international|global)\b")
+def keep(job):
+    """Kept in the feed now: a finance title, or an unconventional title whose description is plainly planning work."""
+    return judge(job) == "keep"
 
 
-def emp_key(name):
-    s = re.sub(r"[^a-z0-9]+", " ", str(name or "").lower().replace("&", " and ").replace("'", ""))
-    return re.sub(r"\s+", " ", SUFFIX.sub(" ", s).replace(" and ", " ")).strip()
+# ---- identity, shared with the finder ----
+SUFFIX = identity.SUFFIX
+emp_key = identity.emp_key
 
 
 def title_key(t):
@@ -188,7 +194,10 @@ def from_rows(db, rows, today, stats, resolve=ats.resolve_redirect, budget=40):
 def probe_names(db, names, today, stats, get=ats.http, budget=PROBE_BUDGET):
     known = {emp_key(v.get("company")) for v in db["boards"].values()}
     tried = 0
-    for n in names:
+    rank = {}
+    for n in names:                                   # companies named most often (by relevant rows) first
+        rank[n] = rank.get(n, 0) + 1
+    for n in sorted(dict.fromkeys(names), key=lambda x: -rank[x]):
         k = emp_key(n)
         if not k or k in known or NEVER.search(n):
             continue
@@ -216,81 +225,161 @@ def seeds(path=SEEDS):
         return []
 
 
-# ---- Common Crawl (weekly): the public web crawl's index of board pages. It throttles cloud runners hard, so: few
-# requests, long backoff (15s, 30s, 60s), and a run never fails because of it. ----
-CC_DOMAINS = {"greenhouse": ["job-boards.greenhouse.io", "boards.greenhouse.io"], "ashby": ["jobs.ashbyhq.com"]}
+# ---- Common Crawl: the public web crawl's index of board pages. It throttles cloud runners hard, so: one system's page per
+# refill (two requests), a refill only when the queue runs low (about every three days), long backoff, never fails a run. ----
+CC_DOMAINS = [("greenhouse", "job-boards.greenhouse.io", "prefix"), ("ashby", "jobs.ashbyhq.com", "prefix"),
+              ("lever", "jobs.lever.co", "prefix"), ("workday", "myworkdayjobs.com", "domain"),
+              ("smartrecruiters", "jobs.smartrecruiters.com", "prefix"), ("greenhouse", "boards.greenhouse.io", "prefix"),
+              ("lever", "jobs.eu.lever.co", "prefix"), ("smartrecruiters", "careers.smartrecruiters.com", "prefix")]
+CC_LOW = 160               # refill the queue when fewer candidates than this are waiting
+CC_WORKDAY_PER_RUN = 10
+CC_REJECT_DAYS = 90        # a board checked with no local jobs is not checked again for this long
+
+
+def _cc_get(get_text, url):
+    for wait in (0, 20, 40):
+        time.sleep(wait)
+        try:
+            return get_text(url)
+        except Exception:
+            continue
+    return ""
+
+
+def cc_page(get_text, idx, kind, dom, match, page):
+    """One page of the crawl index for one system -> ({board: pages seen}, number of pages)."""
+    q = {"url": dom + ("/*" if match == "prefix" else ""), "output": "json"}
+    if match == "domain":
+        q["matchType"] = "domain"
+    meta = _cc_get(get_text, f"https://index.commoncrawl.org/{idx}-index?" + urllib.parse.urlencode(dict(q, showNumPages="true")))
+    try:
+        pages = max(1, int(json.loads(meta.splitlines()[0])["pages"]))
+    except Exception:
+        pages = 1
+    body = _cc_get(get_text, f"https://index.commoncrawl.org/{idx}-index?" + urllib.parse.urlencode(dict(q, fl="url", page=page % pages)))
+    seen = {}
+    for line in body.splitlines():
+        try:
+            u = json.loads(line)["url"]
+        except Exception:
+            continue
+        b = ats.board_of(u)
+        if b and b.startswith(kind + ":"):
+            seen[b] = seen.get(b, 0) + 1
+    return seen, pages
 
 
 def cc_candidates(get_text, limit=3000):
+    """Kept for callers of v3: every system's first page."""
     idx = json.loads(get_text("https://index.commoncrawl.org/collinfo.json"))[0]["id"]
     out = set()
-    for kind, doms in CC_DOMAINS.items():
-        for d in doms:
-            q = urllib.parse.urlencode({"url": d + "/*", "output": "json", "fl": "url", "limit": limit})
-            body = ""
-            for wait in (0, 15, 30, 60):
-                time.sleep(wait)
-                try:
-                    body = get_text(f"https://index.commoncrawl.org/{idx}-index?{q}")
-                    break
-                except Exception:
-                    continue
-            for line in body.splitlines():
-                try:
-                    u = json.loads(line)["url"]
-                except Exception:
-                    continue
-                b = ats.board_of(u)
-                if b and b.startswith(kind + ":"):
-                    out.add(b)
+    for kind, dom, match in CC_DOMAINS:
+        out |= set(cc_page(get_text, idx, kind, dom, match, 0)[0])
     return sorted(out)
 
 
+def _cc_state(db):
+    cc = db.setdefault("cc", {})
+    if "queue" not in cc:                                  # v3 layout: candidates + cursor
+        old = cc.get("candidates") or []
+        cc["queue"] = [[b, 1] for b in old[cc.get("cursor", 0):]]
+    for k, v in (("pages", {}), ("rejected", {}), ("dom_cursor", 0), ("crawl", ""), ("last", "")):
+        cc.setdefault(k, v)
+    cc.pop("candidates", None)
+    cc.pop("cursor", None)
+    return cc
+
+
+def cc_refill(db, today, stats, get_text):
+    cc = _cc_state(db)
+    idx = json.loads(get_text("https://index.commoncrawl.org/collinfo.json"))[0]["id"]
+    if idx != cc["crawl"]:
+        cc.update(crawl=idx, pages={})
+    kind, dom, match = CC_DOMAINS[cc["dom_cursor"] % len(CC_DOMAINS)]
+    cc["dom_cursor"] += 1
+    page = cc["pages"].get(dom, 0)
+    seen, pages = cc_page(get_text, idx, kind, dom, match, page)
+    cc["pages"][dom] = (page + 1) % pages
+    queued = {b for b, _ in cc["queue"]}
+    fresh = [[b, n] for b, n in seen.items() if b not in db["boards"] and b not in queued and b not in cc["rejected"]]
+    cc["queue"] = sorted(cc["queue"] + fresh, key=lambda x: -x[1])[:4000]   # boards with more crawled pages (bigger hirers) first
+    cc["last"] = today
+    stats.update(cc_source=f"{kind} {dom} page {page + 1}/{pages}", cc_candidates=len(fresh))
+
+
 def cc_step(db, today, stats, get=ats.http, get_text=None, weekday=None):
-    weekday = datetime.now(timezone.utc).weekday() if weekday is None else weekday
-    cc = db["cc"]
-    if (weekday == 6 or not cc.get("last")) and cc.get("last") != today:
+    cc = _cc_state(db)
+    get_text = get_text or (lambda u: ats.http(u, want_json=False, tries=1, timeout=60))
+    if len(cc["queue"]) < CC_LOW and cc.get("last") != today:
         try:
-            cand = cc_candidates(get_text or (lambda u: ats.http(u, want_json=False, tries=1, timeout=60)))
-            cc["candidates"] = [c for c in cand if c not in db["boards"]]
-            cc["cursor"] = 0
-            stats["cc_candidates"] = len(cc["candidates"])
+            cc_refill(db, today, stats, get_text)
         except Exception as e:
             stats["cc_error"] = f"{type(e).__name__}: {str(e)[:120]}"
-        cc["last"] = today
-    todo = cc["candidates"][cc["cursor"]:cc["cursor"] + CC_VERIFY]
-    cc["cursor"] += len(todo)
-    added = 0
-    for b in todo:
+            cc["last"] = today
+    checked = added = wd = 0
+    budget = CC_VERIFY
+    while cc["queue"] and budget > 0:
+        b, _ = cc["queue"].pop(0)
         if b in db["boards"]:
             continue
+        if b.startswith("workday:"):
+            if wd >= CC_WORKDAY_PER_RUN:
+                cc["queue"].append([b, 0])
+                if all(x[0].startswith("workday:") for x in cc["queue"]):
+                    break
+                continue
+            wd += 1
+            budget -= 3
+        else:
+            budget -= 1
+        checked += 1
         try:
             jobs = ats.fetch_board(b, lambda j: False, get)
         except Exception:
+            cc["rejected"][b] = today
             continue
-        if any(place_ok(j["location"], j.get("remote")) for j in jobs):
+        local = [j for j in jobs if place_ok(j["location"], j.get("remote"))]
+        if local:
+            fin = sum(1 for j in local if title_kind(j["title"]))
             add_board(db, b, (jobs[0].get("company") if jobs else "") or b.split(":", 1)[1], "commoncrawl", today, stats)
+            db["boards"][b].update(nyc=len(local), fin_at_add=fin)
             added += 1
-    stats["cc_checked"] = len(todo)
+        else:
+            cc["rejected"][b] = today
+    d0 = date.fromisoformat(today)
+    cc["rejected"] = {b: d for b, d in cc["rejected"].items() if (d0 - date.fromisoformat(d)).days < CC_REJECT_DAYS}
+    stats["cc_checked"] = checked
     stats["cc_added"] = added
+    stats["cc_queue"] = len(cc["queue"])
 
 
 # ---- reading every board ----
 def due(info, board, today):
-    """Weekly for boards that keep failing or show no NYC jobs; Workday (heavier) once a day; the rest every run."""
+    """Every run for boards with a match in the last 14 days; once a day for Workday (heavier) and for boards that list local
+    jobs but never a match after 12 reads; weekly for boards that keep failing or show no local jobs."""
     d = date.fromisoformat(today)
     spread = sum(map(ord, board)) % 7
     if info.get("fails", 0) >= 5 or (info.get("polls", 0) >= 3 and info.get("quiet", 0) >= 3):
         return d.weekday() == spread and info.get("ok") != today
+    hot = bool(info.get("last_hit")) and (d - date.fromisoformat(info["last_hit"])).days <= 14
     if board.startswith("workday:"):
+        return info.get("ok") != today
+    if not hot and info.get("polls", 0) >= 12 and not info.get("hits"):
         return info.get("ok") != today
     return True
 
 
+def priority(info, today):
+    """Read order: recent matches, then many matches, then many local jobs (an out-of-time sweep skips the tail)."""
+    d = date.fromisoformat(today)
+    recent = (d - date.fromisoformat(info["last_hit"])).days if info.get("last_hit") else 999
+    return (recent, -info.get("hits", 0), -info.get("nyc", 0))
+
+
 def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
     t0 = time.time()
-    boards = [b for b, info in db["boards"].items() if due(info, b, today)]
-    rows, ok_boards, failed = [], set(), []
+    boards = sorted((b for b, info in db["boards"].items() if due(info, b, today)), key=lambda b: priority(db["boards"][b], today))
+    rows, borderline, ok_boards, failed = [], [], set(), []
 
     def one(b):
         if time.time() - t0 > seconds:
@@ -316,10 +405,12 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
             continue
         info.update(ok=today, fails=0, jobs=len(jobs), polls=info.get("polls", 0) + 1)
         ok_boards.add(b)
-        nyc = [j for j in jobs if place_ok(j["location"], j.get("remote"))]
-        info["nyc"] = len(nyc)
-        info["quiet"] = 0 if nyc else info.get("quiet", 0) + 1
-        hits = [j for j in nyc if keep(j)]
+        places = [geo.resolve(j["location"], j.get("remote")).status for j in jobs]
+        info["nyc"] = sum(1 for p in places if p in ("local", "remote_us"))
+        info["quiet"] = 0 if any(p in ("local", "remote_us", "maybe") for p in places) else info.get("quiet", 0) + 1
+        verdicts = [(j, judge(j)) for j in jobs]
+        hits = [j for j, v in verdicts if v == "keep"]
+        borderline += [j for j, v in verdicts if v == "borderline"]
         if hits:
             info["hits"] = info.get("hits", 0) + len(hits)
             info["last_hit"] = today
@@ -328,14 +419,16 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
         for j in hits:
             rows.append(j)
     stats.update(boards_total=len(db["boards"]), boards_due=len(boards), boards_ok=len(ok_boards), boards_failed=len(failed),
-                 failed_sample=failed[:8], sweep_seconds=round(time.time() - t0, 1))
-    return rows, ok_boards
+                 failed_sample=failed[:8], sweep_seconds=round(time.time() - t0, 1), borderline=len(borderline),
+                 boards_hot=sum(1 for i in db["boards"].values() if i.get("last_hit") and (date.fromisoformat(today) - date.fromisoformat(i["last_hit"])).days <= 14))
+    return rows, ok_boards, borderline
 
 
 def to_row(j, company, today):
     site = j["id"].split(":")[0]
     desc = (j.get("description") or "").replace("\r", "")[:DESC_CAP].replace("\n", "\\n")
+    p = geo.resolve(j["location"], j.get("remote"), j.get("description") or "")
     return {"id": j["id"], "site": site, "title": j["title"], "company": company or j.get("company", ""), "location": j["location"],
             "is_remote": "True" if j.get("remote") else "False", "date_posted": j.get("posted", ""), "job_url": j["url"], "job_url_direct": j["url"],
             "min_amount": str(j.get("pay_min") or ""), "max_amount": str(j.get("pay_max") or ""), "interval": j.get("interval") or "",
-            "description": desc, "first_seen": today, "last_seen": today, "also_on": ""}
+            "description": desc, "first_seen": today, "last_seen": today, "also_on": "", "region": geo.label(p), "source_ids": j["id"]}
