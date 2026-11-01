@@ -262,27 +262,31 @@ def resolve_redirect(u):
 # interval, description (only for jobs that pass `want`, to keep requests and the CSV small).
 
 def greenhouse(slug, want, get=http):
-    data = get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs")
-    meta = {}
-    try:
-        meta = get(f"https://boards-api.greenhouse.io/v1/boards/{slug}")
-    except Exception:
-        pass
-    co = meta.get("name") or slug
-    out = []
-    for j in data.get("jobs") or []:
+    """One request for the whole board with descriptions (?content=true) instead of one per matching job."""
+    data = get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content=true")
+    jobs = data.get("jobs") or []
+    co = next((j.get("company_name") for j in jobs if j.get("company_name")), "")
+    if not co:
+        try:
+            co = get(f"https://boards-api.greenhouse.io/v1/boards/{slug}").get("name") or slug
+        except Exception:
+            co = slug
+    out = Jobs()
+    for j in jobs:
         loc = (j.get("location") or {}).get("name", "")
         job = {"id": f"greenhouse:{j['id']}", "title": j.get("title", ""), "company": co, "location": loc, "remote": "remote" in loc.lower(),
                "url": j.get("absolute_url", ""), "posted": str(j.get("first_published") or j.get("updated_at") or "")[:10], "description": ""}
         if want(job):
-            try:
-                d = get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs/{j['id']}")
-                job["description"] = text_of(d.get("content"))
-                pay = re.findall(r"\$\s?(\d{2,3}(?:,\d{3})+)", job["description"])
-                if len(pay) >= 2:
-                    job["pay_min"], job["pay_max"], job["interval"] = pay[0].replace(",", ""), pay[1].replace(",", ""), "yearly"
-            except Exception:
-                pass
+            content = j.get("content")
+            if content is None:                         # an older API answer without content: ask for the job
+                try:
+                    content = get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs/{j['id']}").get("content")
+                except Exception:
+                    content = ""
+            job["description"] = text_of(content)
+            pay = re.findall(r"\$\s?(\d{2,3}(?:,\d{3})+)", job["description"])
+            if len(pay) >= 2:
+                job["pay_min"], job["pay_max"], job["interval"] = pay[0].replace(",", ""), pay[1].replace(",", ""), "yearly"
         out.append(job)
     return out
 

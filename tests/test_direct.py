@@ -47,7 +47,7 @@ class FakeAPI:
         for b in self.broken:
             if b in url:
                 raise ats.HttpError(500, url)
-        if url == "https://boards-api.greenhouse.io/v1/boards/acme/jobs":
+        if url == "https://boards-api.greenhouse.io/v1/boards/acme/jobs?content=true":
             return GH_LIST
         if url == "https://boards-api.greenhouse.io/v1/boards/acme":
             return {"name": "Acme Corp"}

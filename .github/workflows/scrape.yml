@@ -98,6 +98,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+        with:
+          ref: main                   # the latest main, not the commit the run started on (code may have moved since)
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333   # v8.0.2
         with:
           name: feed
@@ -117,4 +119,5 @@ jobs:
           test -f registry.tsv && head -1 registry.tsv | grep -q "^board" && git add registry.tsv
           git add jobs.csv feed_status.json
           git commit -m "Update jobs" || echo "No changes"
-          git push
+          for i in 1 2 3; do git push && exit 0; sleep 5; git pull --rebase origin main || exit 1; done
+          exit 1
