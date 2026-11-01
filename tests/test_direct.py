@@ -91,6 +91,8 @@ class Parsing(unittest.TestCase):
         j = lambda t, loc="New York, NY", d="", r=False: {"title": t, "location": loc, "description": d, "remote": r, "company": "Acme"}
         self.assertTrue(D.keep(j("FP&A Analyst")))
         self.assertFalse(D.keep(j("Senior Accountant")))
+        self.assertFalse(D.keep(j("Account Executive, Financial Services")), "a sales seat with 'financial' in the name")
+        self.assertTrue(D.keep(j("Sales Finance Analyst, FP&A")), "a strong title wins over a sales word")
         self.assertFalse(D.keep(j("Financial Analyst", "London, UK")))
         self.assertTrue(D.keep(j("Financial Analyst", "Remote - US")))
         self.assertFalse(D.keep(j("Strategy & Operations Associate", d="Run the warehouse schedule.")))
