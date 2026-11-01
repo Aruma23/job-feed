@@ -139,10 +139,24 @@ def load_overrides(path=OVERRIDES):
     return good, bad
 
 
+NEGATED = re.compile(r"\b(?:never|not|won'?t|don'?t|doesn'?t|no one|nobody|beware|scam|scams|fraud|fraudulent|phishing|impersonat\w*|"
+                     r"warning|caution|be aware|legitimate)\b", re.I)
+
+
+def _said(rx, t):
+    """A match that isn't inside a warning ("we will never interview via Telegram"): employers' anti-scam notices name the
+    same tricks scammers use."""
+    for m in rx.finditer(t):
+        before = re.split(r"[.!?\n]", t[max(0, m.start() - 160):m.start()])[-1]
+        if not NEGATED.search(before + " " + m.group(0)):
+            return True
+    return False
+
+
 def scam_signals(text):
     t = str(text or "").replace("\\n", "\n")
-    severe = [why for rx, why in SEVERE if rx.search(t)]
-    soft = [why for rx, why in SOFT if rx.search(t)]
+    severe = [why for rx, why in SEVERE if _said(rx, t)]
+    soft = [why for rx, why in SOFT if _said(rx, t)]
     return severe, soft
 
 

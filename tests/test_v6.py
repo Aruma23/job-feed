@@ -42,6 +42,13 @@ REAL_NOT_SCAMS = [
  " internal and external auditors to provide necessary documentation and support during audits - Support daily cash management activities, including cash positioning, forecasting, and reporting - Assist in the preparation and processing of wire transfers, ACH payments, and other cash disbursements - Assist in maintaining and monitoring relationships with banking partners - Support the opening, closing, and maintenance of bank accounts and associated services - Help manage bank fee analysis and opt"
 ]
 
+# An employer's anti-scam notice names the same tricks (FalconX, Nov 1 feed).
+REAL_NOT_SCAMS.append("Communicate through official email addresses ending in @falconx.io. If you receive an email from a public "
+                      "domain (Gmail, Yahoo, etc.) or a lookalike domain, it is not from us. - Official Channels: We will never conduct "
+                      "interviews via Telegram, WhatsApp, or Signal. Our process involves video or in-person meetings. - No Financial "
+                      "Requests: FalconX will never ask you for money, \"equipment fees,\" \"training deposits,\" or crypto transfers at any "
+                      "stage of the recruitment process.")
+
 
 def row(**k):
     return dict({c: "" for c in scrape.COLS}, **k)
