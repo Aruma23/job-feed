@@ -1,22 +1,22 @@
 {
- "ran_at": "2026-11-01T19:54:48+00:00",
+ "ran_at": "2026-11-01T20:11:18+00:00",
  "partial": false,
  "empty_sites": [],
  "searches": 24,
  "failed": 0,
- "fresh_rows": 279,
- "rows_written": 1307,
+ "fresh_rows": 304,
+ "rows_written": 1325,
  "by_site": {
   "indeed": {
    "searches": 20,
    "failed": 0,
-   "new": 243,
+   "new": 240,
    "qualified_new": 1
   },
   "linkedin": {
    "searches": 4,
    "failed": 0,
-   "new": 36,
+   "new": 64,
    "qualified_new": 1
   }
  },
@@ -35,9 +35,9 @@
    "site": "indeed",
    "search": "financial planning and analysis",
    "results": 60,
-   "returned": 54,
-   "new": 46,
-   "qualified": 10,
+   "returned": 53,
+   "new": 45,
+   "qualified": 9,
    "qnew": 0,
    "error": ""
   },
@@ -57,7 +57,7 @@
    "results": 60,
    "returned": 60,
    "new": 52,
-   "qualified": 5,
+   "qualified": 6,
    "qnew": 1,
    "error": ""
   },
@@ -96,8 +96,8 @@
    "search": "headcount planning",
    "results": 30,
    "returned": 17,
-   "new": 14,
-   "qualified": 7,
+   "new": 13,
+   "qualified": 6,
    "qnew": 0,
    "error": ""
   },
@@ -136,7 +136,7 @@
    "search": "portfolio analyst",
    "results": 30,
    "returned": 30,
-   "new": 12,
+   "new": 11,
    "qualified": 1,
    "qnew": 0,
    "error": ""
@@ -157,7 +157,7 @@
    "results": 25,
    "returned": 25,
    "new": 25,
-   "qualified": 24,
+   "qualified": 25,
    "qnew": 1,
    "error": ""
   },
@@ -175,9 +175,9 @@
    "site": "linkedin",
    "search": "strategic finance",
    "results": 25,
-   "returned": 10,
-   "new": 7,
-   "qualified": 2,
+   "returned": 25,
+   "new": 15,
+   "qualified": 5,
    "qnew": 0,
    "error": ""
   },
@@ -185,9 +185,9 @@
    "site": "linkedin",
    "search": "workforce planning",
    "results": 20,
-   "returned": 0,
-   "new": 0,
-   "qualified": 0,
+   "returned": 20,
+   "new": 20,
+   "qualified": 9,
    "qnew": 0,
    "error": ""
   },
@@ -274,7 +274,7 @@
   "names_tried": 31,
   "harvest_blocks": 200,
   "harvest_new": 5344,
-  "harvest_seconds": 70.0,
+  "harvest_seconds": 68.1,
   "harvest_progress": "135/240 crawl-system pairs",
   "verified": 800,
   "verified_by_status": {
@@ -284,7 +284,7 @@
    "empty": 39,
    "error": 1
   },
-  "verify_seconds": 102.5,
+  "verify_seconds": 102.8,
   "registry_size": 47783,
   "registry_waiting": 44327,
   "boards_total": 1928,
@@ -295,8 +295,8 @@
    "greenhouse:getbuilt",
    "greenhouse:veracode"
   ],
-  "sweep_seconds": 352.0,
-  "borderline": 872,
+  "sweep_seconds": 341.1,
+  "borderline": 873,
   "boards_hot": 386,
   "drops": 0,
   "drops_sample": [],
@@ -512,8 +512,8 @@
     "failed": 0
    },
    "api.lever.co": {
-    "requests": 50,
-    "retries": 1,
+    "requests": 49,
+    "retries": 0,
     "throttled": 0,
     "failed": 0
    },
@@ -559,10 +559,10 @@
   "routes_gone": 4,
   "employers_checked": 15,
   "employers_verified": 13,
-  "aggregator_rows_folded": 21,
-  "rows_aggregator": 419,
+  "aggregator_rows_folded": 25,
+  "rows_aggregator": 422,
   "pct_direct": 68,
-  "held_for_review": 519,
+  "held_for_review": 520,
   "rescued_by_review": 42,
   "sources": {
    "employers": 1896,
@@ -578,21 +578,21 @@
  },
  "relevance": {
   "by_category": {
-   "FP&A / forecasting / budgeting": 576,
+   "FP&A / forecasting / budgeting": 578,
    "Accounting-heavy / unsuitable": 293,
-   "Treasury / investment / adjacent finance": 263,
+   "Treasury / investment / adjacent finance": 262,
    "Corporate / strategic finance": 65,
-   "Commercial finance / business partnering": 70,
+   "Commercial finance / business partnering": 72,
    "Workforce & capacity planning": 39
   },
-  "strong_fits": 296,
-  "queued_for_review": 919,
+  "strong_fits": 297,
+  "queued_for_review": 920,
   "reviewed_by_model": 42
  },
  "regions": {
-  "New York City": 746,
+  "New York City": 748,
   "Remote (US)": 424,
-  "Bergen/Passaic NJ": 30,
+  "Bergen/Passaic NJ": 31,
   "Morris County NJ": 23,
   "Essex/Union NJ": 23,
   "Hudson County NJ": 16,
@@ -604,17 +604,17 @@
   "Outside area": 2
  },
  "history": {
-  "new": 86,
+  "new": 89,
   "changed": 3,
   "reappeared": 0,
   "closed": 0,
   "refreshed": 0,
-  "tracked": 1353
+  "tracked": 1356
  },
  "seniority": {
-  "analyst": 411,
+  "analyst": 412,
   "manager": 372,
-  "senior": 359,
+  "senior": 361,
   "director+": 88,
   "entry": 70,
   "intern": 6
@@ -827,8 +827,8 @@
     "runs_7d": 8,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 447,
-    "qualified_per_run_7d": 9.5
+    "returned_7d": 446,
+    "qualified_per_run_7d": 9.4
    },
    {
     "search": "indeed|headcount planning",
@@ -838,7 +838,7 @@
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
     "returned_7d": 141,
-    "qualified_per_run_7d": 6.1
+    "qualified_per_run_7d": 6.0
    },
    {
     "search": "indeed|investment analyst",
@@ -888,7 +888,7 @@
     "qualified_new_7d": 3,
     "qualified_new_30d": 3,
     "returned_7d": 480,
-    "qualified_per_run_7d": 5.9
+    "qualified_per_run_7d": 6.0
    },
    {
     "search": "indeed|workforce management analyst",
@@ -918,7 +918,7 @@
     "qualified_new_7d": 3,
     "qualified_new_30d": 3,
     "returned_7d": 135,
-    "qualified_per_run_7d": 16.4
+    "qualified_per_run_7d": 16.5
    },
    {
     "search": "linkedin|financial analyst",
@@ -937,8 +937,8 @@
     "runs_7d": 8,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 150,
-    "qualified_per_run_7d": 4.9
+    "returned_7d": 165,
+    "qualified_per_run_7d": 5.2
    },
    {
     "search": "linkedin|workforce planning",
@@ -947,8 +947,8 @@
     "runs_7d": 8,
     "qualified_new_7d": 1,
     "qualified_new_30d": 1,
-    "returned_7d": 90,
-    "qualified_per_run_7d": 4.9
+    "returned_7d": 110,
+    "qualified_per_run_7d": 6.0
    },
    {
     "search": "zip_recruiter|FP&A analyst",
@@ -1009,27 +1009,27 @@
  "contract": {
   "version": 7,
   "freshness": {
-   "fresh": 545,
+   "fresh": 548,
    "stale": 347,
    "active": 222,
    "aging": 188,
    "gone": 4
   },
   "ghost_risk": {
-   "low": 1096,
+   "low": 1099,
    "medium": 205,
    "high": 5
   },
   "trust": {
    "consistent": 847,
-   "unverified": 292,
+   "unverified": 295,
    "verified": 167
   },
   "priority": {
-   "D": 798,
-   "C": 275,
-   "A": 139,
-   "B": 94
+   "D": 801,
+   "C": 274,
+   "A": 141,
+   "B": 93
   },
   "reposted": 0,
   "tier_A_fresh_verified": 27
@@ -1056,7 +1056,7 @@
    },
    {
     "host": "nyc.gov",
-    "rows": 21,
+    "rows": 22,
     "qualified": 1,
     "employers": 1
    },
@@ -1127,7 +1127,7 @@
     "employers": 1
    }
   ],
-  "aggregator_rows_unreadable": 313
+  "aggregator_rows_unreadable": 316
  },
  "intel": {
   "employers_with_signals": 80,
@@ -1229,12 +1229,13 @@
     ]
    },
    {
-    "employer": "Curaleaf ",
+    "employer": "Referment",
     "openings": 3,
     "new_14d": 3,
     "prev_14d": 0,
     "signals": [
-     "3 fitting openings, 3 posted in 14 days (0 the 14 before)"
+     "3 fitting openings, 3 posted in 14 days (0 the 14 before)",
+     "Financial Analysis and Reporting Senior Manager (4E9B508): pay added: 225000-300000 yearly"
     ]
    }
   ]
@@ -1254,7 +1255,7 @@
     "examples": [
      "in-d2fba6498486efeb / in-cbc4222cf59623c0 (Aeropostale: Senior Financial Analyst FP&A \u2013 Lifestyle Brands)",
      "in-9bac550b597588a0 / greenhouse:8314268 (Datadog: Senior Strategic Sourcing Analyst)",
-     "in-701b8ef4dfe0f916 / in-6c7fd2a2da948bfa (TECHNOLOGY & INNOVATION: Cybersecurity Analyst (GRC))",
+     "in-701b8ef4dfe0f916 / in-6c7fd2a2da948bfa / in-634935ea44791b87 (TECHNOLOGY & INNOVATION: Cybersecurity Analyst (GRC))",
      "in-b78c8a2987c29c33 / in-a8fb5e851879ad67 (Aeropostale: Store Analyst - Aeropostale)",
      "workday:26039659 / workday:26037154 / workday:26034158 (ghr: Quantitative Finance Analyst)"
     ]
@@ -1275,15 +1276,15 @@
   ]
  },
  "classifier": {
-  "queued": 919,
-  "calls": 3,
-  "reviewed": 12,
+  "queued": 920,
+  "calls": 30,
+  "reviewed": 120,
   "model": "gemini-flash-lite-latest",
-  "error": "HTTP 503",
-  "left": 907,
-  "rescued": 1,
+  "error": "",
+  "left": 800,
+  "rescued": 16,
   "demoted": 0,
-  "borderline": 519,
-  "cache_size": 367
+  "borderline": 520,
+  "cache_size": 475
  }
 }
