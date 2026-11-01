@@ -1,5 +1,5 @@
 {
- "ran_at": "2026-11-01T15:39:52+00:00",
+ "ran_at": "2026-11-01T15:48:56+00:00",
  "partial": true,
  "empty_sites": [
   "glassdoor",
@@ -8,19 +8,19 @@
  ],
  "searches": 28,
  "failed": 0,
- "fresh_rows": 316,
- "rows_written": 735,
+ "fresh_rows": 300,
+ "rows_written": 767,
  "by_site": {
   "indeed": {
    "searches": 16,
    "failed": 0,
-   "new": 247,
+   "new": 245,
    "qualified_new": 0
   },
   "linkedin": {
    "searches": 4,
    "failed": 0,
-   "new": 69,
+   "new": 55,
    "qualified_new": 0
   },
   "glassdoor": {
@@ -68,8 +68,8 @@
    "search": "financial analyst",
    "results": 60,
    "returned": 29,
-   "new": 13,
-   "qualified": 5,
+   "new": 12,
+   "qualified": 4,
    "qnew": 0,
    "error": ""
   },
@@ -87,9 +87,9 @@
    "site": "indeed",
    "search": "corporate finance analyst",
    "results": 40,
-   "returned": 38,
+   "returned": 37,
    "new": 26,
-   "qualified": 1,
+   "qualified": 2,
    "qnew": 0,
    "error": ""
   },
@@ -98,8 +98,8 @@
    "search": "business finance analyst",
    "results": 40,
    "returned": 40,
-   "new": 10,
-   "qualified": 1,
+   "new": 9,
+   "qualified": 0,
    "qnew": 0,
    "error": ""
   },
@@ -137,7 +137,7 @@
    "site": "indeed",
    "search": "finance associate",
    "results": 40,
-   "returned": 35,
+   "returned": 34,
    "new": 26,
    "qualified": 3,
    "qnew": 0,
@@ -147,7 +147,7 @@
    "site": "indeed",
    "search": "investment analyst",
    "results": 40,
-   "returned": 29,
+   "returned": 28,
    "new": 6,
    "qualified": 1,
    "qnew": 0,
@@ -177,9 +177,9 @@
    "site": "linkedin",
    "search": "FP&A analyst",
    "results": 25,
-   "returned": 25,
-   "new": 25,
-   "qualified": 25,
+   "returned": 10,
+   "new": 10,
+   "qualified": 10,
    "qnew": 0,
    "error": ""
   },
@@ -187,9 +187,9 @@
    "site": "linkedin",
    "search": "financial analyst",
    "results": 25,
-   "returned": 25,
+   "returned": 10,
    "new": 7,
-   "qualified": 6,
+   "qualified": 7,
    "qnew": 0,
    "error": ""
   },
@@ -198,7 +198,7 @@
    "search": "strategic finance",
    "results": 25,
    "returned": 25,
-   "new": 17,
+   "new": 18,
    "qualified": 6,
    "qnew": 0,
    "error": ""
@@ -209,7 +209,7 @@
    "results": 20,
    "returned": 20,
    "new": 20,
-   "qualified": 10,
+   "qualified": 8,
    "qnew": 0,
    "error": ""
   },
@@ -325,54 +325,54 @@
   }
  ],
  "direct": {
-  "boards_new": 69,
+  "boards_new": 62,
   "version": "v4",
   "links_opened": 14,
   "new_from": {
-   "name-probe": 12,
-   "commoncrawl": 57
+   "name-probe": 8,
+   "commoncrawl": 54
   },
-  "names_tried": 34,
+  "names_tried": 26,
   "cc_checked": 80,
-  "cc_added": 57,
-  "cc_queue": 630,
-  "boards_total": 384,
-  "boards_due": 336,
-  "boards_ok": 335,
+  "cc_added": 54,
+  "cc_queue": 549,
+  "boards_total": 446,
+  "boards_due": 393,
+  "boards_ok": 392,
   "boards_failed": 1,
   "failed_sample": [
    "lever:aprio"
   ],
-  "sweep_seconds": 23.2,
-  "borderline": 284,
-  "boards_hot": 128,
-  "unconventional": 27,
-  "rows_direct": 305,
+  "sweep_seconds": 24.7,
+  "borderline": 320,
+  "boards_hot": 145,
+  "unconventional": 32,
+  "rows_direct": 337,
   "kept_unread": 66,
-  "new_today": 305,
-  "employers": 120,
-  "aggregator_rows_matched": 31,
+  "new_today": 337,
+  "employers": 136,
+  "aggregator_rows_matched": 33,
   "rows_aggregator": 430,
-  "pct_direct": 41,
-  "held_for_review": 284,
+  "pct_direct": 44,
+  "held_for_review": 320,
   "rescued_by_review": 0
  },
  "relevance": {
   "by_category": {
-   "FP&A / forecasting / budgeting": 297,
-   "Accounting-heavy / unsuitable": 231,
-   "Treasury / investment / adjacent finance": 114,
-   "Corporate / strategic finance": 42,
-   "Commercial finance / business partnering": 34,
-   "Workforce & capacity planning": 17
+   "FP&A / forecasting / budgeting": 311,
+   "Accounting-heavy / unsuitable": 234,
+   "Treasury / investment / adjacent finance": 115,
+   "Corporate / strategic finance": 49,
+   "Commercial finance / business partnering": 39,
+   "Workforce & capacity planning": 19
   },
-  "strong_fits": 184,
-  "queued_for_review": 520,
+  "strong_fits": 197,
+  "queued_for_review": 574,
   "reviewed_by_model": 0
  },
  "regions": {
-  "New York City": 542,
-  "Remote (US)": 90,
+  "New York City": 562,
+  "Remote (US)": 102,
   "Bergen/Passaic NJ": 22,
   "Morris County NJ": 20,
   "Essex/Union NJ": 18,
@@ -385,15 +385,15 @@
   "Outside area": 2
  },
  "scheduler": {
-  "run": 3,
+  "run": 4,
   "sites": {
    "glassdoor": {
     "state": "active",
-    "zero_runs": 3
+    "zero_runs": 4
    },
    "google": {
     "state": "active",
-    "zero_runs": 3
+    "zero_runs": 4
    },
    "indeed": {
     "state": "active",
@@ -405,7 +405,7 @@
    },
    "zip_recruiter": {
     "state": "active",
-    "zero_runs": 3
+    "zero_runs": 4
    }
   },
   "searches": [
@@ -413,7 +413,7 @@
     "search": "glassdoor|FP&A analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
     "returned_7d": 0,
@@ -423,7 +423,7 @@
     "search": "glassdoor|financial analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
     "returned_7d": 0,
@@ -433,7 +433,7 @@
     "search": "glassdoor|strategic finance",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
     "returned_7d": 0,
@@ -443,7 +443,7 @@
     "search": "google|FP&A analyst jobs near New York, NY since 3 days ago",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
     "returned_7d": 0,
@@ -453,7 +453,7 @@
     "search": "google|financial planning analyst jobs near New York, NY since 3 days ago",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
     "returned_7d": 0,
@@ -463,7 +463,7 @@
     "search": "google|strategic finance analyst jobs near New York, NY since 3 days ago",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
     "returned_7d": 0,
@@ -473,17 +473,17 @@
     "search": "indeed|FP&A analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 1,
     "qualified_new_30d": 1,
-    "returned_7d": 27,
+    "returned_7d": 36,
     "qualified_per_run_7d": 8.0
    },
    {
     "search": "indeed|FP&A associate",
     "state": "trial",
     "src": "pool",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
     "returned_7d": 0,
@@ -493,187 +493,187 @@
     "search": "indeed|business finance analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 120,
-    "qualified_per_run_7d": 0.3
+    "returned_7d": 160,
+    "qualified_per_run_7d": 0.2
    },
    {
     "search": "indeed|business planning analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 1,
     "qualified_new_30d": 1,
-    "returned_7d": 120,
-    "qualified_per_run_7d": 0.3
+    "returned_7d": 160,
+    "qualified_per_run_7d": 0.2
    },
    {
     "search": "indeed|commercial finance analyst",
     "state": "trial",
     "src": "pool",
-    "runs_7d": 2,
+    "runs_7d": 3,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 50,
+    "returned_7d": 75,
     "qualified_per_run_7d": 0.0
    },
    {
     "search": "indeed|corporate finance analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 114,
-    "qualified_per_run_7d": 1.7
+    "returned_7d": 151,
+    "qualified_per_run_7d": 1.8
    },
    {
     "search": "indeed|economic consulting analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 15,
+    "returned_7d": 20,
     "qualified_per_run_7d": 0.0
    },
    {
     "search": "indeed|finance associate",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 107,
+    "returned_7d": 141,
     "qualified_per_run_7d": 3.0
    },
    {
     "search": "indeed|financial analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 89,
-    "qualified_per_run_7d": 4.3
+    "returned_7d": 118,
+    "qualified_per_run_7d": 4.2
    },
    {
     "search": "indeed|financial planning and analysis",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 171,
+    "returned_7d": 228,
     "qualified_per_run_7d": 9.0
    },
    {
     "search": "indeed|headcount planning",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 54,
+    "returned_7d": 72,
     "qualified_per_run_7d": 6.0
    },
    {
     "search": "indeed|investment analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 87,
+    "returned_7d": 115,
     "qualified_per_run_7d": 1.0
    },
    {
     "search": "indeed|portfolio analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 90,
+    "returned_7d": 120,
     "qualified_per_run_7d": 1.0
    },
    {
     "search": "indeed|senior financial analyst",
     "state": "trial",
     "src": "pool",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 30,
+    "returned_7d": 40,
     "qualified_per_run_7d": 0.0
    },
    {
     "search": "indeed|strategic finance",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 1,
     "qualified_new_30d": 1,
-    "returned_7d": 180,
+    "returned_7d": 240,
     "qualified_per_run_7d": 6.0
    },
    {
     "search": "indeed|workforce planning analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 30,
+    "returned_7d": 40,
     "qualified_per_run_7d": 1.0
    },
    {
     "search": "linkedin|FP&A analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 2,
     "qualified_new_30d": 2,
-    "returned_7d": 75,
-    "qualified_per_run_7d": 24.0
+    "returned_7d": 85,
+    "qualified_per_run_7d": 20.5
    },
    {
     "search": "linkedin|financial analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 60,
-    "qualified_per_run_7d": 4.3
+    "returned_7d": 70,
+    "qualified_per_run_7d": 5.0
    },
    {
     "search": "linkedin|strategic finance",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 75,
+    "returned_7d": 100,
     "qualified_per_run_7d": 6.0
    },
    {
     "search": "linkedin|workforce planning",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 1,
     "qualified_new_30d": 1,
-    "returned_7d": 50,
+    "returned_7d": 70,
     "qualified_per_run_7d": 8.0
    },
    {
     "search": "zip_recruiter|FP&A analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
     "returned_7d": 0,
@@ -683,7 +683,7 @@
     "search": "zip_recruiter|financial analyst",
     "state": "trial",
     "src": "base",
-    "runs_7d": 3,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
     "returned_7d": 0,
@@ -722,16 +722,14 @@
   }
  },
  "classifier": {
-  "queued": 520,
-  "calls": 3,
+  "queued": 574,
+  "calls": 0,
   "reviewed": 0,
   "model": "",
-  "error": "ValueError: python, OpenAI-style headers: not JSON from https://models.github.ai/inference/chat/completions (HTTP 200): 'OK\\r\\n' | curl, GitHub docs headers: not JSON via curl (HTTP 200): 'OK\\r\\n' '' | python, GitHub docs headers: not JSON from https://models.github.ai/inference/chat/completions (HTTP 200): 'OK",
-  "failed_calls": 3,
-  "left": 512,
+  "error": "no GEMINI_API_KEY secret (rules only)",
   "rescued": 0,
   "demoted": 0,
-  "borderline": 284,
+  "borderline": 320,
   "cache_size": 0
  }
 }
