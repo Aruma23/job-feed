@@ -247,10 +247,81 @@ def priority(info, today):
     return (recent, -info.get("hits", 0), -info.get("nyc", 0))
 
 
+DROP_SHARE = 0.4      # a complete read below 40% of the board's usual count (usual >= 10) is suspect, not a mass closing
+DROP_ACCEPT = 3       # ... until it repeats on 3 reads in a row: then the board really shrank
+PRESENT = {}          # board -> requisition keys a trusted complete read exposed this run (freshness.route_gone)
+
+
+def _median(xs):
+    xs = sorted(xs)
+    return xs[len(xs) // 2] if xs else 0
+
+
+def guard(info, jobs):
+    """(jobs without repeats, complete, note). A read far below the board's usual size keeps the last good snapshot: it is
+    treated as partial (nothing closes; missing jobs are checked one by one or kept a few days) until it repeats."""
+    seen, uniq = set(), Jobs_like(jobs)
+    for j in jobs:
+        if j["id"] not in seen:
+            seen.add(j["id"])
+            uniq.append(j)
+    note = "repeated pages" if len(uniq) < len(jobs) else ""
+    complete = getattr(jobs, "complete", True)
+    hist = info.get("hist", [])
+    base = _median(hist) if len(hist) >= 3 else 0
+    if complete and base >= 10 and len(uniq) < DROP_SHARE * base:
+        info["drop"] = info.get("drop", 0) + 1
+        if info["drop"] < DROP_ACCEPT:
+            return uniq, False, f"sudden drop: {len(uniq)} jobs vs usual {base}"
+        info["hist"] = [len(uniq)]
+        info["drop"] = 0
+        return uniq, True, f"shrink accepted after {DROP_ACCEPT} reads: {len(uniq)} jobs (was {base})"
+    info["drop"] = 0
+    if complete:
+        info["hist"] = (hist + [len(uniq)])[-6:]
+    return uniq, complete, note
+
+
+def Jobs_like(jobs):
+    out = ats.Jobs()
+    out.complete = getattr(jobs, "complete", True)
+    return out
+
+
+def adapter_health(db, today, per):
+    """Per application system: boards read, failures, suspect drops, repeated pages, kept jobs missing a description,
+    location or link. A system is degraded when 2+ boards (and 30%+ of those read) drop at once, half of its due boards
+    fail (4+), or half of its kept jobs (5+) lack a description or location. db["adapters"] remembers since when."""
+    mem = db.setdefault("adapters", {})
+    out, bad = {}, []
+    for prov, h in sorted(per.items()):
+        why = []
+        if h["drops"] >= 2 and h["drops"] >= 0.3 * max(1, h["read"]):
+            why.append(f"{h['drops']} of {h['read']} boards suddenly shrank")
+        if h["due"] >= 4 and h["failed"] >= 0.5 * h["due"]:
+            why.append(f"{h['failed']} of {h['due']} boards failed")
+        if h["kept"] >= 5 and h["no_desc"] >= 0.5 * h["kept"]:
+            why.append(f"{h['no_desc']} of {h['kept']} kept jobs had no description")
+        if h["kept"] >= 5 and h["no_loc"] >= 0.5 * h["kept"]:
+            why.append(f"{h['no_loc']} of {h['kept']} kept jobs had no location")
+        m = mem.setdefault(prov, {})
+        state = "degraded" if why else "ok"
+        if m.get("state") != state:
+            m.update(state=state, since=today)
+        m.update(last=today, why="; ".join(why))
+        out[prov] = dict(h, state=state, since=m["since"], why=m["why"])
+        if why:
+            bad.append(prov)
+    return out, bad
+
+
 def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
+    import freshness
     t0 = time.time()
+    PRESENT.clear()
     boards = sorted((b for b, info in db["boards"].items() if due(info, b, today)), key=lambda b: priority(db["boards"][b], today))
     rows, borderline, ok_boards, failed = [], [], {}, []
+    per, drops = {}, []
 
     def one(b):
         if time.time() - t0 > seconds:
@@ -269,16 +340,33 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
                 results.append(f.result())
     for b, jobs, err in results:
         info = db["boards"][b]
+        h = per.setdefault(b.split(":")[0], {"due": 0, "read": 0, "failed": 0, "drops": 0, "repeated": 0, "kept": 0, "no_desc": 0,
+                                             "no_loc": 0, "no_link": 0})
+        if err != "out of time":
+            h["due"] += 1
         if jobs is None:
             if err != "out of time":
                 info["fails"] = info.get("fails", 0) + 1
                 failed.append(b)
+                h["failed"] += 1
             continue
-        info.update(ok=today, fails=0, jobs=len(jobs), polls=info.get("polls", 0) + 1)
-        ok_boards[b] = getattr(jobs, "complete", True)
-        places = [geo.resolve(j["location"], j.get("remote")).status for j in jobs]
-        info["nyc"] = sum(1 for p in places if p in ("local", "remote_us"))
-        info["quiet"] = 0 if any(p in ("local", "remote_us", "maybe") for p in places) else info.get("quiet", 0) + 1
+        h["read"] += 1
+        jobs, complete, note = guard(info, jobs)
+        suspect = note.startswith("sudden drop")
+        if note == "repeated pages":
+            h["repeated"] += 1
+        if suspect:
+            h["drops"] += 1
+            drops.append(f"{b}: {note}")
+        info.update(ok=today, fails=0, polls=info.get("polls", 0) + 1)
+        ok_boards[b] = complete
+        if complete:
+            PRESENT[b] = freshness.board_keys(jobs)
+        if not suspect:
+            info["jobs"] = len(jobs)
+            places = [geo.resolve(j["location"], j.get("remote")).status for j in jobs]
+            info["nyc"] = sum(1 for p in places if p in ("local", "remote_us"))
+            info["quiet"] = 0 if any(p in ("local", "remote_us", "maybe") for p in places) else info.get("quiet", 0) + 1
         verdicts = [(j, judge(j)) for j in jobs]
         hits = [j for j, v in verdicts if v == "keep"]
         borderline += [j for j, v in verdicts if v == "borderline"]
@@ -289,9 +377,15 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
             info["company"] = jobs[0]["company"]
         for j in hits:
             rows.append(j)
+            h["kept"] += 1
+            h["no_desc"] += 0 if (j.get("description") or "").strip() else 1
+            h["no_loc"] += 0 if (j.get("location") or "").strip() else 1
+            h["no_link"] += 0 if str(j.get("url") or "").startswith("http") else 1
+    health, degraded = adapter_health(db, today, per)
     stats.update(boards_total=len(db["boards"]), boards_due=len(boards), boards_ok=len(ok_boards), boards_failed=len(failed),
                  failed_sample=failed[:8], sweep_seconds=round(time.time() - t0, 1), borderline=len(borderline),
-                 boards_hot=sum(1 for i in db["boards"].values() if i.get("last_hit") and (date.fromisoformat(today) - date.fromisoformat(i["last_hit"])).days <= 14))
+                 boards_hot=sum(1 for i in db["boards"].values() if i.get("last_hit") and (date.fromisoformat(today) - date.fromisoformat(i["last_hit"])).days <= 14),
+                 drops=len(drops), drops_sample=drops[:8], adapter_health=health, adapters_degraded=degraded)
     return rows, ok_boards, borderline
 
 

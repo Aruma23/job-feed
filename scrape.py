@@ -22,6 +22,14 @@ directly. Direct rows carry the board's own job ID ("greenhouse:123"), the same 
 seen both ways is one lead. A direct job that leaves its board leaves the feed at once; if a board can't be read, its jobs
 are kept. Aggregator rows that match a direct job get its link. feed_status.json gains a "direct" section.
 
+v6 (Nov 1): the job record contract (CONTRACT.md). New columns, all computed from what the feed already reads:
+- freshness.py: freshness, ghost_risk, freshness_why, reposts, repost_of (an aggregator job whose employer board, read in full,
+  no longer lists it is "gone").
+- trust.py: trust, trust_why (employer verification and scam screening; unknown is "unverified", never a rejection).
+- priority.py: priority (A-D), priority_score, priority_why. Orders the work; the tracker's gate still decides.
+- discover.py: a board that suddenly returns far fewer jobs keeps its last good snapshot; per-system health in feed_status.
+- feed_status "coverage": the employer apply sites the feed can't read yet, by qualifying jobs, to pick the next adapter.
+
 v4 (Nov 1):
 - Location: geo.py's commute regions (NYC, Westchester, Long Island, Rockland, North and Central Jersey, Fairfield County)
   replace the seven-name list; remote-US eligibility is decided separately. Column "region". Rows the tracker's finder would
@@ -43,12 +51,15 @@ import sys
 import time
 from datetime import date, datetime, timedelta, timezone
 
+import freshness
 import geo
 import history
 import identity
+import priority
 import relevance
 import reqs
 import scheduler
+import trust
 
 LOCATION = "New York, NY"
 DISTANCE_MILES = 30          # covers Jersey City, Hoboken and Stamford
@@ -88,7 +99,10 @@ COLS = ["id", "site", "title", "company", "location", "is_remote", "date_posted"
         "job_url", "job_url_direct", "min_amount", "max_amount", "interval", "description",
         "first_seen", "last_seen", "also_on",
         "region", "req_id", "source_ids", "fit_score", "fit_category", "fit_why", "fit_by",
-        "status", "changes", "last_change", "age_days", "skills", "years_min", "education", "seniority", "pay_low", "pay_high"]
+        "status", "changes", "last_change", "age_days", "skills", "years_min", "education", "seniority", "pay_low", "pay_high",
+        "freshness", "ghost_risk", "freshness_why", "reposts", "repost_of", "trust", "trust_why", "priority", "priority_score",
+        "priority_why"]
+CONTRACT_VERSION = 6
 QUALIFY_MIN = 50             # rules score for a job to count as qualified in the search stats
 REVIEW_MAX = 400
 
@@ -280,6 +294,7 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
             j = dict(j, id=j["id"] + "~" + board.split(":", 1)[1].split("|")[0])
         owner[j["id"]] = board
         r = D.to_row(j, (db["boards"].get(board) or {}).get("company"), today)
+        r["_board"] = board
         if j["id"] in prev:
             r["first_seen"] = prev[j["id"]].get("first_seen") or today
         target[j["id"]] = r
@@ -322,6 +337,18 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
     stats["requests"] = {k: v for k, v in sorted(ats.STATS.items(), key=lambda kv: -kv[1]["requests"])[:12]}
     stats["new_today"] = sum(1 for r in out if r.get("first_seen") == today)
     stats["employers"] = len({D.emp_key(r.get("company")) for r in out})
+    try:
+        names = {b: (i.get("company") or "") for b, i in db["boards"].items()}
+        stats["routes_gone"] = 0
+        for r in agg_rows:
+            g = freshness.route_gone(r, D.PRESENT, names)
+            if g:
+                r["_gone"] = g
+                stats["routes_gone"] += 1
+        trust.learn_domains(db, agg_rows + out, today, os.path.join(os.path.dirname(db_path) or ".", trust.OVERRIDES))
+        trust.verify_employers(db, out + [r for r in agg_rows if qualifies(r)], today, stats, get)
+    except Exception as e:
+        stats["verify_error"] = f"{type(e).__name__}: {str(e)[:120]}"
     D.save_db(db, db_path)
     return out, list(held.values()), stats, closed
 
@@ -432,6 +459,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     hist = history.load(os.path.join(here, "history.json"))
     hstats = history.update(hist, rows, today, closed)
     history.save(hist, os.path.join(here, "history.json"))
+    contract = annotate_v6(rows, hist, here, today)
     for h in waiting:
         h["region"] = geo.label(geo.resolve(h.get("location"), h.get("is_remote") == "True", h.get("description") or ""))
         relevance.apply(h, verdict(h))
@@ -446,7 +474,8 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
                              "queued_for_review": len(queue) + len(waiting), "reviewed_by_model": sum(1 for r in rows if r["fit_by"] == "model")},
                "regions": _count(r["region"] for r in rows),
                "history": hstats, "seniority": _count(r["seniority"] for r in rows),
-               "scheduler": dict(scheduler.report(sched, today), decisions=decisions)}
+               "scheduler": dict(scheduler.report(sched, today), decisions=decisions),
+               "contract": contract, "coverage": coverage(rows)}
     if not fresh:
         summary["note"] = "Nothing came back this run; earlier jobs kept."
     with open(status_path, "w", encoding="utf-8") as f:
@@ -459,6 +488,84 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
         json.dump({"review_ids": queue, "borderline": [{c: h.get(c, "") for c in COLS} for h in waiting]}, f)
     print(f"Saved {len(rows)} jobs ({len(fresh)} from this run; {len(failed)} of {len(status)} searches failed; {len(queue) + len(waiting)} queued for review)")
     return summary
+
+
+def annotate_v6(rows, hist, here, today):
+    """Freshness, employer trust and priority for every row (one failure never stops the feed). Returns counts."""
+    import discover as D
+    out = {"version": CONTRACT_VERSION}
+    try:
+        db = D.load_db(os.path.join(here, "boards.json"))
+        good, bad = trust.load_overrides(os.path.join(here, trust.OVERRIDES))
+        index = trust.board_index(db)
+    except Exception as e:
+        db, good, bad, index = {"boards": {}}, {}, {}, {}
+        out["trust_error"] = f"{type(e).__name__}: {str(e)[:120]}"
+    for r in rows:
+        try:
+            freshness.assess(r, hist["jobs"].get(r.get("id")), history.family(hist, r), today, r.pop("_gone", ""))
+            trust.assess(r, db, good, bad, today, index)
+            priority.assess(r)
+        except Exception as e:
+            out["errors"] = out.get("errors", 0) + 1
+            out["last_error"] = f"{r.get('id')}: {type(e).__name__}: {str(e)[:100]}"
+        r.pop("_board", None)
+    for col in ("freshness", "ghost_risk", "trust", "priority"):
+        out[col] = _count(r.get(col, "") for r in rows)
+    out["reposted"] = sum(1 for r in rows if r.get("repost_of"))
+    out["tier_A_fresh_verified"] = sum(1 for r in rows if r.get("priority") == "A" and r.get("trust") == "verified")
+    return out
+
+
+def after_review(rows, added, feed_dir, today):
+    """The classify job changes fit scores and adds rescued board jobs: those get freshness and trust, and every row's priority
+    is recomputed from its final fit. Used by relevance.main; never raises."""
+    try:
+        db = json.load(open(os.path.join(feed_dir, "boards.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        db = {"boards": {}}
+    good, bad = trust.load_overrides(os.path.join(feed_dir, trust.OVERRIDES) if os.path.exists(os.path.join(feed_dir, trust.OVERRIDES))
+                                     else trust.OVERRIDES)
+    index = trust.board_index(db)
+    d0 = datetime.fromisoformat(today).date()
+    for r in added:
+        try:
+            dp = str(r.get("date_posted") or "")[:10]
+            r["age_days"] = str((d0 - date.fromisoformat(dp)).days) if re.match(r"\d{4}-\d{2}-\d{2}$", dp) else "0"
+            freshness.assess(r, None, {}, today)
+            trust.assess(r, db, good, bad, today, index)
+        except Exception:
+            pass
+    for r in rows:
+        try:
+            priority.assess(r)
+        except Exception:
+            pass
+
+
+def coverage(rows, top=15):
+    """Employer apply sites the feed can't read directly yet, ranked by qualifying aggregator jobs (fit 50+) and employers."""
+    import ats
+    import urllib.parse
+    hosts = {}
+    for r in rows:
+        if NATIVE.match(r.get("id") or ""):
+            continue
+        u = r.get("job_url_direct") or ""
+        if not u:
+            hosts.setdefault("(no employer link)", [0, 0, set()])[0] += 1
+            continue
+        if ats.board_of(u):
+            continue
+        h = trust.registered(urllib.parse.urlsplit(u).hostname or "")
+        e = hosts.setdefault(h, [0, 0, set()])
+        e[0] += 1
+        if int(r.get("fit_score") or 0) >= QUALIFY_MIN:
+            e[1] += 1
+            e[2].add(r.get("company"))
+    ranked = sorted(hosts.items(), key=lambda kv: (-kv[1][1], -len(kv[1][2]), -kv[1][0]))[:top]
+    return {"uncovered_hosts": [{"host": h, "rows": a, "qualified": q, "employers": len(es)} for h, (a, q, es) in ranked],
+            "aggregator_rows_unreadable": sum(v[0] for v in hosts.values())}
 
 
 def _count(xs):

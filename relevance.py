@@ -314,6 +314,7 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
     todo = [r for r in border + queue if not cached(cache, r)]
     stats = run_reviews(todo, cache, token, post, today=today)
     rescued = demoted = 0
+    added = []
     for r in rows:
         v = cached(cache, r)
         if v:
@@ -328,7 +329,9 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
             b["source_ids"] = b.get("source_ids") or b["id"]
             b["req_id"] = identity.req_label(identity.req_keys(b))
             rows.append({c: b.get(c, "") for c in scrape.COLS})
+            added.append(rows[-1])
             rescued += 1
+    scrape.after_review(rows, added, feed_dir, today)
     stats.update(rescued=rescued, demoted=demoted, borderline=len(border), cache_size=len(cache["jobs"]))
     prune(cache, {r["id"] for r in rows} | {b.get("id") for b in border}, today)
     with open(jobs_path + ".new", "w", newline="", encoding="utf-8") as f:

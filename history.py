@@ -8,6 +8,10 @@ and a short event log: new, changed (what changed), closed, reappeared. Columns 
   age_days     days since posted (or first seen when the posting date is unknown)
 A job counts as closed only when its company board was read completely without it, or its own page answers 404/410.
 A failed or partial read never closes anything, and an aggregator row dropping out of a 72-hour search is not a closure.
+
+v6 (Nov 1): "refreshed" events (the posting date jumps to within the last 3 days with nothing else changed: a re-dated ad, which
+is not a real change and doesn't reset last_change) and families: every id seen for the same employer + title + place, kept 180
+days, so freshness.py can tell a reposted requisition from a new opening.
 """
 import hashlib
 import json
@@ -17,6 +21,8 @@ from datetime import date
 
 RECENT_DAYS = 3
 KEEP_DAYS = 60
+FAMILY_DAYS = 180
+MEANINGFUL = ("new", "changed", "reappeared")
 MAX_EVENTS = 8
 
 
@@ -77,12 +83,16 @@ def _event(e, today, kind, detail=""):
 
 def update(h, rows, today, closed=(), native=re.compile(r"^[a-z]+:")):
     """rows: everything in this run's feed. closed: ids confirmed closed this run. Fills the history columns on rows."""
+    import identity
     jobs = h["jobs"]
+    fam = h.setdefault("fam", {})
     d0 = date.fromisoformat(today)
-    counts = {"new": 0, "changed": 0, "reappeared": 0, "closed": 0}
+    counts = {"new": 0, "changed": 0, "reappeared": 0, "closed": 0, "refreshed": 0}
     for r in rows:
         jid = r.get("id") or ""
         sig = signature(r, bool(native.match(jid)))
+        dp = str(r.get("date_posted") or "")[:10]
+        dp = dp if re.match(r"\d{4}-\d{2}-\d{2}$", dp) else ""
         e = jobs.get(jid)
         if e is None:
             e = jobs[jid] = {"f": today, "s": sig}
@@ -99,10 +109,20 @@ def update(h, rows, today, closed=(), native=re.compile(r"^[a-z]+:")):
             if ch:
                 _event(e, today, "changed", "; ".join(ch))
                 counts["changed"] += 1
+            elif dp and e.get("dp") and dp > e["dp"] and (d0 - date.fromisoformat(dp)).days <= 3 \
+                    and (date.fromisoformat(dp) - date.fromisoformat(e["dp"])).days >= 7:
+                _event(e, today, "refreshed", f"posting date {e['dp']} -> {dp}")
+                e["rf"] = e.get("rf", 0) + 1
+                counts["refreshed"] += 1
             e["s"] = sig
+        if dp:
+            e["dp"] = dp
         e["l"] = today
-        last = (e.get("ev") or [[e.get("f", today), "new", ""]])[-1]
-        recent = last[1] in ("new", "changed", "reappeared") and (d0 - date.fromisoformat(last[0])).days < RECENT_DAYS
+        e["k"] = identity.fallback_key(r)
+        m = fam.setdefault(e["k"], {})
+        m[jid] = [e.get("f", today), today]
+        last = next((ev for ev in reversed(e.get("ev") or []) if ev[1] in MEANINGFUL), [e.get("f", today), "new", ""])
+        recent = (d0 - date.fromisoformat(last[0])).days < RECENT_DAYS
         r["status"] = last[1] if recent else "unchanged"
         r["changes"] = next((ev[2] for ev in reversed(e.get("ev", [])) if ev[1] == "changed"), "")
         r["last_change"] = e.get("c", e.get("f", today))
@@ -118,7 +138,20 @@ def update(h, rows, today, closed=(), native=re.compile(r"^[a-z]+:")):
             e["closed_on"] = today
             _event(e, today, "closed")
             counts["closed"] += 1
+            if e.get("k") and jid in fam.get(e["k"], {}):
+                fam[e["k"]][jid] = fam[e["k"]][jid][:2] + [today]
     for jid in [k for k, e in jobs.items() if (d0 - date.fromisoformat(e.get("l", e.get("f", today)))).days > KEEP_DAYS]:
         del jobs[jid]
+    for k in list(fam):
+        for jid in [j for j, m in fam[k].items() if (d0 - date.fromisoformat(m[-1] if len(m) > 2 else m[1])).days > FAMILY_DAYS]:
+            del fam[k][jid]
+        if not fam[k]:
+            del fam[k]
     counts["tracked"] = len(jobs)
     return counts
+
+
+def family(h, row):
+    """{id: [first_seen, last_seen(, closed_on)]} for every id seen with this row's employer + title + place."""
+    import identity
+    return (h.get("fam") or {}).get(identity.fallback_key(row), {})

@@ -36,7 +36,14 @@ jobs:
           need = {"id", "site", "title", "company", "job_url"}
           assert need <= set(rows[0].keys() if rows else need), "jobs.csv lost a required column"
           assert all(r["job_url"].startswith("http") for r in rows), "a row without a web link"
+          assert len({r["id"] for r in rows}) == len(rows), "two rows share an id (CONTRACT.md invariant 1)"
+          enums = {"freshness": {"fresh", "active", "aging", "stale", "gone"}, "ghost_risk": {"low", "medium", "high"},
+                   "trust": {"verified", "consistent", "unverified", "suspicious"}, "priority": {"A", "B", "C", "D"}}
+          bad = [(r["id"], c, r.get(c)) for r in rows for c, ok in enums.items() if r.get(c) not in ok]
+          assert not bad, f"values outside CONTRACT.md: {bad[:5]}"
           s = json.load(open("feed_status.json"))
+          print(json.dumps({"contract": s.get("contract"), "coverage": (s.get("coverage") or {}).get("uncovered_hosts", [])[:6]}))
+          print(json.dumps({k: (s.get("direct") or {}).get(k) for k in ("drops", "drops_sample", "adapters_degraded", "routes_gone", "employers_checked", "employers_verified", "verify_error")}))
           print(json.dumps({k: s[k] for k in ("partial", "failed", "rows_written", "empty_sites")}))
           d = s.get("direct") or {}
           print(json.dumps({k: d.get(k) for k in ("boards_total", "boards_ok", "boards_failed", "boards_new", "rows_direct", "pct_direct", "unconventional", "held_for_review", "harvest_blocks", "harvest_new", "harvest_progress", "harvest_error", "verified", "verified_by_status", "registry_size", "registry_waiting", "closed_confirmed", "still_open", "error")}))
