@@ -1,5 +1,5 @@
 {
- "ran_at": "2026-11-01T12:08:57+00:00",
+ "ran_at": "2026-11-01T14:31:06+00:00",
  "partial": true,
  "empty_sites": [
   "glassdoor",
@@ -8,18 +8,18 @@
  ],
  "searches": 25,
  "failed": 0,
- "fresh_rows": 304,
- "rows_written": 400,
+ "fresh_rows": 291,
+ "rows_written": 637,
  "by_site": {
   "indeed": {
    "searches": 13,
    "failed": 0,
-   "new": 244
+   "new": 242
   },
   "linkedin": {
    "searches": 4,
    "failed": 0,
-   "new": 60
+   "new": 49
   },
   "glassdoor": {
    "searches": 3,
@@ -48,8 +48,8 @@
   {
    "site": "indeed",
    "search": "financial planning and analysis",
-   "returned": 60,
-   "new": 51,
+   "returned": 58,
+   "new": 49,
    "error": ""
   },
   {
@@ -70,7 +70,7 @@
    "site": "indeed",
    "search": "corporate finance analyst",
    "returned": 38,
-   "new": 26,
+   "new": 27,
    "error": ""
   },
   {
@@ -83,14 +83,14 @@
   {
    "site": "indeed",
    "search": "workforce planning analyst",
-   "returned": 11,
-   "new": 7,
+   "returned": 10,
+   "new": 6,
    "error": ""
   },
   {
    "site": "indeed",
    "search": "headcount planning",
-   "returned": 18,
+   "returned": 19,
    "new": 13,
    "error": ""
   },
@@ -105,7 +105,7 @@
    "site": "indeed",
    "search": "finance associate",
    "returned": 37,
-   "new": 26,
+   "new": 25,
    "error": ""
   },
   {
@@ -119,7 +119,7 @@
    "site": "indeed",
    "search": "portfolio analyst",
    "returned": 30,
-   "new": 8,
+   "new": 9,
    "error": ""
   },
   {
@@ -132,15 +132,15 @@
   {
    "site": "linkedin",
    "search": "FP&A analyst",
-   "returned": 25,
-   "new": 25,
+   "returned": 20,
+   "new": 20,
    "error": ""
   },
   {
    "site": "linkedin",
    "search": "financial analyst",
    "returned": 25,
-   "new": 7,
+   "new": 11,
    "error": ""
   },
   {
@@ -153,8 +153,8 @@
   {
    "site": "linkedin",
    "search": "workforce planning",
-   "returned": 10,
-   "new": 10,
+   "returned": 0,
+   "new": 0,
    "error": ""
   },
   {
@@ -213,5 +213,35 @@
    "new": 0,
    "error": ""
   }
- ]
+ ],
+ "direct": {
+  "boards_new": 95,
+  "version": "v3",
+  "new_from": {
+   "feed-link": 34,
+   "name-probe": 5,
+   "commoncrawl": 56
+  },
+  "links_opened": 33,
+  "names_tried": 27,
+  "cc_candidates": 951,
+  "cc_checked": 80,
+  "cc_added": 56,
+  "boards_total": 185,
+  "boards_due": 185,
+  "boards_ok": 184,
+  "boards_failed": 1,
+  "failed_sample": [
+   "lever:aprio"
+  ],
+  "sweep_seconds": 146.0,
+  "unconventional": 29,
+  "rows_direct": 234,
+  "kept_unread": 0,
+  "new_today": 234,
+  "employers": 82,
+  "aggregator_rows_matched": 24,
+  "rows_aggregator": 403,
+  "pct_direct": 37
+ }
 }
