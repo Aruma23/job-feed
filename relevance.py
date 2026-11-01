@@ -191,16 +191,62 @@ class _KeepPost(urllib.request.HTTPRedirectHandler):
 _OPENER = urllib.request.build_opener(_KeepPost)
 
 
-def http_post(url, body, token, timeout=60):
+def _urllib_post(url, body, token, timeout, headers):
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST",
-                                 headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json",
-                                          "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"})
+                                 headers=dict({"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, **headers))
     with _OPENER.open(req, timeout=timeout) as r:
         raw = r.read().decode("utf-8", "replace")
         try:
             return json.loads(raw)
         except ValueError:
             raise ValueError(f"not JSON from {r.geturl()[:80]} (HTTP {r.status}): {raw[:160]!r}")
+
+
+def _curl_post(url, body, token, timeout, headers):
+    """The request exactly as GitHub's documentation sends it, with curl (headers from a private temp file, not argv)."""
+    import subprocess
+    import tempfile
+    with tempfile.NamedTemporaryFile("w", delete=False) as hf:
+        os.chmod(hf.name, 0o600)
+        hf.write(f"Authorization: Bearer {token}\nContent-Type: application/json\n" + "".join(f"{k}: {v}\n" for k, v in headers.items()))
+    try:
+        p = subprocess.run(["curl", "-sS", "-L", "--max-time", str(timeout), "-X", "POST", "-H", "@" + hf.name, "--data-binary", "@-",
+                            "-w", "\n%{http_code}", url], input=json.dumps(body).encode(), capture_output=True, timeout=timeout + 10)
+    finally:
+        os.unlink(hf.name)
+    out = p.stdout.decode("utf-8", "replace")
+    raw, _, code = out.rpartition("\n")
+    if code in ("401", "403", "429"):
+        raise urllib.error.HTTPError(url, int(code), raw[:200], {}, None)
+    if code in ("400", "404", "422"):
+        raise urllib.error.HTTPError(url, int(code), raw[:200], {}, None)
+    try:
+        return json.loads(raw)
+    except ValueError:
+        raise ValueError(f"not JSON via curl (HTTP {code}): {raw[:160]!r} {p.stderr.decode()[:100]!r}")
+
+
+# Ways to send the request, tried in order until one returns JSON; the one that works is used for the rest of the run.
+TRANSPORTS = [
+    ("python, OpenAI-style headers", lambda u, b, t, to: _urllib_post(u, b, t, to, {"Accept": "application/json", "User-Agent": "job-feed/4"})),
+    ("curl, GitHub docs headers", lambda u, b, t, to: _curl_post(u, b, t, to, {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"})),
+    ("python, GitHub docs headers", lambda u, b, t, to: _urllib_post(u, b, t, to, {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"})),
+]
+_WORKING = []
+
+
+def http_post(url, body, token, timeout=60):
+    errors = []
+    for name, send in ([t for t in TRANSPORTS if t[0] in _WORKING] or TRANSPORTS):
+        try:
+            data = send(url, body, token, timeout)
+            if name not in _WORKING:
+                _WORKING[:] = [name]
+            return data
+        except ValueError as e:
+            errors.append(f"{name}: {e}")
+            continue
+    raise ValueError(" | ".join(errors)[:600])
 
 
 def _norm_cat(c):
@@ -283,6 +329,7 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
             continue
         stats["calls"] += 1
         stats["model"] = models[0]
+        stats["transport"] = ",".join(_WORKING)
         for r in batch:
             v = got.get(r["id"])
             if v:
