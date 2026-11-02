@@ -1,15 +1,25 @@
 # Feed audit
 
-2026-11-01T20:11+00:00 · **WARN** · Published, with warnings.
+2026-11-02T00:07+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 4 accounting-heavy jobs ranked A or B.
+## WARN: 5 accounting-heavy jobs ranked A or B.
 
 - What the feed did: Left as published.
 - What to do: Fit and category disagree; the relevance rules need a look.
   - NEO Philanthropy: Financial Analyst
+  - Research Foundation CUNY: Finance Associate
   - rsm: Financial Consulting Supervisor - Real Estate Accounting Outsourcing
   - iCapital: Corporate Finance, Revenue Operations - Associate
   - iCapital: Corporate Finance, Revenue Operations - Associate
+
+## INFO: 269 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-01.
+
+- What the feed did: Kept for up to 4 days after they were last seen.
+  - Eataly: Financial Planning Analyst (FP&A) (last 2026-11-01)
+  - AIG Employee Services, Inc.: Investment Accounting Senior Analyst (last 2026-11-01)
+  - Eataly: Senior Financial Planning Analyst (FP&A) - Eataly Corporate (last 2026-11-01)
+  - Kering: KERING Financial Analyst (last 2026-11-01)
+  - Lucky Brand: Senior Financial Analyst FP&A – Lifestyle Brands (last 2026-11-01)
 
 ## INFO: 17 sets of rows share employer, title, place and description.
 

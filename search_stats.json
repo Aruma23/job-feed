@@ -1,5 +1,5 @@
 {
-"run": 8,
+"run": 9,
 "searches": {
 "glassdoor|FP&A analyst": {
 "added": "2026-11-01",
@@ -11,11 +11,19 @@
 0,
 0,
 0
+],
+"2026-11-02": [
+1,
+0,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 7,
+"runs_total": 8,
 "site": "glassdoor",
 "src": "base",
 "state": "trial",
@@ -71,11 +79,19 @@
 0,
 0,
 0
+],
+"2026-11-02": [
+1,
+0,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 7,
+"runs_total": 8,
 "site": "google",
 "src": "base",
 "state": "trial",
@@ -131,14 +147,22 @@
 64,
 1,
 0
+],
+"2026-11-02": [
+1,
+6,
+6,
+6,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 60,
-"runs_total": 8,
+"runs_total": 9,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "active",
 "term": "FP&A analyst"
 },
 "indeed|FP&A associate": {
@@ -158,7 +182,7 @@
 "runs_total": 8,
 "site": "indeed",
 "src": "pool",
-"state": "trial",
+"state": "reduced",
 "term": "FP&A associate"
 },
 "indeed|budget analyst": {
@@ -171,11 +195,19 @@
 0,
 0,
 0
+],
+"2026-11-02": [
+1,
+1,
+1,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 1,
+"runs_total": 2,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
@@ -198,7 +230,7 @@
 "runs_total": 8,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "business finance analyst"
 },
 "indeed|business planning analyst": {
@@ -211,14 +243,22 @@
 2,
 1,
 0
+],
+"2026-11-02": [
+1,
+60,
+49,
+2,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 40,
-"runs_total": 8,
+"runs_total": 9,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "active",
 "term": "business planning analyst"
 },
 "indeed|capacity planning analyst": {
@@ -231,11 +271,19 @@
 0,
 0,
 0
+],
+"2026-11-02": [
+1,
+3,
+1,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 2,
+"runs_total": 3,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
@@ -251,15 +299,43 @@
 0,
 0,
 0
+],
+"2026-11-02": [
+1,
+19,
+10,
+2,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 7,
+"runs_total": 8,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
 "term": "commercial finance analyst"
+},
+"indeed|corporate development analyst": {
+"added": "2026-11-02",
+"days": {
+"2026-11-02": [
+1,
+30,
+9,
+0,
+0,
+0
+]
+},
+"last_run_day": "2026-11-02",
+"n": 30,
+"runs_total": 1,
+"site": "indeed",
+"src": "pool",
+"state": "trial",
+"term": "corporate development analyst"
 },
 "indeed|corporate finance analyst": {
 "added": "2026-11-01",
@@ -278,7 +354,7 @@
 "runs_total": 8,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "corporate finance analyst"
 },
 "indeed|economic consulting analyst": {
@@ -298,7 +374,7 @@
 "runs_total": 8,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "economic consulting analyst"
 },
 "indeed|finance associate": {
@@ -318,8 +394,28 @@
 "runs_total": 8,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "finance associate"
+},
+"indeed|finance business partner": {
+"added": "2026-11-02",
+"days": {
+"2026-11-02": [
+1,
+30,
+19,
+0,
+0,
+0
+]
+},
+"last_run_day": "2026-11-02",
+"n": 30,
+"runs_total": 1,
+"site": "indeed",
+"src": "pool",
+"state": "trial",
+"term": "finance business partner"
 },
 "indeed|financial analyst": {
 "added": "2026-11-01",
@@ -338,7 +434,7 @@
 "runs_total": 8,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "financial analyst"
 },
 "indeed|financial planning and analysis": {
@@ -358,7 +454,7 @@
 "runs_total": 8,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "financial planning and analysis"
 },
 "indeed|headcount planning": {
@@ -371,14 +467,22 @@
 48,
 0,
 0
+],
+"2026-11-02": [
+1,
+14,
+9,
+5,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 8,
+"runs_total": 9,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "headcount planning"
 },
 "indeed|investment analyst": {
@@ -398,7 +502,7 @@
 "runs_total": 8,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "investment analyst"
 },
 "indeed|portfolio analyst": {
@@ -411,14 +515,22 @@
 8,
 0,
 0
+],
+"2026-11-02": [
+1,
+30,
+13,
+1,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 8,
+"runs_total": 9,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "portfolio analyst"
 },
 "indeed|revenue analyst": {
@@ -431,11 +543,19 @@
 0,
 0,
 0
+],
+"2026-11-02": [
+1,
+8,
+4,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 1,
+"runs_total": 2,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
@@ -458,7 +578,7 @@
 "runs_total": 8,
 "site": "indeed",
 "src": "pool",
-"state": "trial",
+"state": "reduced",
 "term": "senior financial analyst"
 },
 "indeed|strategic finance": {
@@ -471,14 +591,22 @@
 48,
 3,
 0
+],
+"2026-11-02": [
+1,
+90,
+88,
+11,
+1,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 60,
-"runs_total": 8,
+"runs_total": 9,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "active",
 "term": "strategic finance"
 },
 "indeed|workforce management analyst": {
@@ -491,11 +619,19 @@
 0,
 0,
 0
+],
+"2026-11-02": [
+1,
+0,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 2,
+"runs_total": 3,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
@@ -518,7 +654,7 @@
 "runs_total": 8,
 "site": "indeed",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "workforce planning analyst"
 },
 "linkedin|FP&A analyst": {
@@ -531,14 +667,22 @@
 132,
 3,
 0
+],
+"2026-11-02": [
+1,
+0,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 25,
-"runs_total": 8,
+"runs_total": 9,
 "site": "linkedin",
 "src": "base",
-"state": "trial",
+"state": "active",
 "term": "FP&A analyst"
 },
 "linkedin|financial analyst": {
@@ -551,14 +695,22 @@
 59,
 1,
 0
+],
+"2026-11-02": [
+1,
+0,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 25,
-"runs_total": 8,
+"runs_total": 9,
 "site": "linkedin",
 "src": "base",
-"state": "trial",
+"state": "active",
 "term": "financial analyst"
 },
 "linkedin|strategic finance": {
@@ -578,7 +730,7 @@
 "runs_total": 8,
 "site": "linkedin",
 "src": "base",
-"state": "trial",
+"state": "reduced",
 "term": "strategic finance"
 },
 "linkedin|workforce planning": {
@@ -591,14 +743,22 @@
 48,
 1,
 0
+],
+"2026-11-02": [
+1,
+0,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 20,
-"runs_total": 8,
+"runs_total": 9,
 "site": "linkedin",
 "src": "base",
-"state": "trial",
+"state": "active",
 "term": "workforce planning"
 },
 "zip_recruiter|FP&A analyst": {
@@ -611,11 +771,19 @@
 0,
 0,
 0
+],
+"2026-11-02": [
+1,
+0,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 7,
+"runs_total": 8,
 "site": "zip_recruiter",
 "src": "base",
 "state": "trial",
@@ -644,16 +812,16 @@
 },
 "sites": {
 "glassdoor": {
-"probed": "2026-11-01",
+"probed": "2026-11-02",
 "since": "2026-11-01",
 "state": "paused",
-"zero_runs": 7
+"zero_runs": 8
 },
 "google": {
-"probed": "2026-11-01",
+"probed": "2026-11-02",
 "since": "2026-11-01",
 "state": "paused",
-"zero_runs": 7
+"zero_runs": 8
 },
 "indeed": {
 "state": "active",
@@ -661,13 +829,13 @@
 },
 "linkedin": {
 "state": "active",
-"zero_runs": 0
+"zero_runs": 1
 },
 "zip_recruiter": {
-"probed": "2026-11-01",
+"probed": "2026-11-02",
 "since": "2026-11-01",
 "state": "paused",
-"zero_runs": 7
+"zero_runs": 8
 }
 },
 "v": 1
