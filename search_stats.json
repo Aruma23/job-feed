@@ -1,5 +1,5 @@
 {
-"run": 10,
+"run": 11,
 "searches": {
 "glassdoor|FP&A analyst": {
 "added": "2026-11-01",
@@ -149,17 +149,17 @@
 0
 ],
 "2026-11-02": [
-2,
-12,
-12,
-12,
+3,
+15,
+15,
+15,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-02",
 "n": 60,
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -205,8 +205,8 @@
 0
 ],
 "2026-11-02": [
-2,
-2,
+3,
+3,
 1,
 0,
 0,
@@ -215,7 +215,7 @@
 },
 "last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 3,
+"runs_total": 4,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
@@ -231,11 +231,19 @@
 2,
 0,
 0
+],
+"2026-11-02": [
+1,
+33,
+26,
+3,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 40,
-"runs_total": 8,
+"runs_total": 9,
 "site": "indeed",
 "src": "base",
 "state": "reduced",
@@ -253,17 +261,17 @@
 0
 ],
 "2026-11-02": [
-2,
-120,
-94,
-4,
+3,
+180,
+141,
+6,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-02",
 "n": 40,
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -281,8 +289,8 @@
 0
 ],
 "2026-11-02": [
-2,
-6,
+3,
+9,
 2,
 0,
 0,
@@ -291,11 +299,31 @@
 },
 "last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 4,
+"runs_total": 5,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
 "term": "capacity planning analyst"
+},
+"indeed|commercial finance": {
+"added": "2026-11-02",
+"days": {
+"2026-11-02": [
+1,
+30,
+14,
+0,
+0,
+0
+]
+},
+"last_run_day": "2026-11-02",
+"n": 30,
+"runs_total": 1,
+"site": "indeed",
+"src": "pool",
+"state": "trial",
+"term": "commercial finance"
 },
 "indeed|commercial finance analyst": {
 "added": "2026-11-01",
@@ -309,9 +337,9 @@
 0
 ],
 "2026-11-02": [
-1,
-19,
-10,
+2,
+35,
+14,
 2,
 0,
 0
@@ -319,7 +347,7 @@
 },
 "last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 8,
+"runs_total": 9,
 "site": "indeed",
 "src": "pool",
 "state": "reduced",
@@ -329,17 +357,17 @@
 "added": "2026-11-02",
 "days": {
 "2026-11-02": [
+3,
+88,
+34,
 2,
-60,
-24,
-1,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 2,
+"runs_total": 3,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
@@ -395,11 +423,19 @@
 20,
 0,
 0
+],
+"2026-11-02": [
+1,
+22,
+15,
+1,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-01",
+"last_run_day": "2026-11-02",
 "n": 40,
-"runs_total": 8,
+"runs_total": 9,
 "site": "indeed",
 "src": "base",
 "state": "reduced",
@@ -409,9 +445,9 @@
 "added": "2026-11-02",
 "days": {
 "2026-11-02": [
-2,
-60,
-36,
+3,
+90,
+49,
 0,
 0,
 0
@@ -419,7 +455,7 @@
 },
 "last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 2,
+"runs_total": 3,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
@@ -477,9 +513,9 @@
 "added": "2026-11-02",
 "days": {
 "2026-11-02": [
-1,
-18,
 2,
+30,
+3,
 1,
 0,
 0
@@ -487,7 +523,7 @@
 },
 "last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 1,
+"runs_total": 2,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
@@ -589,9 +625,9 @@
 0
 ],
 "2026-11-02": [
-2,
-16,
-8,
+3,
+23,
+12,
 0,
 0,
 0
@@ -599,11 +635,31 @@
 },
 "last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 3,
+"runs_total": 4,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
 "term": "revenue analyst"
+},
+"indeed|revenue strategy": {
+"added": "2026-11-02",
+"days": {
+"2026-11-02": [
+1,
+30,
+26,
+0,
+0,
+0
+]
+},
+"last_run_day": "2026-11-02",
+"n": 30,
+"runs_total": 1,
+"site": "indeed",
+"src": "pool",
+"state": "trial",
+"term": "revenue strategy"
 },
 "indeed|senior financial analyst": {
 "added": "2026-11-01",
@@ -645,17 +701,17 @@
 0
 ],
 "2026-11-02": [
-2,
-180,
-175,
-22,
-2,
+3,
+270,
+264,
+34,
+4,
 0
 ]
 },
 "last_run_day": "2026-11-02",
 "n": 60,
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -665,7 +721,7 @@
 "added": "2026-11-02",
 "days": {
 "2026-11-02": [
-1,
+2,
 0,
 0,
 0,
@@ -675,7 +731,7 @@
 },
 "last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 1,
+"runs_total": 2,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
@@ -693,7 +749,7 @@
 0
 ],
 "2026-11-02": [
-2,
+3,
 0,
 0,
 0,
@@ -703,7 +759,7 @@
 },
 "last_run_day": "2026-11-02",
 "n": 30,
-"runs_total": 4,
+"runs_total": 5,
 "site": "indeed",
 "src": "pool",
 "state": "trial",
@@ -749,17 +805,17 @@
 0
 ],
 "2026-11-02": [
-2,
-30,
-30,
-28,
-2,
+3,
+67,
+67,
+63,
+9,
 0
 ]
 },
 "last_run_day": "2026-11-02",
 "n": 25,
-"runs_total": 10,
+"runs_total": 11,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -777,17 +833,17 @@
 0
 ],
 "2026-11-02": [
+3,
+25,
 2,
-0,
-0,
-0,
-0,
+2,
+2,
 0
 ]
 },
 "last_run_day": "2026-11-02",
 "n": 25,
-"runs_total": 10,
+"runs_total": 11,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -825,17 +881,17 @@
 0
 ],
 "2026-11-02": [
-2,
-0,
-0,
-0,
+3,
+20,
+20,
+8,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-02",
 "n": 20,
-"runs_total": 10,
+"runs_total": 11,
 "site": "linkedin",
 "src": "base",
 "state": "active",
