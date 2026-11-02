@@ -25,6 +25,15 @@ BOOST_MAX = 100            # results asked for by a top search
 # New phrases on trial. Kept to the same lanes (FP&A, strategic/corporate/commercial finance, workforce and capacity planning,
 # adjacent finance); each must earn its place by bringing in new qualified jobs.
 POOL = [
+    # Nov 1 (v9): responsibility-based searches. Finance work advertised under other titles (Revenue Strategy, Business
+    # Operations, Commercial Finance...). Indeed matches every word anywhere in the posting, so duty words find the work
+    # whatever the title says; the relevance rules then judge each job by its duties, and each phrase still has to earn
+    # its place with new qualified jobs. Listed first: untried phrases are admitted in this order, 2 a run
+    # when there is room, so these go ahead of the older untried ones.
+    ("indeed", "revenue strategy", 30), ("indeed", "commercial finance", 30), ("indeed", "finance and strategy manager", 30),
+    ("indeed", "business planning manager", 30), ("indeed", "business operations forecasting budget", 30),
+    ("indeed", "strategy operations forecast budget variance", 30), ("indeed", "pricing strategy financial model", 30),
+    ("linkedin", "revenue strategy", 20), ("linkedin", "commercial finance", 20), ("linkedin", "strategy and operations finance", 20),
     ("indeed", "FP&A associate", 40), ("indeed", "senior financial analyst", 40), ("indeed", "commercial finance analyst", 30),
     ("indeed", "capacity planning analyst", 30), ("indeed", "workforce management analyst", 30), ("indeed", "budget analyst", 30),
     ("indeed", "revenue analyst", 30), ("indeed", "finance business partner", 30), ("indeed", "corporate development analyst", 30),
@@ -34,14 +43,6 @@ POOL = [
     ("linkedin", "capacity planning analyst", 20), ("linkedin", "business finance analyst", 20), ("linkedin", "senior financial analyst", 20),
     ("glassdoor", "financial planning and analysis", 30), ("zip_recruiter", "strategic finance", 30),
     ("google", "financial analyst jobs in New York, NY", 30),
-    # Nov 1 (v9): responsibility-based searches. Finance work advertised under other titles (Revenue Strategy, Business
-    # Operations, Commercial Finance...). Indeed matches every word anywhere in the posting, so duty words find the work
-    # whatever the title says; the relevance rules then judge each job by its duties, and each phrase still has to earn
-    # its place with new qualified jobs.
-    ("indeed", "revenue strategy", 30), ("indeed", "commercial finance", 30), ("indeed", "finance and strategy manager", 30),
-    ("indeed", "business planning manager", 30), ("indeed", "business operations forecasting budget", 30),
-    ("indeed", "strategy operations forecast budget variance", 30), ("indeed", "pricing strategy financial model", 30),
-    ("linkedin", "revenue strategy", 20), ("linkedin", "commercial finance", 20), ("linkedin", "strategy and operations finance", 20),
 ]
 
 
