@@ -101,6 +101,7 @@ def judge(job):
     k = title_kind(job["title"])
     t = words(job["title"])
     if k != "strong" and any(has(t, w) for w in SOFT_EXCLUDE):   # sales / marketing seats with "financial" in the name
+        job["_drop"] = "sales or marketing title"
         return "drop"
     if k in ("strong", "broad"):
         return "keep"
@@ -112,6 +113,7 @@ def judge(job):
     if relevance.rules(job["title"], d, k)["core"] >= 2:
         job["borderline"] = True
         return "borderline"
+    job["_drop"] = "few planning duties"      # turned away on its description: eligible for the false-negative sample
     return "drop"
 
 
@@ -257,6 +259,7 @@ DROP_SHARE = 0.4      # a complete read below 40% of the board's usual count (us
 DROP_ACCEPT = 3       # ... until it repeats on 3 reads in a row: then the board really shrank
 PRESENT = {}          # board -> requisition keys a trusted complete read exposed this run (freshness.route_gone)
 SKIPPED = set()       # boards due by schedule but skipped this run as unchanged (footprint.py); their jobs are kept
+REJECTED = []         # (board, job) the rules turned away on their description this run (backlog.py samples them)
 
 
 def _median(xs):
@@ -333,6 +336,7 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
     t0 = time.time()
     PRESENT.clear()
     SKIPPED.clear()
+    del REJECTED[:]
     run = db["run"] = db.get("run", 0) + 1
     per, drops = {}, []
     scheduled = [b for b, info in db["boards"].items() if due(info, b, today)]
@@ -393,6 +397,8 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
         verdicts = [(j, judge(j)) for j in jobs]
         hits = [j for j, v in verdicts if v == "keep"]
         borderline += [j for j, v in verdicts if v == "borderline"]
+        if len(REJECTED) < 3000:                  # backlog.POOL_CAP
+            REJECTED.extend((b, j) for j, v in verdicts if v == "drop" and j.get("_drop") and len(j.get("description") or "") >= 300)
         if hits:
             info["hits"] = info.get("hits", 0) + len(hits)
             info["last_hit"] = today

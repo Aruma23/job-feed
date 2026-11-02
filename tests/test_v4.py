@@ -163,22 +163,25 @@ class Relevance(unittest.TestCase):
         items = [row(f"in-{i}", "indeed", "Analyst", "Acme", desc=FPA_DESC) for i in range(10)]
         verdicts = {f"in-{i}": {"score": 91, "category": "Commercial Finance / business partnering", "strengths": ["forecasting", "variance analysis"], "gap": "no long-range planning"} for i in range(10)}
         calls, cache = [], {"jobs": {}}
-        st = R.run_reviews(items, cache, "tok", self.fake_post(verdicts, calls), max_calls=2, today="2026-11-01", sleep=lambda s: None)
+        st = R.run_reviews(items, cache, "tok", self.fake_post(verdicts, calls), max_calls=2, today="2026-11-01", sleep=lambda s: None,
+                           per_request=4)
         self.assertEqual((st["calls"], st["reviewed"], st["left"]), (2, 8, 2))
         v = R.cached(cache, items[0])
         self.assertEqual((v["score"], v["category"]), (91, R.COMM))
         self.assertEqual(v["why"], "Strong match: forecasting, variance analysis. Gap: no long-range planning.")
         self.assertIsNone(R.cached(cache, dict(items[0], description="changed")), "a changed description is reviewed again")
 
-    def test_review_falls_back_then_stops_on_quota_and_without_key(self):
+    def test_review_stops_on_quota_without_touching_flash_and_without_key(self):
         urls = []
 
         def post(url, *a, **k):
             urls.append(url)
             raise urllib.error.HTTPError(url, 429, "quota", {}, io.BytesIO(b""))
         st = R.run_reviews([row("in-1", "indeed", "A", "B", desc=FPA_DESC)], {"jobs": {}}, "key", post, sleep=lambda s: None)
-        self.assertEqual((st["calls"], st["error"]), (0, "HTTP 429"))
-        self.assertEqual(len(urls), 2, "Flash-Lite's quota used up: Flash tried once, then stop")
+        self.assertEqual(st["calls"], 0)
+        self.assertTrue(st["error"].startswith("HTTP 429"), st["error"])
+        self.assertEqual(len(urls), 1, "Phase 1: Flash-Lite's quota used up: stop; Flash is the tracker's model, never tried")
+        self.assertNotIn("gemini-flash-latest", urls[0])
         self.assertIn("no GEMINI_API_KEY", R.run_reviews([1], {"jobs": {}}, "")["error"])
 
     def test_classify_job_rescues_and_demotes(self):

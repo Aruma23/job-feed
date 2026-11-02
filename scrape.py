@@ -40,6 +40,12 @@ per read, fields carried, failure kinds); unchanged boards are read less often (
 otherwise, never more than 2 days apart), productive ones every run; sources.json maps employer -> site -> board -> public
 endpoint -> fitting jobs.
 
+v8.1 (Nov 1, Phase 1 of the cost and decision-quality audit): backlog.py. Held jobs are saved in boards.json "held" and carried
+until reviewed or shown gone (board read in full without them, own page gone, board removed); they are reviewed most promising
+first, with waiting time adding so nothing starves. Jobs the rules turn away on their description are pooled and a 16-job
+sample goes to the review each run. relevance.py: Flash-Lite only, a daily request ceiling shared fairly across runs, stop on
+any rate-limit reply, token counts, 8 jobs a request, one review per posting across ids and sources.
+
 v4 (Nov 1):
 - Location: geo.py's commute regions (NYC, Westchester, Long Island, Rockland, North and Central Jersey, Fairfield County)
   replace the seven-name list; remote-US eligibility is decided separately. Column "region". Rows the tracker's finder would
@@ -64,6 +70,7 @@ from datetime import date, datetime, timedelta, timezone
 import freshness
 import geo
 import audit
+import backlog
 import footprint
 import history
 import identity
@@ -267,7 +274,7 @@ STILL_OPEN_CHECKS = 40       # jobs missing from a partial board read, checked o
 DIRECT_CAP = 1500
 
 
-def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, cc_text=None, weekday=None, range_get=None):
+def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, cc_text=None, weekday=None, range_get=None, cache=None):
     """Grows the board list, reads every board, and returns (direct rows, borderline rows, stats). Never raises: a failed
     step is noted."""
     import ats
@@ -321,6 +328,10 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
     for j in border:
         if j["id"] not in rows:
             put(j, held)
+    reviewed_ids = (cache or {}).get("jobs") or {}
+    for b, j in D.REJECTED:                         # turned away by the rules but already rated by the model (the false-negative
+        if j["id"] in reviewed_ids and j["id"] not in rows and j["id"] not in held:   # sample): held, so a fit stays rescued
+            put(j, held)
     kept_old, closed, checks, still, reclassified, kept_skipped = 0, [], 0, 0, [], 0
     cutoff = (datetime.fromisoformat(today) - timedelta(days=KEEP_DAYS)).date().isoformat()
     for k, r in prev.items():
@@ -353,6 +364,18 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
         if r.get("last_seen", today) >= cutoff:        # board unreadable, or no answer: keep it a while
             rows[k] = r
             kept_old += 1
+    held_ok = True
+    try:                                            # the saved review queue: carried until reviewed or shown to be gone
+        stats["held"] = backlog.carry(db, held, rows, ok_boards, D.SKIPPED, D.PRESENT, today, ats.board_of,
+                                      lambda u: ats.still_open(u, get) if get else None)
+        pool = [(b, j) for b, j in D.REJECTED if j["id"] not in rows and j["id"] not in held and j["id"] not in reviewed_ids]
+        pick = backlog.sample(pool, backlog.AUDIT_SAMPLE, f"{today}|{db.get('run', '')}")
+        stats["_audit"] = [dict(D.to_row(j, (db["boards"].get(b) or {}).get("company"), today), _board=b, _drop=j.get("_drop", ""))
+                           for b, j in pick]
+        stats["rejects_pooled"] = len(pool)
+    except Exception as e:
+        held_ok = False
+        stats["held_error"] = f"{type(e).__name__}: {str(e)[:120]}"
     ranked = sorted(rows.values(), key=lambda r: (r.get("date_posted") or r.get("first_seen") or ""), reverse=True)
     out = ranked[:DIRECT_CAP]
     stats["_explained"] = [r["id"] for r in ranked[DIRECT_CAP:]] + reclassified + list(held)
@@ -378,6 +401,8 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
         trust.verify_employers(db, out + [r for r in agg_rows if qualifies(r)], today, stats, get)
     except Exception as e:
         stats["verify_error"] = f"{type(e).__name__}: {str(e)[:120]}"
+    if held_ok:                                     # on an error the saved queue is left as it was
+        stats["held_saved"] = backlog.store(db, held, lambda r: bool(cache and relevance.cached(cache, r)), today, COLS)
     D.save_db(db, db_path)
     return out, list(held.values()), stats, closed
 
@@ -470,7 +495,8 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     direct_rows, held, dstats, closed = [], [], {"version": "v5", "skipped": True}, []
     if direct and os.environ.get("NO_DIRECT") != "1":
         try:
-            direct_rows, held, dstats, closed = direct_step(rows, prev_direct, today, os.path.join(here, "boards.json"), get, resolve, cc_text, weekday, range_get)
+            direct_rows, held, dstats, closed = direct_step(rows, prev_direct, today, os.path.join(here, "boards.json"), get, resolve, cc_text, weekday, range_get,
+                                                            cache=cache)
             folded = annotate(rows, direct_rows)
             rows = [r for r in rows if r["id"] not in folded]
             dstats["aggregator_rows_folded"] = len(folded)
@@ -483,6 +509,11 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     held_ids = {h["id"] for h in rescued}
     direct_rows = direct_rows + rescued
     waiting = [h for h in held if h["id"] not in held_ids and not relevance.cached(cache, h)]
+    import discover as D
+    waiting.sort(key=lambda h: (-backlog.value(h, today, relevance.rules(h.get("title"), h.get("description"), D.title_kind(h.get("title")))["core"]),
+                                h["id"]))                               # most promising first; waiting time keeps adding
+    audit_rows = dstats.pop("_audit", [])
+    dstats["held_oldest_days"] = backlog.oldest_wait(waiting, today)
     total = len(rows) + len(direct_rows)
     dstats["rows_aggregator"] = len(rows)
     dstats["pct_direct"] = round(100 * len(direct_rows) / total) if total else 0
@@ -537,7 +568,10 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
         w.writeheader()
         w.writerows(rows)
     with open(os.path.join(here, "review.json"), "w", encoding="utf-8") as f:
-        json.dump({"review_ids": queue, "borderline": [{c: h.get(c, "") for c in COLS} for h in waiting]}, f)
+        json.dump({"review_ids": queue,
+                   "borderline": [dict({c: h.get(c, "") for c in COLS}, held_since=h.get("held_since") or today) for h in waiting],
+                   "held_ids": sorted(h["id"] for h in held),           # so the classify job keeps their verdicts
+                   "audit": [dict({c: a.get(c, "") for c in COLS}, _drop=a.get("_drop", "")) for a in audit_rows]}, f)
     print(f"Saved {len(rows)} jobs ({len(fresh)} from this run; {len(failed)} of {len(status)} searches failed; {len(queue) + len(waiting)} queued for review)")
     return summary
 

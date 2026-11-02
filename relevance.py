@@ -13,6 +13,18 @@ nothing personal. Needs the repository secret GEMINI_API_KEY. Verdicts are cache
 reviewed once. Without the key, or if the model is unreachable, nothing breaks: the rules' verdicts stand and the old
 keyword rule decides inclusion. (GitHub Models, tried first, was retired on July 30 2026: it answers 200 "OK" to everything.)
 
+Phase 1 (feed v8.1, Nov 1 2026): review capacity and quota.
+  - Gemini limits are per Google project and this feed shares its project with the tracker. The feed uses Flash-Lite only (Flash
+    is the tracker's model) and stops for the run on any rate-limit reply. A daily request ceiling (Pacific day, when Google
+    resets) starts at CLASSIFY_DAILY_START, rises 25% after a day that used it with no limit reply, never passes
+    CLASSIFY_DAILY_MAX, and drops to 80% of what was used when a daily limit was hit. Each run takes its share of what is left.
+  - Every request's token counts (usageMetadata) are recorded per run and per day in classify_cache.json "usage".
+  - 8 jobs per request (falls back to 4 by itself if replies start leaving jobs out).
+  - A verdict is reused for the same posting under another id, at another company or from another source (same normalized
+    title and description), and twins in one queue are reviewed once.
+  - The held queue comes most promising first (scrape.py / backlog.py). A sample of jobs the rules turned away is reviewed
+    first, up to 2 requests a run; fits are rescued into the feed and counted, and a high 7-day fit rate is flagged.
+
 Run as the classify job: python -I relevance.py <feed dir> <cache path>
 """
 import hashlib
@@ -23,7 +35,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 CATS = ["FP&A / forecasting / budgeting", "Corporate / strategic finance", "Commercial finance / business partnering",
         "Workforce & capacity planning", "Treasury / investment / adjacent finance", "Accounting-heavy / unsuitable"]
@@ -147,9 +159,14 @@ def apply(row, verdict):
 
 # ---------------- stage 2: a small model (Gemini free tier) ----------------
 ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-MODELS = ["gemini-flash-lite-latest", "gemini-flash-latest"]     # the -latest aliases follow Google's current stable models
-PER_REQUEST = 4
-MAX_CALLS = int(os.environ.get("CLASSIFY_MAX_CALLS", "30"))      # 4 runs a day: well inside the free tier's daily requests
+MODELS = [os.environ.get("CLASSIFY_MODEL", "gemini-flash-lite-latest")]   # one model: never Flash, the tracker's model
+PER_REQUEST = int(os.environ.get("CLASSIFY_PER_REQUEST", "8"))
+MAX_CALLS = int(os.environ.get("CLASSIFY_MAX_CALLS", "60"))      # per run; the daily ceiling and the run's time also bound it
+DAILY_START = int(os.environ.get("CLASSIFY_DAILY_START", "160"))  # requests a Pacific day (the old fixed budget used 120)
+DAILY_MAX = int(os.environ.get("CLASSIFY_DAILY_MAX", "300"))      # never more, until his project's real limit is known
+RUN_SECONDS = int(os.environ.get("CLASSIFY_RUN_SECONDS", "600"))  # the classify job has 15 minutes
+RUN_HOURS_UTC = (11, 15, 19, 23)                                 # scrape.yml's schedule (minute 41)
+AUDIT_REQUESTS = 2                                               # false-negative sample, reviewed first each run
 SYSTEM = (
     "You screen job postings for one candidate. He wants analyst, senior analyst or associate roles in FP&A (forecasting, "
     "budgeting, variance analysis, planning), corporate or strategic finance, commercial finance and business partnering, or "
@@ -204,8 +221,8 @@ def _norm_cat(c):
     return ""
 
 
-def review(batch, token, model, post=http_post):
-    """batch: [(id, title, company, description)] -> {id: verdict}."""
+def review(batch, token, model, post=http_post, usage=None):
+    """batch: [(id, title, company, description)] -> {id: verdict}. usage (a dict) gets the reply's token counts added."""
     jobs = "\n\n".join(f'<job id="{i}">\nTitle: {t}\nCompany: {c}\nDuties: {excerpt(d)}\n</job>' for i, t, c, d in batch)
     body = {"systemInstruction": {"parts": [{"text": SYSTEM}]}, "contents": [{"role": "user", "parts": [{"text": jobs}]}],
             "generationConfig": {"temperature": 0, "maxOutputTokens": 4096, "responseMimeType": "application/json"}}   # room for "thinking" models
@@ -215,6 +232,11 @@ def review(batch, token, model, post=http_post):
         if e.code in (401, 403):
             raise ModelUnavailable(f"HTTP {e.code} (check the GEMINI_API_KEY secret)")
         raise
+    if usage is not None:
+        m = data.get("usageMetadata") or {}
+        for k, src in (("tokens_in", "promptTokenCount"), ("tokens_out", "candidatesTokenCount"), ("tokens_thinking", "thoughtsTokenCount"),
+                       ("tokens", "totalTokenCount")):
+            usage[k] = usage.get(k, 0) + int(m.get(src) or 0)
     parts = (((data.get("candidates") or [{}])[0].get("content") or {}).get("parts") or [{}])
     text = "".join(p.get("text", "") for p in parts).strip()
     text = re.sub(r"^```(?:json)?|```$", "", text).strip()
@@ -239,27 +261,51 @@ def review(batch, token, model, post=http_post):
     return out
 
 
-def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=None, sleep=None):
-    """items: rows to review, most important first. Fills cache['jobs']. Returns stats."""
+def _limit_kind(e):
+    """'day' when a 429 says the daily quota is used up, else 'minute'."""
+    try:
+        body = e.read().decode("utf-8", "replace")
+    except Exception:
+        body = ""
+    return "day" if re.search(r"PerDay|per day|daily", body, re.I) else "minute"
+
+
+def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=None, sleep=None, per_request=None, usage=None,
+                seconds=None, clock=time.monotonic):
+    """items: rows to review, most important first. Fills cache['jobs']. Returns stats. Stops for the run on a rate-limit reply
+    (never moves to another model: the only other one is the tracker's) and when the run's time is up."""
     today = today or date.today().isoformat()
-    stats = {"queued": len(items), "calls": 0, "reviewed": 0, "model": "", "error": ""}
+    per = per_request or PER_REQUEST
+    stats = {"queued": len(items), "calls": 0, "reviewed": 0, "model": "", "error": "", "per_request": per, "sent": 0}
     if not token:
         stats["error"] = "no GEMINI_API_KEY secret (rules only)"
+        stats["left"] = len(items)
         return stats
-    models = list(MODELS)
+    usage = {} if usage is None else usage
+    t0 = clock()
+    model = MODELS[0]
     i = 0
-    while i < len(items) and stats["calls"] < max_calls and models:
-        batch = items[i:i + PER_REQUEST]
+    while i < len(items) and stats["calls"] < max_calls:
+        if seconds is not None and clock() - t0 > seconds:
+            stats["stopped"] = "out of time for this run"
+            break
+        batch = items[i:i + per]
+        usage["requests"] = usage.get("requests", 0) + 1
         try:
-            got = review([(r["id"], r.get("title", ""), r.get("company", ""), r.get("description", "")) for r in batch], token, models[0], post)
+            got = review([(r["id"], r.get("title", ""), r.get("company", ""), r.get("description", "")) for r in batch], token, model, post, usage)
         except ModelUnavailable as e:
             stats["error"] = str(e)
             break
         except urllib.error.HTTPError as e:
-            if e.code in (404, 429) and len(models) > 1:   # model retired, or its free quota used up: try the next one
-                models.pop(0)
-                continue
-            stats["error"] = f"HTTP {e.code}"
+            if e.code == 429:
+                kind = _limit_kind(e)
+                stats["error"] = f"HTTP 429 ({'daily' if kind == 'day' else 'per-minute'} limit): stopped for this run"
+                stats["limited"] = kind
+                usage["limited"] = usage.get("limited") or kind == "day"
+                if kind == "day":
+                    usage["requests_at_limit"] = usage.get("requests", 0)
+                break
+            stats["error"] = f"HTTP {e.code}" + (f" ({model} not found: set CLASSIFY_MODEL)" if e.code == 404 else "")
             break
         except Exception as e:
             stats["error"] = f"{type(e).__name__}: {str(e)[:300]}"
@@ -267,20 +313,128 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
             stats["failed_calls"] = stats.get("failed_calls", 0) + 1
             if stats["failed_calls"] >= 3 and not stats["reviewed"]:
                 break                                      # something is wrong with every call: stop and report
-            i += PER_REQUEST
+            i += per
             continue
         stats["calls"] += 1
-        stats["model"] = models[0]
+        stats["sent"] += len(batch)
+        stats["model"] = model
         for r in batch:
             v = got.get(r["id"])
             if v:
-                v.update(h=digest(r.get("title"), r.get("description")), at=today)
+                v.update(h=digest(r.get("title"), r.get("description")), n=norm_key(r.get("title"), r.get("description")), at=today)
                 cache["jobs"][r["id"]] = v
                 stats["reviewed"] += 1
-        i += PER_REQUEST
-        (sleep or time.sleep)(6.5)                         # stay under the free tier's per-minute limit
+        i += per
+        if i < len(items) and stats["calls"] < max_calls:
+            (sleep or time.sleep)(6.5)                     # stay under the free tier's per-minute limit
     stats["left"] = max(0, len(items) - i)
     return stats
+
+
+# ---------------- Phase 1: daily ceiling, verdict reuse ----------------
+def pacific_day(now):
+    """Google resets daily limits at midnight Pacific."""
+    try:
+        from zoneinfo import ZoneInfo
+        return now.astimezone(ZoneInfo("America/Los_Angeles")).date().isoformat()
+    except Exception:
+        return (now.astimezone(timezone.utc) - timedelta(hours=8)).date().isoformat()
+
+
+def runs_left(now, day):
+    """Scheduled runs still to come in this Pacific day, counting this one."""
+    n = 1
+    for d in (0, 1):
+        base = now.astimezone(timezone.utc) + timedelta(days=d)
+        for h in RUN_HOURS_UTC:
+            t = base.replace(hour=h, minute=41, second=0, microsecond=0)
+            if t > now and pacific_day(t) == day:
+                n += 1
+    return n
+
+
+def budget(cache, now):
+    """(requests this run may make, the day's usage record). Rolls the record over at a new Pacific day and adjusts the
+    ceiling: +25% after a clean day that used 90% of it, 80% of the requests made when a daily limit was hit, never above
+    DAILY_MAX (an environment value lowered later wins at once)."""
+    u = cache.setdefault("usage", {})
+    day = pacific_day(now)
+    if u.get("day") != day:
+        c = int(u.get("ceiling") or DAILY_START)
+        if u.get("day"):
+            hist = u.get("history") or []
+            hist.append({k: u.get(k, 0) for k in ("day", "requests", "tokens", "tokens_in", "tokens_out", "limited", "ceiling")})
+            u["history"] = hist[-14:]
+            if u.get("limited"):
+                c = max(20, int(0.8 * min(c, int(u.get("requests_at_limit") or c))))
+            elif int(u.get("requests") or 0) >= 0.9 * c:
+                c = int(c * 1.25)
+        for k in ("requests", "tokens", "tokens_in", "tokens_out", "tokens_thinking", "requests_at_limit"):
+            u[k] = 0
+        u.update(day=day, limited=False, ceiling=c)
+    u["ceiling"] = min(int(u.get("ceiling") or DAILY_START), DAILY_MAX)
+    if u.get("limited"):
+        return 0, u
+    left = max(0, u["ceiling"] - int(u.get("requests") or 0))
+    share = -(-left // runs_left(now, day))
+    return min(left, MAX_CALLS, max(share, min(left, 10))), u
+
+
+_NORM = re.compile(r"[^a-z0-9]+")
+
+
+def norm_key(title, description):
+    """The same posting as another row: title and description with case, spacing, punctuation and escapes ignored."""
+    t = _NORM.sub(" ", str(title or "").lower()).strip()
+    d = _NORM.sub(" ", str(description or "").lower().replace("\\n", " ")).strip()[:3000]
+    return hashlib.sha1((t + "|" + d).encode("utf-8", "replace")).hexdigest()[:14] if len(d) >= 200 else ""
+
+
+def reuse(cache, rows, today):
+    """Copies a verdict to rows that are the same posting as a reviewed one (another id, company or source). Returns the count."""
+    by_n = {}
+    for v in cache["jobs"].values():
+        if v.get("n"):
+            by_n.setdefault(v["n"], v)
+    n = 0
+    for r in rows:
+        if cached(cache, r):
+            continue
+        k = norm_key(r.get("title"), r.get("description"))
+        v = by_n.get(k) if k else None
+        if v:
+            cache["jobs"][r["id"]] = dict(v, h=digest(r.get("title"), r.get("description")), at=today, reused=True)
+            n += 1
+    return n
+
+
+def keyed(cache, rows):
+    """Older verdicts have no normalized key: add it from rows they still match, so twins can find them."""
+    for r in rows:
+        v = cached(cache, r)
+        if v and not v.get("n"):
+            k = norm_key(r.get("title"), r.get("description"))
+            if k:
+                v["n"] = k
+
+
+def twins_out(items):
+    """(the first of each posting, {its id: [the other rows]}) so each posting is reviewed once."""
+    first, rest = {}, {}
+    out = []
+    for r in items:
+        k = norm_key(r.get("title"), r.get("description"))
+        if k and k in first:
+            rest.setdefault(first[k], []).append(r)
+            continue
+        if k:
+            first[k] = r["id"]
+        out.append(r)
+    return out, rest
+
+
+def is_fit(v):
+    return bool(v) and int(v["score"]) >= MODEL_RESCUE and v["category"] != ACCT
 
 
 def prune(cache, live_ids, today, keep_days=21):
@@ -291,13 +445,37 @@ def prune(cache, live_ids, today, keep_days=21):
             del cache["jobs"][k]
 
 
-def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=None, today=None):
+def _age(d, today):
+    try:
+        return (date.fromisoformat(str(today)[:10]) - date.fromisoformat(str(d)[:10])).days
+    except (TypeError, ValueError):
+        return 0
+
+
+def audit_report(cache, today, sampled, st, fits):
+    """The false-negative sample: this run's numbers, a 7-day log, and a flag when more than 1 in 8 sampled rejects were fits."""
+    log = cache.setdefault("audit", {})
+    day = log.setdefault(today, {"reviewed": 0, "fits": 0})
+    day["reviewed"] += st.get("reviewed", 0)
+    day["fits"] += len(fits)
+    for k in sorted(log)[:-14]:
+        del log[k]
+    week = [log[k] for k in log if _age(k, today) < 7]
+    rv, ft = sum(d["reviewed"] for d in week), sum(d["fits"] for d in week)
+    out = {"sampled": sampled, "reviewed": st.get("reviewed", 0), "fits": fits[:5], "week_reviewed": rv, "week_fits": ft}
+    if rv >= 16 and ft * 8 > rv:
+        out["flag"] = f"{ft} of {rv} sampled rule rejects in 7 days were fits: the rules may be missing good jobs"
+    return out
+
+
+def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=None, today=None, now=None):
     """The classify job: review queued jobs, rescue borderline company-board jobs, rewrite jobs.csv. Never fails the run."""
     import csv
     import geo
     import identity
     import scrape
-    today = today or datetime.now(timezone.utc).date().isoformat()
+    now = now or datetime.now(timezone.utc)
+    today = today or now.date().isoformat()
     token = os.environ.get("GEMINI_API_KEY", "").strip() if token is None else token
     jobs_path, st_path, rv_path = (os.path.join(feed_dir, n) for n in ("jobs.csv", "feed_status.json", "review.json"))
     csv.field_size_limit(10 ** 8)
@@ -311,8 +489,31 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
     by_id = {r["id"]: r for r in rows}
     queue = [by_id[i] for i in rv.get("review_ids", []) if i in by_id]
     border = [b for b in rv.get("borderline", []) if b.get("id") not in by_id]
-    todo = [r for r in border + queue if not cached(cache, r)]
-    stats = run_reviews(todo, cache, token, post, today=today)
+    sample = [a for a in rv.get("audit", []) if a.get("id") not in by_id and a.get("id") not in {b.get("id") for b in border}]
+    keyed(cache, rows + border + sample)
+    reused = reuse(cache, sample + border + queue, today)
+    calls, usage = budget(cache, now)
+    per = int(usage.get("per_request") or PER_REQUEST)
+    deadline = time.monotonic() + RUN_SECONDS
+    todo_s, twins_s = twins_out([r for r in sample if not cached(cache, r)])
+    todo, twins = twins_out([r for r in border + queue if not cached(cache, r)])
+    st_s = run_reviews(todo_s, cache, token, post, max_calls=min(AUDIT_REQUESTS, calls), today=today, per_request=per, usage=usage,
+                       seconds=RUN_SECONDS)
+    if st_s.get("limited"):
+        stats = dict(run_reviews([], cache, token, post, max_calls=0, today=today), error=st_s["error"], limited=st_s["limited"], left=len(todo))
+    else:
+        stats = run_reviews(todo, cache, token, post, max_calls=max(0, calls - st_s["calls"]), today=today, per_request=per, usage=usage,
+                            seconds=max(0, deadline - time.monotonic()))
+    for first, rest in list(twins_s.items()) + list(twins.items()):     # the same posting under other ids: one review for all
+        v = (cache["jobs"].get(first) or {})
+        if v.get("h"):
+            for r in rest:
+                cache["jobs"][r["id"]] = dict(v, h=digest(r.get("title"), r.get("description")), at=today, reused=True)
+                reused += 1
+    sent = stats.get("sent", 0) + st_s.get("sent", 0)
+    got = stats["reviewed"] + st_s["reviewed"]
+    if sent >= 16 and got < 0.8 * sent and per > 4:
+        usage["per_request"] = 4                       # replies leave jobs out at this size: smaller requests from the next run
     rescued = demoted = 0
     added = []
     for r in rows:
@@ -321,9 +522,13 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
             if int(v["score"]) < 50 and int(r.get("fit_score") or 0) >= 50:
                 demoted += 1
             apply(r, v)
-    for b in border:
+    audit_fits = []
+    for b in border + sample:
         v = cached(cache, b)
-        if v and int(v["score"]) >= MODEL_RESCUE and v["category"] != ACCT:
+        if b in sample and v:
+            if is_fit(v):
+                audit_fits.append({"title": b.get("title", ""), "company": b.get("company", ""), "score": v["score"], "rule": b.get("_drop", "")})
+        if is_fit(v):
             apply(b, v)
             b["location"] = geo.finder_location(b.get("location") or "", geo.resolve(b.get("location"), b.get("is_remote") == "True", b.get("description") or ""))
             b["source_ids"] = b.get("source_ids") or b["id"]
@@ -332,8 +537,12 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
             added.append(rows[-1])
             rescued += 1
     scrape.after_review(rows, added, feed_dir, today)
-    stats.update(rescued=rescued, demoted=demoted, borderline=len(border), cache_size=len(cache["jobs"]))
-    prune(cache, {r["id"] for r in rows} | {b.get("id") for b in border}, today)
+    waiting = [b for b in border if not cached(cache, b)]
+    stats.update(rescued=rescued, demoted=demoted, borderline=len(border), cache_size=len(cache["jobs"]), reused=reused,
+                 held_waiting=len(waiting), held_oldest_days=max([_age(b.get("held_since"), today) for b in waiting] or [0]),
+                 usage={k: usage.get(k, 0) for k in ("day", "requests", "ceiling", "tokens", "tokens_in", "tokens_out", "tokens_thinking", "limited")},
+                 false_negatives=audit_report(cache, today, len(sample), st_s, audit_fits))
+    prune(cache, {r["id"] for r in rows} | {b.get("id") for b in border} | set(rv.get("held_ids") or []), today)
     with open(jobs_path + ".new", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=scrape.COLS, extrasaction="ignore")
         w.writeheader()

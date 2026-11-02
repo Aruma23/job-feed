@@ -67,6 +67,15 @@ them from the last published feed and is marked `complete: false` and `partial: 
 6. Jobs never vanish silently: anything that leaves the feed is closed, aged out, merged, held for review, reclassified or
    trimmed; otherwise the audit restores it and marks the run incomplete.
 
+7. Lack of review capacity never drops a job: a held job stays queued (boards.json `held`) until it is reviewed or shown gone
+   (its board read in full without it, its own page gone, or its board removed from the list).
+
+Review state (v8.1, not part of the jobs.csv contract): `classify_cache.json` `usage` (requests and tokens for the current
+Pacific day, the daily ceiling, whether a daily limit was hit, 14 days of history) and `audit` (the false-negative sample by
+day); `feed_status.json` `classifier` adds `usage`, `reused`, `held_waiting`, `held_oldest_days` and `false_negatives`
+(sampled, reviewed, fits, 7-day totals, and `flag` when more than 1 in 8 sampled rejects were fits); `direct.held` counts what
+the saved queue carried, closed or dropped, and `direct.held_oldest_days` the longest wait.
+
 ## Still to do in the tracker (engine)
 
 Key leads by `id` for all twelve board systems and match on `source_ids`; carry decisions across `repost_of`; read `freshness`,
