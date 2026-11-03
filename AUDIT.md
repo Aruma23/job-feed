@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-03T12:26+00:00 · **WARN** · Published, with warnings.
+2026-11-03T16:28+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 513 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-01.
+## WARN: 508 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-01.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Imperial Brady: Sr. Financial Analyst (FP&A) (last 2026-11-02)
@@ -11,7 +11,13 @@
   - Aeropostale: Senior Financial Analyst FP&A – Lifestyle Brands (last 2026-11-02)
   - Eataly: Financial Planning Analyst (FP&A) (last 2026-11-02)
 
-## INFO: 28 sets of rows share employer, title, place and description.
+## WARN: 1 accounting-heavy jobs ranked A or B.
+
+- What the feed did: Left as published.
+- What to do: Fit and category disagree; the relevance rules need a look.
+  - Hospital for Special Surgery: Workday Finance Lead
+
+## INFO: 30 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
