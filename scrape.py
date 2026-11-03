@@ -123,6 +123,9 @@ COLS = ["id", "site", "title", "company", "location", "is_remote", "date_posted"
         "freshness", "ghost_risk", "freshness_why", "reposts", "repost_of", "trust", "trust_why", "priority", "priority_score",
         "priority_why", "employer_signal", "related_ids"]
 CONTRACT_VERSION = 7
+# Posting facts a re-read of the same copy may change (merge): what the employer edits. Identity and lifecycle columns never.
+UPDATABLE = ("title", "company", "location", "is_remote", "date_posted", "job_url", "job_url_direct", "min_amount", "max_amount",
+             "interval", "description")
 QUALIFY_MIN = 50             # rules score for a job to count as qualified in the search stats
 REVIEW_MAX = 400
 
@@ -186,6 +189,8 @@ def merge(previous, fresh, today, index_out=None):
     - A job keeps the id it was first published under (the finder keys leads by it).
     - Copies of the same opening collapse into one row (identity.py); the best copy's links and description win, and every
       source ID is kept in source_ids. Different openings with the same title stay separate.
+    - A copy read again from the same source brings the posting's current facts (title, pay, text, dates, links): the
+      employer's edits replace what was stored, so history.py sees them as a change. A blank field never erases a known value.
     - Jobs not seen this run stay until KEEP_DAYS after they were last seen.
     """
     idx = identity.Index()
@@ -206,8 +211,15 @@ def merge(previous, fresh, today, index_out=None):
             continue
         old = idx.rows[slot]
         sites = set(filter(None, (old.get("also_on") or "").split(";"))) | {old["site"], f["site"]}
+        # The row's own copy read again (the canonical id) is the posting as it stands now: its edits win over what was
+        # stored, a blank never erases a known value. Any other copy is another site's rendering of the same opening, so it
+        # only fills gaps unless it is the better copy (a direct apply link and a description); letting every copy overwrite
+        # would make the title and text flip between sites from run to run and show up as changes.
+        again = f["id"] == old["id"]
         best = f if quality(f) > quality(old) else old
         merged = dict(best)
+        if again:
+            merged.update({c: f[c] for c in UPDATABLE if f.get(c)})
         merged.update(id=old["id"], site=old["site"], first_seen=old["first_seen"], last_seen=today,
                       also_on=";".join(sorted(sites - {old["site"]})),
                       source_ids=";".join(dict.fromkeys(identity.source_ids(old) + [f["id"]])))

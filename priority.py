@@ -10,8 +10,9 @@ credentials asked, seniority, and whether the job is new or reposted. Columns:
 
 It orders; it never decides. The tracker's gate still makes every accept/reject call. A job the gate would reject (a required
 CPA/CFA/Series license or MBA, pay below the floor, director level), a suspicious one, or one gone from the
-employer's board is D, with the reason; 5+ years asked (the extractor can't always tell required from preferred) caps it at C. Whether the job is already in the tracker and how his experience covers the
-requirements are private, so the tracker adds those.
+employer's board is D, with the reason; 5+ years required caps it at C (years_min keeps the posting's most demanding figure for the
+gate; the ranking reads the text again and sets aside a figure that is only preferred, see reqs.years_required). Whether the job is
+already in the tracker and how his experience covers the requirements are private, so the tracker adds those.
 """
 import re
 
@@ -28,6 +29,23 @@ def _int(x):
         return int(float(str(x).replace(",", "")))
     except ValueError:
         return None
+
+
+def _years(row):
+    """(floor to rank on, the figure in words, preferred floor). years_min holds the posting's most demanding figure (the gate's
+    rule); when the text is there, only the figure not marked preferred counts against the job, and a preferred one is a
+    softer signal. Without text, years_min decides as before."""
+    import reqs
+    col = str(row.get("years_min") or "")
+    y = re.match(r"(\d+)", col)
+    yrs = int(y.group(1)) if y else 0
+    text = str(row.get("description") or "").replace("\\n", "\n")[:12000]
+    if not text or not yrs:
+        return yrs, col, 0
+    (rlo, rhi), (plo, _) = reqs.years_required(text), reqs.years_preferred(text)
+    if not rhi and not plo:
+        return yrs, col, 0                  # the text doesn't say what the column was read from (another source's copy)
+    return rlo, (f"{rlo}-{rhi}" if rhi != rlo else f"{rlo}+"), plo
 
 
 def score(row):
@@ -57,14 +75,15 @@ def score(row):
     region = str(row.get("region") or "")
     add(3 if region and not region.startswith("Remote") else -5 if not region else 0, "in the NYC area" if region and
         not region.startswith("Remote") else "place unclear" if not region else "")
-    y = re.match(r"(\d+)", str(row.get("years_min") or ""))
-    yrs = int(y.group(1)) if y else 0
+    yrs, asked, pref = _years(row)
     if yrs >= 5:
         add(-25 if yrs >= 7 else -15, f"asks for {yrs}+ years (the gate rejects it if required)")
     elif yrs == 4:
         add(-6, "asks for 4 years")
-    elif row.get("years_min"):
-        add(2, f"asks for {row.get('years_min')} years")
+    elif yrs:
+        add(2, f"asks for {asked} years" + (f" ({pref}+ preferred)" if pref > yrs else ""))
+    elif pref:
+        add(-4 if pref >= 5 else 2, f"prefers {pref}+ years, none required")
     edu = str(row.get("education") or "")
     m = HARD_CERT.search(edu)
     if m:

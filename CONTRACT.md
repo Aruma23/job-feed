@@ -45,7 +45,8 @@ Employer trust (trust.py):
 
 Priority (priority.py): `priority` (A | B | C | D), `priority_score` (0-100), `priority_why`. It orders work and never decides:
 the tracker's gate makes every accept/reject call. D also marks what the gate would likely reject, suspicious jobs and jobs gone
-from the employer's board. High ghost risk, 5+ years asked, or a fit under 50 caps it at C.
+from the employer's board. High ghost risk, 5+ years required (a figure the posting marks preferred doesn't count; `years_min`
+still carries the most demanding figure), or a fit under 50 caps it at C.
 
 Employer intelligence (intel.py, v7): `employer_signal` (what this employer's fitting postings show together: openings, posted in
 the last 14 days vs the 14 before, teams with 2+ openings, roles hired more than once, pay or title changes; empty when nothing
@@ -61,8 +62,9 @@ them from the last published feed and is marked `complete: false` and `partial: 
 1. The same opening from several sources is one row with one `id`.
 2. Re-running the feed never creates a duplicate row or a new `id` for a known job, and never touches tracker decisions.
 3. A closed job can't come back as a new opportunity: the same ID returns as "reappeared"; a new ID for the same opening carries `repost_of`.
-4. A failed, partial or suspiciously small board read closes nothing (the last good snapshot is kept). A job still on its board
-   that stops matching is dropped as reclassified, never recorded as closed.
+4. A failed, partial or suspiciously small board read closes nothing (the last good snapshot is kept); an empty read of a board
+   that listed jobs lately is suspicious whatever its size, until it repeats. A job still on its board that stops matching is
+   dropped as reclassified, never recorded as closed.
 5. Unknown employers and sites are "unverified", not rejected; only scam signals or a confirmed-bad domain make a job "suspicious".
 6. Jobs never vanish silently: anything that leaves the feed is closed, aged out, merged, held for review, reclassified or
    trimmed; otherwise the audit restores it and marks the run incomplete.

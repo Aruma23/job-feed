@@ -46,22 +46,83 @@ YRS_SCRUB = re.compile(r"\d{1,2}\s*[-–]?\s*year\s+(?:accredited|degree|univers
 DEGREE_ANY = re.compile(r"bachelor|\bba\b|\bbs\b|undergraduate degree|4[- ]year degree|college degree|degree in", re.I)
 DEGREE_HIGH = re.compile(r"\bmba\b|master'?s|\bms\b in|graduate degree|\bphd\b", re.I)
 CERT_HARD = re.compile(r"\bcpa\b|\bcfa\b|series (7|63|65|66|79|24|86|87)|\bfrm\b|\bcma\b|security clearance|secret clearance|top secret", re.I)
-_SENIOR = [("intern", r"\bintern"), ("director+", r"\b(director|head of|vice president|vp|chief|cfo)\b"), ("manager", r"\bmanager\b|\blead\b"),
+_SENIOR = [("intern", r"\bintern"), ("director+", r"\b(director|head of|vice president|vp|chief|cfo)\b"), ("manager", r"\bmanager\b|\bteam lead\b"),
            ("senior", r"\bsenior\b|\bsr\.?\b|\biii\b|\bprincipal\b|\bstaff\b"), ("entry", r"\b(junior|jr\.?|entry|graduate|new grad|associate i)\b|\banalyst i\b")]
+# "Lead" in a title is a manager only with people responsibility in the text (a Finance Lead is usually an individual contributor)
+LEAD = re.compile(r"\blead\b", re.I)
+MANAGES = re.compile(r"direct reports?|manag(e|ing) (a |the |your )?(team|staff|analysts|people)|team of \d+|people manage|hiring and|"
+                     r"performance (reviews?|management)|supervis(e|ing|ion of) (a |the )?(team|staff|analysts)|coach(ing)? and develop|"
+                     r"lead(ing)? (a |the )?team of", re.I)
+# Preferred-only wording: a sentence or bullet with it (and no required wording) asks softly; a heading with it opens a
+# preferred section, a heading with required wording closes it.
+# "ideally" hedges; "the ideal candidate will have 5+ years" is how many postings state the requirement, so not "ideal"
+PREFERRED = re.compile(r"prefer|nice to have|a plus|plus but|bonus|desired|ideally|would be (great|an advantage)|advantageous", re.I)
+REQUIRED = re.compile(r"requir|must|minimum|at least|need|essential|basic qualifications|what you bring|what you'll need|"
+                      r"qualifications:|you have", re.I)
+NOT_REQUIRED = re.compile(r"\b(?:not|no|non)[- ]?(?:a )?(?:requir\w*|must|minimum|need\w*|essential)\b", re.I)
+BULLET = re.compile(r"^[-•*]\s|^\d+[.)]\s")
+
+
+def _heading(s):
+    """'' | 'weak' | 'strong': a short unbulleted line with no sentence punctuation. Strong: ends in a colon, bold or a
+    markdown heading (closes any section); weak: a few plain words (opens a preferred section, closes nothing)."""
+    if not s or len(s) > 60 or BULLET.match(s) or re.search(r"[.!?]", s.rstrip(".:")) or YRS_RE.search(s):
+        return ""
+    if s.rstrip().endswith(":") or s.startswith("**") or s.startswith("#"):
+        return "strong"
+    return "weak" if len(s.split()) <= 4 else ""
+
+
+def _years(text):
+    """Every (floor, ceiling, preferred) years mention in reading order, as years_asked reads them.
+    A mention is preferred when its own words say so ("5+ years preferred", "ideally 7 years": the wording before the years
+    or in the same comma-segment after them, so "5+ years in FP&A, preferably in insurance" is a required 5) or when it sits
+    in a preferred section (a heading with preferred wording, until the next strong heading), unless the mention itself
+    says required."""
+    out, pref_section = [], False
+    for line in YRS_SCRUB.sub(" ", str(text or "")).split("\n"):
+        s = line.strip()
+        kind = _heading(s)
+        if kind:
+            if PREFERRED.search(s):
+                pref_section = True
+            elif kind == "strong" or REQUIRED.search(s):
+                pref_section = False
+            continue
+        for clause in re.split(r"[.;•]", s):
+            for m in YRS_RE.finditer(clause):
+                lo = int(m.group(1))
+                hi = int(m.group(2)) if m.group(2) else lo
+                if lo > 20 or hi > 20:
+                    continue
+                scope = clause[:m.end()] + re.split(r"[,()]", clause[m.end():], 1)[0]
+                hard = REQUIRED.search(NOT_REQUIRED.sub(" ", scope))
+                out.append((lo, hi, not hard and bool(pref_section or PREFERRED.search(scope))))
+    return out
+
+
+def _most(mentions):
+    floor = ceil = 0
+    for lo, hi, _ in mentions:
+        if hi >= ceil:
+            ceil, floor = hi, lo
+    return floor, ceil
 
 
 def years_asked(text):
     """(floor, ceiling) of the most demanding years requirement, as the gate reads it; (0, 0) when none."""
-    t = YRS_SCRUB.sub(" ", str(text or ""))
-    floor = ceil = 0
-    for m in YRS_RE.finditer(t):
-        lo = int(m.group(1))
-        hi = int(m.group(2)) if m.group(2) else lo
-        if lo > 20 or hi > 20:
-            continue
-        if hi >= ceil:
-            ceil, floor = hi, lo
-    return floor, ceil
+    return _most(_years(text))
+
+
+def years_required(text):
+    """(floor, ceiling) of the most demanding years figure that is not marked preferred; (0, 0) when none is required.
+    The same reading as years_asked, minus mentions in a preferred sentence, bullet or section."""
+    return _most([m for m in _years(text) if not m[2]])
+
+
+def years_preferred(text):
+    """(floor, ceiling) of the most demanding years figure that is only preferred; (0, 0) when none."""
+    return _most([m for m in _years(text) if m[2]])
 
 
 def requirements(title, description):
@@ -76,6 +137,8 @@ def requirements(title, description):
             what = CERT_HARD.search(m.group(0)).group(0).upper() if label == "license/cert" else label
             edu.append(what + (" (preferred)" if re.search(r"prefer|plus|nice to have|a bonus|desired|or equivalent", m.group(0), re.I) else ""))
     level = next((name for name, rx in _SENIOR if re.search(rx, t, re.I)), "")
+    if not level and LEAD.search(t) and MANAGES.search(d):
+        level = "manager"
     if not level:
         level = "entry" if hi and lo <= 1 else "senior" if lo >= 5 else "analyst"
     return {"skills": "; ".join(skills), "years_min": (f"{lo}-{hi}" if hi != lo else str(lo)) if hi else "", "education": "; ".join(edu),

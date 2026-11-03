@@ -255,8 +255,8 @@ def priority(info, today):
     return (recent, -info.get("hits", 0), -info.get("nyc", 0))
 
 
-DROP_SHARE = 0.4      # a complete read below 40% of the board's usual count (usual >= 10) is suspect, not a mass closing
-DROP_ACCEPT = 3       # ... until it repeats on 3 reads in a row: then the board really shrank
+DROP_SHARE = 0.4      # a complete read below 40% of the board's usual count (usual >= 10), or empty when the board had any
+DROP_ACCEPT = 3       # jobs lately, is suspect, not a mass closing ... until it repeats on 3 reads in a row: then it really shrank
 PRESENT = {}          # board -> requisition keys a trusted complete read exposed this run (freshness.route_gone)
 SKIPPED = set()       # boards due by schedule but skipped this run as unchanged (footprint.py); their jobs are kept
 REJECTED = []         # (board, job) the rules turned away on their description this run (backlog.py samples them)
@@ -279,10 +279,14 @@ def guard(info, jobs):
     complete = getattr(jobs, "complete", True)
     hist = info.get("hist", [])
     base = _median(hist) if len(hist) >= 3 else 0
-    if complete and base >= 10 and len(uniq) < DROP_SHARE * base:
+    # A big board far below its usual count, or any board that listed jobs lately now answering with none at all: a changed
+    # page format or an empty response reads as "complete", and one such read would close every job on it with nothing to
+    # restore (a closed job is explained to the audit). Both wait DROP_ACCEPT reads before they count.
+    emptied = complete and not uniq and max(hist, default=0) > 0
+    if (complete and base >= 10 and len(uniq) < DROP_SHARE * base) or emptied:
         info["drop"] = info.get("drop", 0) + 1
         if info["drop"] < DROP_ACCEPT:
-            return uniq, False, f"sudden drop: {len(uniq)} jobs vs usual {base}"
+            return uniq, False, f"sudden drop: {len(uniq)} jobs vs usual {base or max(hist)}"
         info["hist"] = [len(uniq)]
         info["drop"] = 0
         return uniq, True, f"shrink accepted after {DROP_ACCEPT} reads: {len(uniq)} jobs (was {base})"
