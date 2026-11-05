@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-05T12:31+00:00 · **WARN** · Published, with warnings.
+2026-11-05T16:39+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1150 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-01.
+## WARN: 1077 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-01.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Imperial Brady: Sr. Financial Analyst (FP&A) (last 2026-11-02)
