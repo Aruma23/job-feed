@@ -18980,6 +18980,16 @@
 "score": 45,
 "why": "Some match: Support quarterly and year-end reserve studies, Analyze accident year development, Prepare reserving exhibits, Assist with quarter-close activities. Gap: Actuarial reserving and quarter-close accounting focus."
 },
+"in-05d17278b6e03211": {
+"at": "2026-11-05",
+"by": "model",
+"category": "FP&A / forecasting / budgeting",
+"h": "0c22ad24106f",
+"n": "0678fb92287ee9",
+"reused": true,
+"score": 92,
+"why": "Strong match: forecast process & key assumptions, operating models and analyzing large data sets, strategic ad hoc analysis, KPI trends and risks to plan."
+},
 "in-05e978ea2dbc7b83": {
 "at": "2026-11-03",
 "by": "model",
@@ -20705,6 +20715,16 @@
 "n": "c8d2e5ed840ed2",
 "score": 75,
 "why": "Strong match: model financial scenarios, analyze valuations, gather synthesize analyze project data, develop strategic presentations. Gap: leans more toward general business transformation projects than dedicated FP&A."
+},
+"in-f429d4d7d4c98d57": {
+"at": "2026-11-05",
+"by": "model",
+"category": "Workforce & capacity planning",
+"h": "1cf541822e6a",
+"n": "949f48743e0c71",
+"reused": true,
+"score": 65,
+"why": "Some match: capacity models, sales capacity, operational readiness. Gap: heavily oriented towards sales operations rather than core FP&A or workforce planning."
 },
 "in-f54b0f5e52868fec": {
 "at": "2026-11-04",
@@ -27380,7 +27400,7 @@
 },
 "usage": {
 "ceiling": 160,
-"day": "2026-11-04",
+"day": "2026-11-05",
 "history": [
 {
 "ceiling": 160,
@@ -27408,14 +27428,23 @@
 "tokens": 188953,
 "tokens_in": 144659,
 "tokens_out": 44294
+},
+{
+"ceiling": 160,
+"day": "2026-11-04",
+"limited": false,
+"requests": 65,
+"tokens": 214306,
+"tokens_in": 162578,
+"tokens_out": 51728
 }
 ],
 "limited": false,
-"requests": 65,
+"requests": 2,
 "requests_at_limit": 0,
-"tokens": 214306,
-"tokens_in": 162578,
-"tokens_out": 51728,
+"tokens": 0,
+"tokens_in": 0,
+"tokens_out": 0,
 "tokens_thinking": 0
 },
 "v": 1
