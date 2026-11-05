@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-05T16:39+00:00 · **WARN** · Published, with warnings.
+2026-11-05T20:24+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1077 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-01.
+## WARN: 1040 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-01.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Imperial Brady: Sr. Financial Analyst (FP&A) (last 2026-11-02)
@@ -18,7 +18,7 @@
   - compass-surgical-partners: Analyst, Revenue Cycle Management & Managed Care
   - Hospital for Special Surgery: Workday Finance Lead
 
-## INFO: 41 sets of rows share employer, title, place and description.
+## INFO: 47 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
