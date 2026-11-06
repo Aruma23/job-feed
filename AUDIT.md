@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-06T00:14+00:00 · **WARN** · Published, with warnings.
+2026-11-06T12:28+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1686 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-02.
+## WARN: 1244 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-02.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Imperial Brady: Sr. Financial Analyst (FP&A) (last 2026-11-02)
@@ -19,7 +19,7 @@
   - Hospital for Special Surgery: Workday Finance Lead
   - certik: Financial Analyst
 
-## INFO: 49 sets of rows share employer, title, place and description.
+## INFO: 55 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
