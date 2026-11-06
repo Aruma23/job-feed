@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-06T16:27+00:00 · **WARN** · Published, with warnings.
+2026-11-06T20:23+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1136 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-02.
+## WARN: 1113 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-02.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Imperial Brady: Sr. Financial Analyst (FP&A) (last 2026-11-02)
@@ -11,16 +11,17 @@
   - Aeropostale: Senior Financial Analyst FP&A – Lifestyle Brands (last 2026-11-02)
   - Eataly: Financial Planning Analyst (FP&A) (last 2026-11-02)
 
-## WARN: 4 accounting-heavy jobs ranked A or B.
+## WARN: 6 accounting-heavy jobs ranked A or B.
 
 - What the feed did: Left as published.
 - What to do: Fit and category disagree; the relevance rules need a look.
   - Turner & Townsend Pty Limited: Financial Operations and Data Analytics Specialist
+  - Turner & Townsend Pty Limited: Financial Operations and Data Analytics Specialist
+  - Turner & Townsend Pty Limited: Financial Operations and Data Analytics Specialist
   - compass-surgical-partners: Analyst, Revenue Cycle Management & Managed Care
   - Hospital for Special Surgery: Workday Finance Lead
-  - certik: Financial Analyst
 
-## INFO: 55 sets of rows share employer, title, place and description.
+## INFO: 56 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
