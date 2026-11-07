@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-07T00:11+00:00 · **WARN** · Published, with warnings.
+2026-11-07T12:13+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1763 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-03.
+## WARN: 1209 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-03.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Newark Community Health Centers, Inc.: Chief Financial Officer (last 2026-11-03)
@@ -11,17 +11,16 @@
   - Aprio: Senior Associate, Real Estate Valuation & Investigation Services (last 2026-11-03)
   - Ally Financial: Director (VP) Portfolio Mgmt- Sponsor Finance (last 2026-11-03)
 
-## WARN: 5 accounting-heavy jobs ranked A or B.
+## WARN: 4 accounting-heavy jobs ranked A or B.
 
 - What the feed did: Left as published.
 - What to do: Fit and category disagree; the relevance rules need a look.
-  - NBCUniversal: Senior Financial Analyst – NBC Sports
   - Planned Parenthood: Senior Specialist, Budget Administration
   - agent: Finance & AI Automation Specialist
   - compass-surgical-partners: Analyst, Revenue Cycle Management & Managed Care
   - Hospital for Special Surgery: Workday Finance Lead
 
-## INFO: 55 sets of rows share employer, title, place and description.
+## INFO: 97 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
