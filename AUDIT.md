@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-07T12:13+00:00 · **WARN** · Published, with warnings.
+2026-11-07T16:14+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1209 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-03.
+## WARN: 1109 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-03.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Newark Community Health Centers, Inc.: Chief Financial Officer (last 2026-11-03)
@@ -10,6 +10,12 @@
   - JPMorganChase: Payments Liquidity & Account Solutions - Planning & Analysis - Associate (last 2026-11-03)
   - Aprio: Senior Associate, Real Estate Valuation & Investigation Services (last 2026-11-03)
   - Ally Financial: Director (VP) Portfolio Mgmt- Sponsor Finance (last 2026-11-03)
+
+## WARN: 1 job ids now belong to a different employer than last run.
+
+- What the feed did: Kept the new value.
+- What to do: An id must stay with one opening; check the source.
+  - in-f63e901ae215ab95: now Agency DEPT OF HEALTH/MENTAL HYGIENE
 
 ## WARN: 4 accounting-heavy jobs ranked A or B.
 
@@ -20,7 +26,7 @@
   - compass-surgical-partners: Analyst, Revenue Cycle Management & Managed Care
   - Hospital for Special Surgery: Workday Finance Lead
 
-## INFO: 97 sets of rows share employer, title, place and description.
+## INFO: 93 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
