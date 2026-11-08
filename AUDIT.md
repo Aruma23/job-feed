@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-08T00:09+00:00 · **WARN** · Published, with warnings.
+2026-11-08T12:12+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 2011 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-04.
+## WARN: 1316 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-04.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - BlackRock: Vice President, Corporate Strategy and FP&A (last 2026-11-04)
@@ -21,7 +21,7 @@
   - compass-surgical-partners: Analyst, Revenue Cycle Management & Managed Care
   - Hospital for Special Surgery: Workday Finance Lead
 
-## INFO: 86 sets of rows share employer, title, place and description.
+## INFO: 91 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
