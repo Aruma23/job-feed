@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-08T12:12+00:00 · **WARN** · Published, with warnings.
+2026-11-08T16:13+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1316 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-04.
+## WARN: 1106 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-04.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - BlackRock: Vice President, Corporate Strategy and FP&A (last 2026-11-04)
@@ -11,17 +11,17 @@
   - AIG Employee Services, Inc.: Director, Technology Data Analytics & Automation (last 2026-11-07)
   - Tory Burch: Director, Talent Business Partner- Corporate NA Region (last 2026-11-05)
 
-## WARN: 5 accounting-heavy jobs ranked A or B.
+## WARN: 6 accounting-heavy jobs ranked A or B.
 
 - What the feed did: Left as published.
 - What to do: Fit and category disagree; the relevance rules need a look.
   - HLW International: Specialty Studios Project & Operations Coordinator
+  - everybody-votes-campaign: Finance Manager
   - Planned Parenthood: Senior Specialist, Budget Administration
   - agent: Finance & AI Automation Specialist
   - compass-surgical-partners: Analyst, Revenue Cycle Management & Managed Care
-  - Hospital for Special Surgery: Workday Finance Lead
 
-## INFO: 91 sets of rows share employer, title, place and description.
+## INFO: 88 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
