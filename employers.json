@@ -4,24 +4,21 @@
 {
 "employer": "jobgether",
 "key": "jobgether",
-"openings": 32,
-"new_14d": 32,
+"openings": 23,
+"new_14d": 23,
 "prev_14d": 0,
-"score": 105,
+"score": 77,
 "teams": {
-"Publishing Operations": 1,
 "Risk Adjustment": 1,
 "Strategic Finance": 1,
 "Support": 1,
 "Workforce Management": 1,
-"GTM FP&A": 1,
-"Americas": 1,
-"Strategic Pricing": 1
+"GTM FP&A": 1
 },
 "seniority": {
-"senior": 10,
-"manager": 16,
-"analyst": 6
+"senior": 7,
+"analyst": 6,
+"manager": 10
 },
 "top_pay": "",
 "best": [
@@ -52,18 +49,17 @@
 }
 ],
 "signals": [
-"32 fitting openings, 32 posted in 14 days (0 the 14 before)",
-"hiring Business Operations Associate x4",
-"hiring Manager Controlling & Planning x2"
+"23 fitting openings, 23 posted in 14 days (0 the 14 before)",
+"hiring Business Operations Associate x4"
 ]
 },
 {
 "employer": "JPMorganChase",
 "key": "jpmorganchase",
-"openings": 17,
-"new_14d": 17,
+"openings": 18,
+"new_14d": 18,
 "prev_14d": 0,
-"score": 59,
+"score": 65,
 "teams": {
 "Markets Planning and Analysis": 1,
 "PricingDirect": 1,
@@ -73,11 +69,11 @@
 "Payments": 1,
 "Payments Strategy & Planning": 1,
 "Asset and Wealth Management": 1,
-"Senior Associate": 1
+"Senior Associate": 2
 },
 "seniority": {
 "analyst": 11,
-"manager": 1,
+"manager": 2,
 "senior": 5
 },
 "top_pay": 285000,
@@ -109,7 +105,8 @@
 }
 ],
 "signals": [
-"17 fitting openings, 17 posted in 14 days (0 the 14 before)",
+"18 fitting openings, 18 posted in 14 days (0 the 14 before)",
+"2 in Senior Associate",
 "hiring Finance & Business Management x2",
 "hiring PricingDirect Evaluator - Derivatives - Analyst x2"
 ]
@@ -117,10 +114,10 @@
 {
 "employer": "Amazon.com",
 "key": "amazon com",
-"openings": 14,
-"new_14d": 14,
+"openings": 15,
+"new_14d": 15,
 "prev_14d": 0,
-"score": 46,
+"score": 49,
 "teams": {
 "Imports Cost Automation": 1,
 "Amazon Global Logistics": 1,
@@ -135,7 +132,7 @@
 },
 "seniority": {
 "senior": 9,
-"manager": 5
+"manager": 6
 },
 "top_pay": 179500,
 "best": [
@@ -166,7 +163,7 @@
 }
 ],
 "signals": [
-"14 fitting openings, 14 posted in 14 days (0 the 14 before)",
+"15 fitting openings, 15 posted in 14 days (0 the 14 before)",
 "2 in AWS Finance & Global Business"
 ]
 },
@@ -318,17 +315,17 @@
 "priority": "A"
 },
 {
-"id": "workday:REQ-10090216-2",
+"id": "workday:REQ-10090216-1",
 "title": "AD, Enterprise Investment Strategy & Optimization (2 positions)",
 "priority": "C"
 },
 {
-"id": "workday:REQ-10090099-1",
+"id": "workday:REQ-10090099-2",
 "title": "Dir, Enterprise Investment Strategy & Optimization",
 "priority": "C"
 },
 {
-"id": "workday:REQ-10086148",
+"id": "workday:REQ-10086148-1",
 "title": "ED, Portfolio Prioritization & Value Realization Lead",
 "priority": "C"
 }
@@ -661,6 +658,58 @@
 ]
 },
 {
+"employer": "Alvarez & Marsal",
+"key": "alvarez marsal",
+"openings": 6,
+"new_14d": 6,
+"prev_14d": 0,
+"score": 25,
+"teams": {
+"Private Equity": 1,
+"Senior Associate": 2,
+"CFO Services": 1
+},
+"seniority": {
+"senior": 3,
+"analyst": 2,
+"director+": 1
+},
+"top_pay": 170000,
+"best": [
+{
+"id": "in-6df1f770553d9498",
+"title": "Corporate Transactions Group - Operations - Associate",
+"priority": "A"
+},
+{
+"id": "in-c4d924071aa2b869",
+"title": "Corporate Transactions Group - Operations - Associate",
+"priority": "A"
+},
+{
+"id": "in-b28c945fe02bc2ae",
+"title": "Senior Associate, Product & Technology, Technology Industry Group - Private Equity",
+"priority": "B"
+},
+{
+"id": "in-58d14132eddff401",
+"title": "Corporate Transactions Group - Operations - Senior Associate",
+"priority": "B"
+},
+{
+"id": "in-45cb5dab7a5c41d9",
+"title": "Corporate Transactions Group - Operations - Senior Associate",
+"priority": "B"
+}
+],
+"signals": [
+"6 fitting openings, 6 posted in 14 days (0 the 14 before)",
+"2 in Senior Associate",
+"hiring Corporate Transactions Group - Operations - Associate x2",
+"hiring Corporate Transactions Group - Operations - Senior Associate x2"
+]
+},
+{
 "employer": "ms",
 "key": "ms",
 "openings": 9,
@@ -904,13 +953,13 @@
 "priority": "A"
 },
 {
-"id": "in-1a3f261acdfe0f9d",
-"title": "Equity Research \u2013 Analyst/Associate, Utilities & Clean Tech Associate (New York)",
-"priority": "B"
-},
-{
 "id": "li-4479391585",
 "title": "Wealth Management Finance - Reporting & Analytics, Associate",
+"priority": "A"
+},
+{
+"id": "in-1a3f261acdfe0f9d",
+"title": "Equity Research \u2013 Analyst/Associate, Utilities & Clean Tech Associate (New York)",
 "priority": "B"
 }
 ],
@@ -1068,57 +1117,6 @@
 ]
 },
 {
-"employer": "Alvarez & Marsal",
-"key": "alvarez marsal",
-"openings": 5,
-"new_14d": 5,
-"prev_14d": 0,
-"score": 21,
-"teams": {
-"Private Equity": 1,
-"Senior Associate": 2,
-"CFO Services": 1
-},
-"seniority": {
-"senior": 3,
-"analyst": 1,
-"director+": 1
-},
-"top_pay": 170000,
-"best": [
-{
-"id": "in-6df1f770553d9498",
-"title": "Corporate Transactions Group - Operations - Associate",
-"priority": "A"
-},
-{
-"id": "in-b28c945fe02bc2ae",
-"title": "Senior Associate, Product & Technology, Technology Industry Group - Private Equity",
-"priority": "B"
-},
-{
-"id": "in-58d14132eddff401",
-"title": "Corporate Transactions Group - Operations - Senior Associate",
-"priority": "B"
-},
-{
-"id": "in-45cb5dab7a5c41d9",
-"title": "Corporate Transactions Group - Operations - Senior Associate",
-"priority": "B"
-},
-{
-"id": "in-2c0e02c7f96502fb",
-"title": "Associate, CFO Services",
-"priority": "D"
-}
-],
-"signals": [
-"5 fitting openings, 5 posted in 14 days (0 the 14 before)",
-"2 in Senior Associate",
-"hiring Corporate Transactions Group - Operations - Senior Associate x2"
-]
-},
-{
 "employer": "Deloitte",
 "key": "deloitte",
 "openings": 5,
@@ -1269,6 +1267,52 @@
 "5 fitting openings, 5 posted in 14 days (0 the 14 before)",
 "2 in Supervising Associate",
 "hiring Financial Analysis & Planning - Supervising Associate x2"
+]
+},
+{
+"employer": "PwC",
+"key": "pwc",
+"openings": 4,
+"new_14d": 4,
+"prev_14d": 0,
+"score": 18,
+"teams": {
+"Senior Associate": 2,
+"Customer Consulting": 2
+},
+"seniority": {
+"senior": 2,
+"manager": 2
+},
+"top_pay": 280000,
+"best": [
+{
+"id": "li-4462818116",
+"title": "Pharma Pricing and Market Access Consultant - Senior Associate",
+"priority": "B"
+},
+{
+"id": "li-4462821112",
+"title": "Pharma Pricing and Market Access Consultant - Senior Associate",
+"priority": "B"
+},
+{
+"id": "li-4462816137",
+"title": "Pharma Pricing and Market Access Consulting Senior Manager",
+"priority": "C"
+},
+{
+"id": "li-4462827024",
+"title": "Pharma Pricing and Market Access Consulting Senior Manager",
+"priority": "D"
+}
+],
+"signals": [
+"4 fitting openings, 4 posted in 14 days (0 the 14 before)",
+"2 in Senior Associate",
+"2 in Customer Consulting",
+"hiring Pharma Pricing and Market Access Consultant - Senior Associate x2",
+"hiring Pharma Pricing and Market Access Consulting Senior Manager x2"
 ]
 },
 {
@@ -1653,14 +1697,14 @@
 "prev_14d": 2,
 "score": 14,
 "teams": {
-"Capital Markets": 1,
 "Business Operations & Strategy": 1,
-"Servicing": 1
+"Servicing": 1,
+"Capital Markets": 1
 },
 "seniority": {
-"manager": 1,
 "analyst": 1,
-"senior": 3
+"senior": 3,
+"manager": 1
 },
 "top_pay": 192000,
 "best": [
@@ -1675,13 +1719,13 @@
 "priority": "A"
 },
 {
-"id": "greenhouse:8930335002",
-"title": "Manager, Capital Markets",
+"id": "greenhouse:8872849002",
+"title": "Senior Financial Portfolio Analyst, Servicing",
 "priority": "B"
 },
 {
-"id": "greenhouse:8872849002",
-"title": "Senior Financial Portfolio Analyst, Servicing",
+"id": "greenhouse:8930335002",
+"title": "Manager, Capital Markets",
 "priority": "B"
 },
 {
@@ -1734,46 +1778,6 @@
 ]
 },
 {
-"employer": "Samsara",
-"key": "samsara",
-"openings": 4,
-"new_14d": 3,
-"prev_14d": 0,
-"score": 13,
-"teams": {},
-"seniority": {
-"senior": 3,
-"manager": 1
-},
-"top_pay": 140000,
-"best": [
-{
-"id": "li-4487524689",
-"title": "Senior Financial Analyst",
-"priority": "A"
-},
-{
-"id": "greenhouse:8306417",
-"title": "Senior Financial Analyst",
-"priority": "A"
-},
-{
-"id": "greenhouse:8209909",
-"title": "Senior Financial Analyst",
-"priority": "A"
-},
-{
-"id": "greenhouse:8328373",
-"title": "Senior Supply Planning Manager - US",
-"priority": "C"
-}
-],
-"signals": [
-"4 fitting openings, 3 posted in 14 days (0 the 14 before)",
-"hiring Senior Financial Analyst x3"
-]
-},
-{
 "employer": "Simpson Thacher & Bartlett LLP",
 "key": "simpson thacher bartlett",
 "openings": 3,
@@ -1812,42 +1816,49 @@
 ]
 },
 {
-"employer": "PwC",
-"key": "pwc",
-"openings": 3,
+"employer": "Success Academy Charter Schools",
+"key": "success academy charter schools",
+"openings": 4,
 "new_14d": 3,
 "prev_14d": 0,
 "score": 13,
 "teams": {
-"Senior Associate": 2,
-"Customer Consulting": 1
+"FP&A": 1,
+"Network": 2,
+"Strategy": 1
 },
 "seniority": {
-"senior": 2,
-"manager": 1
+"entry": 1,
+"senior": 3
 },
-"top_pay": 280000,
+"top_pay": 180000,
 "best": [
 {
-"id": "li-4462818116",
-"title": "Pharma Pricing and Market Access Consultant - Senior Associate",
-"priority": "B"
+"id": "li-4432885100",
+"title": "Analyst, FP&A",
+"priority": "A"
 },
 {
-"id": "li-4462821112",
-"title": "Pharma Pricing and Market Access Consultant - Senior Associate",
-"priority": "B"
+"id": "li-4488457076",
+"title": "Lead, Scholar Talent Strategy & Planning (Growth & Scholar Talent)",
+"priority": "C"
 },
 {
-"id": "li-4462827024",
-"title": "Pharma Pricing and Market Access Consulting Senior Manager",
-"priority": "D"
+"id": "greenhouse:5472954008",
+"title": "Lead, Scholar Talent Strategy & Planning (Growth & Scholar Talent)",
+"priority": "C"
+},
+{
+"id": "greenhouse:5208165008",
+"title": "Senior Analyst, Strategy",
+"priority": "C"
 }
 ],
 "signals": [
-"3 fitting openings, 3 posted in 14 days (0 the 14 before)",
-"2 in Senior Associate",
-"hiring Pharma Pricing and Market Access Consultant - Senior Associate x2"
+"4 fitting openings, 3 posted in 14 days (0 the 14 before)",
+"2 in Network",
+"hiring Analyst, FP&A again (reposted 1x)",
+"hiring Lead, Scholar Talent Strategy & Planning (Growth & Scholar Talent) x2"
 ]
 },
 {
@@ -2384,6 +2395,38 @@
 ]
 },
 {
+"employer": "McDermott Will & Schulte",
+"key": "mcdermott will schulte",
+"openings": 2,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 10,
+"teams": {
+"FP&A": 2
+},
+"seniority": {
+"analyst": 2
+},
+"top_pay": 105000,
+"best": [
+{
+"id": "li-4487219219",
+"title": "Financial Analyst, FP&A",
+"priority": "A"
+},
+{
+"id": "li-4489110541",
+"title": "Financial Analyst, FP&A",
+"priority": "B"
+}
+],
+"signals": [
+"2 fitting openings, 2 posted in 14 days (0 the 14 before)",
+"2 in FP&A",
+"hiring Financial Analyst, FP&A x2"
+]
+},
+{
 "employer": "Capital One",
 "key": "capital one",
 "openings": 3,
@@ -2419,6 +2462,40 @@
 ],
 "signals": [
 "3 fitting openings, 3 posted in 14 days (0 the 14 before)"
+]
+},
+{
+"employer": "Samsara",
+"key": "samsara",
+"openings": 3,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 10,
+"teams": {},
+"seniority": {
+"senior": 3
+},
+"top_pay": 140000,
+"best": [
+{
+"id": "li-4487524689",
+"title": "Senior Financial Analyst",
+"priority": "A"
+},
+{
+"id": "greenhouse:8306417",
+"title": "Senior Financial Analyst",
+"priority": "A"
+},
+{
+"id": "greenhouse:8209909",
+"title": "Senior Financial Analyst",
+"priority": "A"
+}
+],
+"signals": [
+"3 fitting openings, 2 posted in 14 days (0 the 14 before)",
+"hiring Senior Financial Analyst x3"
 ]
 },
 {
@@ -2533,48 +2610,6 @@
 "signals": [
 "3 fitting openings, 2 posted in 14 days (1 the 14 before)",
 "Associate, Emerging Markets: pay removed"
-]
-},
-{
-"employer": "ServiceNow",
-"key": "servicenow",
-"openings": 4,
-"new_14d": 3,
-"prev_14d": 1,
-"score": 10,
-"teams": {
-"Autonomous Workforce/GBS": 1,
-"Autonomous Workforce/IT": 1
-},
-"seniority": {
-"manager": 3,
-"senior": 1
-},
-"top_pay": "",
-"best": [
-{
-"id": "smartrecruiters:744000159413320",
-"title": "Global Partner Manager, Deloitte \u2013 Autonomous Workforce/IT",
-"priority": "C"
-},
-{
-"id": "smartrecruiters:744000158098969",
-"title": "Sr Business Operations Mgr",
-"priority": "C"
-},
-{
-"id": "smartrecruiters:744000159417017",
-"title": "Global Partner Manager, Deloitte \u2013 Autonomous Workforce/GBS",
-"priority": "D"
-},
-{
-"id": "smartrecruiters:744000157536219",
-"title": "CEG AMS Partner Portfolio Excellence Lead\u00a0",
-"priority": "D"
-}
-],
-"signals": [
-"4 fitting openings, 3 posted in 14 days (1 the 14 before)"
 ]
 },
 {
@@ -2791,13 +2826,13 @@
 "prev_14d": 1,
 "score": 9,
 "teams": {
-"Healthcare: B2B MedTech and Outsourced Life Sciences": 1,
-"MedTech": 1
+"MedTech": 1,
+"Healthcare: B2B MedTech and Outsourced Life Sciences": 1
 },
 "seniority": {
 "entry": 3
 },
-"top_pay": 135000,
+"top_pay": 125000,
 "best": [
 {
 "id": "in-a7c08b34d53e88a9",
@@ -2817,7 +2852,7 @@
 ],
 "signals": [
 "3 fitting openings, 2 posted in 14 days (1 the 14 before)",
-"Experienced Investment Banking Analyst \u2013 Healthcare: B2B MedTech and Outsourced Life Sciences: pay added: 110000-135000 yearly"
+"Experienced Investment Banking Analyst \u2013 Healthcare: B2B MedTech and Outsourced Life Sciences: pay removed"
 ]
 },
 {
@@ -2829,8 +2864,8 @@
 "score": 9,
 "teams": {
 "Consumer": 1,
-"GFCO": 1,
-"Product": 1
+"Product": 1,
+"GFCO": 1
 },
 "seniority": {
 "senior": 2,
@@ -2870,45 +2905,38 @@
 ]
 },
 {
-"employer": "Precision Medicine Group",
-"key": "precision medicine",
-"openings": 4,
+"employer": "chainalysis-careers",
+"key": "chainalysis careers",
+"openings": 3,
 "new_14d": 2,
-"prev_14d": 0,
+"prev_14d": 1,
 "score": 9,
-"teams": {
-"Operational Finance": 1
-},
+"teams": {},
 "seniority": {
-"manager": 2,
-"analyst": 1,
+"senior": 2,
 "entry": 1
 },
-"top_pay": 160000,
+"top_pay": 161000,
 "best": [
 {
-"id": "greenhouse:6228764004",
-"title": "Financial Analyst/Investigator Grants",
-"priority": "B"
+"id": "ashby:5bca0902-d919-4267-a827-8ddd7072c73a",
+"title": "Revenue Operations Analyst",
+"priority": "A"
 },
 {
-"id": "li-4479151123",
-"title": "FP&A Manager",
+"id": "ashby:78975a32-c00f-4b1b-bc4e-2462857d0a5a",
+"title": "Senior Business Operations Analyst",
+"priority": "A"
+},
+{
+"id": "ashby:f0dc5b8d-1353-46a7-a519-80d7df3bcfe1",
+"title": "Senior Deal Desk Analyst",
 "priority": "C"
-},
-{
-"id": "greenhouse:6217754004",
-"title": "Sr Manager, Operational Finance",
-"priority": "D"
-},
-{
-"id": "greenhouse:6191441004",
-"title": "Client Finance Analyst I",
-"priority": "D"
 }
 ],
 "signals": [
-"4 fitting openings, 2 posted in 14 days (0 the 14 before)"
+"3 fitting openings, 2 posted in 14 days (1 the 14 before)",
+"Senior Deal Desk Analyst: pay: 93000-155000 yearly -> 93000-125000 yearly"
 ]
 },
 {
@@ -3072,13 +3100,13 @@
 "top_pay": 225000,
 "best": [
 {
-"id": "ashby:eab738ac-2ffb-4816-99c2-bd70530eb1f4",
-"title": "Manager, Strategic Finance ",
+"id": "ashby:883c1a23-e2b9-466f-9cc3-b2759d0b830b",
+"title": "Finance Manager",
 "priority": "D"
 },
 {
-"id": "ashby:883c1a23-e2b9-466f-9cc3-b2759d0b830b",
-"title": "Finance Manager",
+"id": "ashby:eab738ac-2ffb-4816-99c2-bd70530eb1f4",
+"title": "Manager, Strategic Finance ",
 "priority": "D"
 },
 {
@@ -3089,8 +3117,8 @@
 ],
 "signals": [
 "3 fitting openings, 3 posted in 14 days (0 the 14 before)",
-"hiring Manager, Strategic Finance  again (reposted 1x)",
 "hiring Finance Manager again (reposted 1x)",
+"hiring Manager, Strategic Finance  again (reposted 1x)",
 "hiring Strategic Finance Manager again (reposted 1x)"
 ]
 },
@@ -3140,41 +3168,6 @@
 ],
 "signals": [
 "5 fitting openings, 1 posted in 14 days (1 the 14 before)"
-]
-},
-{
-"employer": "chainalysis-careers",
-"key": "chainalysis careers",
-"openings": 3,
-"new_14d": 2,
-"prev_14d": 1,
-"score": 9,
-"teams": {},
-"seniority": {
-"senior": 2,
-"entry": 1
-},
-"top_pay": 161000,
-"best": [
-{
-"id": "ashby:78975a32-c00f-4b1b-bc4e-2462857d0a5a",
-"title": "Senior Business Operations Analyst",
-"priority": "A"
-},
-{
-"id": "ashby:5bca0902-d919-4267-a827-8ddd7072c73a",
-"title": "Revenue Operations Analyst",
-"priority": "A"
-},
-{
-"id": "ashby:f0dc5b8d-1353-46a7-a519-80d7df3bcfe1",
-"title": "Senior Deal Desk Analyst",
-"priority": "C"
-}
-],
-"signals": [
-"3 fitting openings, 2 posted in 14 days (1 the 14 before)",
-"Senior Deal Desk Analyst: pay: 93000-155000 yearly -> 93000-125000 yearly"
 ]
 },
 {
@@ -3694,13 +3687,14 @@
 {
 "id": "li-4488865339",
 "title": "Senior Financial Analyst ($105-120K+BONUS)",
-"priority": "B"
+"priority": "A"
 }
 ],
 "signals": [
 "2 fitting openings, 2 posted in 14 days (0 the 14 before)",
 "hiring Senior Financial Analyst ($105-120K+BONUS) x2",
-"Senior Financial Analyst ($105-120K+BONUS): pay added: 105000-120000 yearly"
+"Senior Financial Analyst ($105-120K+BONUS): pay added: 105000-120000 yearly",
+"Senior Financial Analyst ($105-120K+BONUS): pay added: 110000-120000 yearly"
 ]
 },
 {
@@ -3761,6 +3755,41 @@
 "signals": [
 "2 fitting openings, 2 posted in 14 days (0 the 14 before)",
 "hiring Strategic Finance Lead again (reposted 2x)"
+]
+},
+{
+"employer": "Curtiss-Wright",
+"key": "curtiss wright",
+"openings": 3,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 8,
+"teams": {},
+"seniority": {
+"senior": 2,
+"entry": 1
+},
+"top_pay": "",
+"best": [
+{
+"id": "workday:JR14158",
+"title": "Treasury Analyst",
+"priority": "A"
+},
+{
+"id": "workday:JR14092-1",
+"title": "Program Financial Analyst",
+"priority": "C"
+},
+{
+"id": "workday:JR13652-2",
+"title": "Lead Pricing and Costing Analyst - Remote",
+"priority": "C"
+}
+],
+"signals": [
+"3 fitting openings, 2 posted in 14 days (0 the 14 before)",
+"Treasury Analyst: pay removed"
 ]
 },
 {
@@ -4017,6 +4046,35 @@
 ],
 "signals": [
 "3 fitting openings, 2 posted in 14 days (1 the 14 before)"
+]
+},
+{
+"employer": "HireVue Inc",
+"key": "hirevue",
+"openings": 2,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 8,
+"teams": {},
+"seniority": {
+"entry": 1,
+"senior": 1
+},
+"top_pay": "",
+"best": [
+{
+"id": "smartrecruiters:744000159450862",
+"title": "Financial Planning & Analysis Analyst | Fully Remote US",
+"priority": "A"
+},
+{
+"id": "smartrecruiters:744000158103629",
+"title": "Senior Financial Planning & Analysis Analyst | Fully Remote US",
+"priority": "A"
+}
+],
+"signals": [
+"2 fitting openings, 2 posted in 14 days (0 the 14 before)"
 ]
 },
 {
@@ -4432,39 +4490,6 @@
 ]
 },
 {
-"employer": "Success Academy Charter Schools",
-"key": "success academy charter schools",
-"openings": 2,
-"new_14d": 2,
-"prev_14d": 0,
-"score": 7,
-"teams": {
-"FP&A": 1,
-"Network": 1
-},
-"seniority": {
-"entry": 1,
-"senior": 1
-},
-"top_pay": 130000,
-"best": [
-{
-"id": "li-4432885100",
-"title": "Analyst, FP&A",
-"priority": "A"
-},
-{
-"id": "greenhouse:5472954008",
-"title": "Lead, Scholar Talent Strategy & Planning (Growth & Scholar Talent)",
-"priority": "C"
-}
-],
-"signals": [
-"2 fitting openings, 2 posted in 14 days (0 the 14 before)",
-"hiring Analyst, FP&A again (reposted 1x)"
-]
-},
-{
 "employer": "OpenAI",
 "key": "openai",
 "openings": 3,
@@ -4498,6 +4523,35 @@
 "signals": [
 "3 fitting openings, 2 posted in 14 days (0 the 14 before)",
 "hiring GTM Strategy & Planning x2"
+]
+},
+{
+"employer": "Codex",
+"key": "codex",
+"openings": 2,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 7,
+"teams": {},
+"seniority": {
+"senior": 1,
+"manager": 1
+},
+"top_pay": 180000,
+"best": [
+{
+"id": "li-4489125060",
+"title": "Senior Financial Analyst",
+"priority": "A"
+},
+{
+"id": "li-4478542308",
+"title": "Financial Planning and Analysis Manager",
+"priority": "D"
+}
+],
+"signals": [
+"2 fitting openings, 2 posted in 14 days (0 the 14 before)"
 ]
 },
 {
@@ -4592,34 +4646,6 @@
 ]
 },
 {
-"employer": "TIAA",
-"key": "tiaa",
-"openings": 2,
-"new_14d": 2,
-"prev_14d": 0,
-"score": 7,
-"teams": {},
-"seniority": {
-"analyst": 2
-},
-"top_pay": "",
-"best": [
-{
-"id": "workday:R260900427",
-"title": "Corporate Strategy & Planning MBA Development Associate",
-"priority": "A"
-},
-{
-"id": "workday:R260900087-2",
-"title": "Financial Planning Advisor",
-"priority": "D"
-}
-],
-"signals": [
-"2 fitting openings, 2 posted in 14 days (0 the 14 before)"
-]
-},
-{
 "employer": "centene",
 "key": "centene",
 "openings": 2,
@@ -4645,6 +4671,34 @@
 "id": "workday:1675039",
 "title": "Manager, Medical Economics",
 "priority": "C"
+}
+],
+"signals": [
+"2 fitting openings, 2 posted in 14 days (0 the 14 before)"
+]
+},
+{
+"employer": "TIAA",
+"key": "tiaa",
+"openings": 2,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 7,
+"teams": {},
+"seniority": {
+"analyst": 2
+},
+"top_pay": "",
+"best": [
+{
+"id": "workday:R260900427",
+"title": "Corporate Strategy & Planning MBA Development Associate",
+"priority": "A"
+},
+{
+"id": "workday:R260900087-2",
+"title": "Financial Planning Advisor",
+"priority": "D"
 }
 ],
 "signals": [
@@ -4763,13 +4817,13 @@
 "priority": "C"
 },
 {
-"id": "ashby:0626d5fa-86eb-4441-8e11-01bf8d2cab68",
-"title": "Product Finance, Training & New Products",
+"id": "ashby:bbf9fd7c-8666-4487-9a12-1539e08fe4e0",
+"title": "Deal Strategy",
 "priority": "C"
 },
 {
-"id": "ashby:bbf9fd7c-8666-4487-9a12-1539e08fe4e0",
-"title": "Deal Strategy",
+"id": "ashby:0626d5fa-86eb-4441-8e11-01bf8d2cab68",
+"title": "Product Finance, Training & New Products",
 "priority": "C"
 }
 ],
@@ -4801,6 +4855,37 @@
 "id": "workday:2026-0034242",
 "title": "Infrastructure Project Finance - Underwriter/Project Manager",
 "priority": "C"
+}
+],
+"signals": [
+"2 fitting openings, 2 posted in 14 days (0 the 14 before)"
+]
+},
+{
+"employer": "hitachi",
+"key": "hitachi",
+"openings": 2,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 7,
+"teams": {
+"DEAI": 1,
+"Corporate Development": 1
+},
+"seniority": {
+"manager": 2
+},
+"top_pay": "",
+"best": [
+{
+"id": "workday:R0139701",
+"title": "Manager - Corporate Development",
+"priority": "A"
+},
+{
+"id": "workday:R0148220",
+"title": "Senior Manager: Corporate Development",
+"priority": "D"
 }
 ],
 "signals": [
@@ -4978,6 +5063,40 @@
 ]
 },
 {
+"employer": "RapidSOS",
+"key": "rapidsos",
+"openings": 3,
+"new_14d": 1,
+"prev_14d": 1,
+"score": 7,
+"teams": {},
+"seniority": {
+"senior": 2,
+"manager": 1
+},
+"top_pay": 170000,
+"best": [
+{
+"id": "greenhouse:5272232007",
+"title": "Senior People & Culture Business Partner",
+"priority": "A"
+},
+{
+"id": "greenhouse:5247169007",
+"title": "Senior Corporate Development & Strategy Associate",
+"priority": "A"
+},
+{
+"id": "greenhouse:5262159007",
+"title": "FP&A Manager",
+"priority": "C"
+}
+],
+"signals": [
+"3 fitting openings, 1 posted in 14 days (1 the 14 before)"
+]
+},
+{
 "employer": "cw",
 "key": "cw",
 "openings": 4,
@@ -5016,40 +5135,6 @@
 ],
 "signals": [
 "4 fitting openings, 0 posted in 14 days (3 the 14 before)"
-]
-},
-{
-"employer": "RapidSOS",
-"key": "rapidsos",
-"openings": 3,
-"new_14d": 1,
-"prev_14d": 1,
-"score": 7,
-"teams": {},
-"seniority": {
-"manager": 1,
-"senior": 2
-},
-"top_pay": 170000,
-"best": [
-{
-"id": "greenhouse:5247169007",
-"title": "Senior Corporate Development & Strategy Associate",
-"priority": "A"
-},
-{
-"id": "greenhouse:5272232007",
-"title": "Senior People & Culture Business Partner",
-"priority": "A"
-},
-{
-"id": "greenhouse:5262159007",
-"title": "FP&A Manager",
-"priority": "C"
-}
-],
-"signals": [
-"3 fitting openings, 1 posted in 14 days (1 the 14 before)"
 ]
 },
 {
@@ -5099,37 +5184,6 @@
 ],
 "signals": [
 "5 fitting openings, 0 posted in 14 days (0 the 14 before)"
-]
-},
-{
-"employer": "hitachi",
-"key": "hitachi",
-"openings": 2,
-"new_14d": 2,
-"prev_14d": 0,
-"score": 7,
-"teams": {
-"DEAI": 1,
-"Corporate Development": 1
-},
-"seniority": {
-"manager": 2
-},
-"top_pay": "",
-"best": [
-{
-"id": "workday:R0139701",
-"title": "Manager - Corporate Development",
-"priority": "A"
-},
-{
-"id": "workday:R0148220",
-"title": "Senior Manager: Corporate Development",
-"priority": "D"
-}
-],
-"signals": [
-"2 fitting openings, 2 posted in 14 days (0 the 14 before)"
 ]
 },
 {
@@ -5505,6 +5559,94 @@
 ]
 },
 {
+"employer": "Charlie Health",
+"key": "charlie health",
+"openings": 2,
+"new_14d": 1,
+"prev_14d": 0,
+"score": 6,
+"teams": {},
+"seniority": {
+"entry": 2
+},
+"top_pay": 100000,
+"best": [
+{
+"id": "li-4345698231",
+"title": "Strategy & Operations Analyst",
+"priority": "A"
+},
+{
+"id": "greenhouse:5742812004",
+"title": "Strategy & Operations Analyst",
+"priority": "B"
+}
+],
+"signals": [
+"hiring Strategy & Operations Analyst x2"
+]
+},
+{
+"employer": "TripleLift",
+"key": "triplelift",
+"openings": 2,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 6,
+"teams": {},
+"seniority": {
+"senior": 2
+},
+"top_pay": 170000,
+"best": [
+{
+"id": "in-3f1277b29717cbeb",
+"title": "Senior HR Business Partner",
+"priority": "C"
+},
+{
+"id": "greenhouse:8359558",
+"title": "Senior HR Business Partner",
+"priority": "C"
+}
+],
+"signals": [
+"2 fitting openings, 2 posted in 14 days (0 the 14 before)",
+"hiring Senior HR Business Partner x2"
+]
+},
+{
+"employer": "Rippling",
+"key": "rippling",
+"openings": 2,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 6,
+"teams": {
+"Workforce Management": 1
+},
+"seniority": {
+"senior": 1,
+"manager": 1
+},
+"top_pay": "",
+"best": [
+{
+"id": "rippling:84d388b6-7656-434c-8862-0312eb6b97ac",
+"title": "Business Operations Manager",
+"priority": "C"
+},
+{
+"id": "rippling:2ca6e225-5a11-426a-b40d-30025d7e21ca",
+"title": "Product Design Lead, Workforce Management",
+"priority": "D"
+}
+],
+"signals": [
+"2 fitting openings, 2 posted in 14 days (0 the 14 before)"
+]
+},
+{
 "employer": "AbbVie",
 "key": "abbvie",
 "openings": 2,
@@ -5561,49 +5703,6 @@
 ],
 "signals": [
 "2 fitting openings, 2 posted in 14 days (0 the 14 before)"
-]
-},
-{
-"employer": "bdx",
-"key": "bdx",
-"openings": 4,
-"new_14d": 1,
-"prev_14d": 1,
-"score": 6,
-"teams": {
-"Commercial Operations & Analytics": 1,
-"Demand Planning Process Excellence": 1,
-"Insights and AI": 1
-},
-"seniority": {
-"senior": 1,
-"manager": 3
-},
-"top_pay": "",
-"best": [
-{
-"id": "workday:R-555444-1",
-"title": "Senior Analyst, Commercial Operations & Analytics",
-"priority": "C"
-},
-{
-"id": "workday:R-557866",
-"title": "Senior Manager, Demand Planning Process Excellence",
-"priority": "D"
-},
-{
-"id": "workday:R-548573-1",
-"title": "Senior Manager, People Analytics, Insights and AI",
-"priority": "D"
-},
-{
-"id": "workday:R-555722-1",
-"title": "Senior Manager- Strategic Pricing",
-"priority": "D"
-}
-],
-"signals": [
-"4 fitting openings, 1 posted in 14 days (1 the 14 before)"
 ]
 },
 {
@@ -5906,6 +6005,54 @@
 ]
 },
 {
+"employer": "Spring Health",
+"key": "spring health",
+"openings": 5,
+"new_14d": 0,
+"prev_14d": 3,
+"score": 6,
+"teams": {
+"Care Delivery Program": 1,
+"Care Delivery BPO": 1,
+"FP&A": 1
+},
+"seniority": {
+"senior": 3,
+"manager": 2
+},
+"top_pay": 159500,
+"best": [
+{
+"id": "ashby:64b5c37f-a623-47c2-9030-181ff704a876",
+"title": "Manager, Operations (Alma)",
+"priority": "B"
+},
+{
+"id": "ashby:6c2effd8-9dfa-4198-b8b1-c5c4608298b7",
+"title": "Strategy & Operations Lead, Care Delivery Program",
+"priority": "C"
+},
+{
+"id": "ashby:65f9e5ec-5bc1-4114-8e6b-0f60cb844d04",
+"title": "Vendor & Workforce Operations Lead",
+"priority": "C"
+},
+{
+"id": "ashby:336af452-7b72-4d78-b468-cc22c2704073",
+"title": "Strategy & Operations Lead, Care Delivery BPO",
+"priority": "C"
+},
+{
+"id": "ashby:0398dec6-c62d-49c5-9475-02b0b91d7005",
+"title": "Senior Manager, FP&A ",
+"priority": "C"
+}
+],
+"signals": [
+"5 fitting openings, 0 posted in 14 days (3 the 14 before)"
+]
+},
+{
 "employer": "iCapital",
 "key": "icapital",
 "openings": 2,
@@ -5921,12 +6068,12 @@
 "top_pay": 110000,
 "best": [
 {
-"id": "greenhouse:8889724002",
+"id": "greenhouse:8889716002",
 "title": "Corporate Finance, Revenue Operations - Associate",
 "priority": "B"
 },
 {
-"id": "greenhouse:8889716002",
+"id": "greenhouse:8889724002",
 "title": "Corporate Finance, Revenue Operations - Associate",
 "priority": "B"
 }
@@ -5937,51 +6084,37 @@
 ]
 },
 {
-"employer": "Spring Health",
-"key": "spring health",
-"openings": 5,
-"new_14d": 0,
-"prev_14d": 3,
-"score": 6,
-"teams": {
-"FP&A": 1,
-"Care Delivery BPO": 1,
-"Care Delivery Program": 1
-},
+"employer": "Gusto",
+"key": "gusto",
+"openings": 3,
+"new_14d": 1,
+"prev_14d": 0,
+"score": 5,
+"teams": {},
 "seniority": {
-"senior": 3,
-"manager": 2
+"senior": 3
 },
-"top_pay": 159500,
+"top_pay": 127300,
 "best": [
 {
-"id": "ashby:64b5c37f-a623-47c2-9030-181ff704a876",
-"title": "Manager, Operations (Alma)",
-"priority": "B"
-},
-{
-"id": "ashby:65f9e5ec-5bc1-4114-8e6b-0f60cb844d04",
-"title": "Vendor & Workforce Operations Lead",
+"id": "li-4470674444",
+"title": "WFM Resource Management & Analytics",
 "priority": "C"
 },
 {
-"id": "ashby:0398dec6-c62d-49c5-9475-02b0b91d7005",
-"title": "Senior Manager, FP&A ",
+"id": "greenhouse:8104224",
+"title": "WFM Resource Management & Analytics",
 "priority": "C"
 },
 {
-"id": "ashby:336af452-7b72-4d78-b468-cc22c2704073",
-"title": "Strategy & Operations Lead, Care Delivery BPO",
-"priority": "C"
-},
-{
-"id": "ashby:6c2effd8-9dfa-4198-b8b1-c5c4608298b7",
-"title": "Strategy & Operations Lead, Care Delivery Program",
+"id": "greenhouse:8212233",
+"title": "Sr. Sales Operations Analyst",
 "priority": "C"
 }
 ],
 "signals": [
-"5 fitting openings, 0 posted in 14 days (3 the 14 before)"
+"3 fitting openings, 1 posted in 14 days (0 the 14 before)",
+"hiring WFM Resource Management & Analytics x2"
 ]
 },
 {
@@ -6054,13 +6187,88 @@
 ]
 },
 {
-"employer": "Curtiss-Wright",
-"key": "curtiss wright",
+"employer": "Precision Medicine Group",
+"key": "precision medicine",
+"openings": 3,
+"new_14d": 1,
+"prev_14d": 0,
+"score": 5,
+"teams": {
+"Operational Finance": 1
+},
+"seniority": {
+"manager": 2,
+"entry": 1
+},
+"top_pay": 160000,
+"best": [
+{
+"id": "li-4479151123",
+"title": "FP&A Manager",
+"priority": "C"
+},
+{
+"id": "greenhouse:6217754004",
+"title": "Sr Manager, Operational Finance",
+"priority": "D"
+},
+{
+"id": "greenhouse:6191441004",
+"title": "Client Finance Analyst I",
+"priority": "D"
+}
+],
+"signals": [
+"3 fitting openings, 1 posted in 14 days (0 the 14 before)"
+]
+},
+{
+"employer": "bdx",
+"key": "bdx",
+"openings": 3,
+"new_14d": 1,
+"prev_14d": 1,
+"score": 5,
+"teams": {
+"Commercial Operations & Analytics": 1,
+"Demand Planning Process Excellence": 1
+},
+"seniority": {
+"senior": 1,
+"manager": 2
+},
+"top_pay": "",
+"best": [
+{
+"id": "workday:R-555444-1",
+"title": "Senior Analyst, Commercial Operations & Analytics",
+"priority": "C"
+},
+{
+"id": "workday:R-557866",
+"title": "Senior Manager, Demand Planning Process Excellence",
+"priority": "D"
+},
+{
+"id": "workday:R-555722-1",
+"title": "Senior Manager- Strategic Pricing",
+"priority": "D"
+}
+],
+"signals": [
+"3 fitting openings, 1 posted in 14 days (1 the 14 before)"
+]
+},
+{
+"employer": "embecta",
+"key": "embecta",
 "openings": 2,
 "new_14d": 1,
 "prev_14d": 0,
 "score": 5,
-"teams": {},
+"teams": {
+"Commercial Insights and Analytics": 1
+},
 "seniority": {
 "entry": 1,
 "senior": 1
@@ -6068,18 +6276,18 @@
 "top_pay": "",
 "best": [
 {
-"id": "workday:JR14158",
-"title": "Treasury Analyst",
+"id": "workday:R21-00608455",
+"title": "Financial Analyst",
 "priority": "A"
 },
 {
-"id": "workday:JR13652-2",
-"title": "Lead Pricing and Costing Analyst - Remote",
-"priority": "C"
+"id": "workday:R21-00608254",
+"title": "Senior Analyst, Commercial Insights and Analytics",
+"priority": "D"
 }
 ],
 "signals": [
-"Treasury Analyst: pay removed"
+"Financial Analyst: pay removed"
 ]
 },
 {
@@ -6134,13 +6342,13 @@
 "priority": "D"
 },
 {
-"id": "workday:JR0150931",
-"title": "Sr. Manager, Strategy - Oncology & Multispecialty",
+"id": "workday:JR0155359",
+"title": "Strategy and Operations Manager",
 "priority": "D"
 },
 {
-"id": "workday:JR0155359",
-"title": "Strategy and Operations Manager",
+"id": "workday:JR0150931",
+"title": "Sr. Manager, Strategy - Oncology & Multispecialty",
 "priority": "D"
 }
 ],
@@ -6306,6 +6514,52 @@
 ]
 },
 {
+"employer": "Imagen Technologies",
+"key": "imagen technologies",
+"openings": 1,
+"new_14d": 1,
+"prev_14d": 0,
+"score": 4,
+"teams": {},
+"seniority": {
+"analyst": 1
+},
+"top_pay": 150000,
+"best": [
+{
+"id": "li-4480574346",
+"title": "Strategy & Business Operations Associate",
+"priority": "A"
+}
+],
+"signals": [
+"Strategy & Business Operations Associate: pay added: 120000-150000 yearly"
+]
+},
+{
+"employer": "Traba",
+"key": "traba",
+"openings": 1,
+"new_14d": 1,
+"prev_14d": 0,
+"score": 4,
+"teams": {},
+"seniority": {
+"analyst": 1
+},
+"top_pay": 180000,
+"best": [
+{
+"id": "ashby:c53209da-2da7-4dae-9a31-9c55cca144eb",
+"title": "Strategic Finance Lead",
+"priority": "A"
+}
+],
+"signals": [
+"hiring Strategic Finance Lead again (reposted 2x)"
+]
+},
+{
 "employer": "WPP Media",
 "key": "wpp media",
 "openings": 1,
@@ -6339,7 +6593,7 @@
 "seniority": {
 "analyst": 1
 },
-"top_pay": 125000,
+"top_pay": "",
 "best": [
 {
 "id": "ashby:e457e765-0dc8-4b31-bc9c-872e5aae045a",
@@ -6348,7 +6602,32 @@
 }
 ],
 "signals": [
-"Business Operations Associate: pay added: 100000-125000 yearly"
+"Business Operations Associate: pay removed"
+]
+},
+{
+"employer": "invesco",
+"key": "invesco",
+"openings": 1,
+"new_14d": 1,
+"prev_14d": 0,
+"score": 4,
+"teams": {
+"Fundamental Equities": 1
+},
+"seniority": {
+"entry": 1
+},
+"top_pay": "",
+"best": [
+{
+"id": "workday:R-15899",
+"title": "Junior Analyst (Financials) \u2013 US Core & Dividend",
+"priority": "A"
+}
+],
+"signals": [
+"Junior Analyst (Financials) \u2013 US Core & Dividend: pay removed"
 ]
 },
 {
@@ -6400,6 +6679,29 @@
 ]
 },
 {
+"employer": "AMS",
+"key": "ams",
+"openings": 1,
+"new_14d": 1,
+"prev_14d": 0,
+"score": 4,
+"teams": {},
+"seniority": {
+"senior": 1
+},
+"top_pay": "",
+"best": [
+{
+"id": "rippling:92a0475a-e787-4a44-bd9e-b33b54eb3b32",
+"title": "Senior Analyst | Involved Media | NYC",
+"priority": "B"
+}
+],
+"signals": [
+"Senior Analyst | Involved Media | NYC: title: Senior Analyst, Media Measurement | Involved Media | "
+]
+},
+{
 "employer": "Timberland",
 "key": "timberland",
 "openings": 1,
@@ -6422,29 +6724,6 @@
 ],
 "signals": [
 "JanSport and Eastpak: Senior Financial Analyst, FP&A: pay removed"
-]
-},
-{
-"employer": "AMS",
-"key": "ams",
-"openings": 1,
-"new_14d": 1,
-"prev_14d": 0,
-"score": 4,
-"teams": {},
-"seniority": {
-"senior": 1
-},
-"top_pay": "",
-"best": [
-{
-"id": "rippling:92a0475a-e787-4a44-bd9e-b33b54eb3b32",
-"title": "Senior Analyst, Media Measurement | Involved Media | NYC",
-"priority": "B"
-}
-],
-"signals": [
-"Senior Analyst, Media Measurement | Involved Media | NYC: pay removed"
 ]
 },
 {
@@ -6655,6 +6934,37 @@
 ]
 },
 {
+"employer": "SquareTrade",
+"key": "squaretrade",
+"openings": 2,
+"new_14d": 0,
+"prev_14d": 1,
+"score": 4,
+"teams": {
+"Service Strategy & Operations Analytics": 2
+},
+"seniority": {
+"manager": 2
+},
+"top_pay": "",
+"best": [
+{
+"id": "smartrecruiters:744000157555349",
+"title": "Sr. Manager, Service Strategy & Operations Analytics",
+"priority": "D"
+},
+{
+"id": "smartrecruiters:744000150201329",
+"title": "Sr. Manager, Service Strategy & Operations Analytics",
+"priority": "D"
+}
+],
+"signals": [
+"2 in Service Strategy & Operations Analytics",
+"hiring Sr. Manager, Service Strategy & Operations Analytics x2"
+]
+},
+{
 "employer": "Mozilla",
 "key": "mozilla",
 "openings": 2,
@@ -6754,46 +7064,6 @@
 ]
 },
 {
-"employer": "Lantern",
-"key": "lantern",
-"openings": 3,
-"new_14d": 0,
-"prev_14d": 1,
-"score": 4,
-"teams": {
-"Finance": 1,
-"Commercial Strategy & Operations": 1,
-"Client Success": 1
-},
-"seniority": {
-"senior": 1,
-"manager": 2
-},
-"top_pay": 200000,
-"best": [
-{
-"id": "greenhouse:5243642007",
-"title": "Senior Analyst, Finance",
-"priority": "B"
-},
-{
-"id": "greenhouse:5186912007",
-"title": "Senior Manager, Commercial Strategy & Operations",
-"priority": "C"
-},
-{
-"id": "greenhouse:5265092007",
-"title": "Senior Manager, Strategy & Operations, Client Success",
-"priority": "C"
-}
-],
-"signals": [
-"3 fitting openings, 0 posted in 14 days (1 the 14 before)",
-"Senior Manager, Commercial Strategy & Operations: title: Senior Lead, Commercial Strategy & Operations -> Seni",
-"Senior Manager, Strategy & Operations, Client Success: title: Senior Lead, Strategy & Operations, Client Success ->"
-]
-},
-{
 "employer": "lyrahealth",
 "key": "lyrahealth",
 "openings": 3,
@@ -6825,6 +7095,44 @@
 ],
 "signals": [
 "3 fitting openings, 0 posted in 14 days (1 the 14 before)"
+]
+},
+{
+"employer": "generate",
+"key": "generate",
+"openings": 3,
+"new_14d": 0,
+"prev_14d": 0,
+"score": 4,
+"teams": {
+"Capital Markets": 1,
+"Treasury": 1,
+"Credit": 1
+},
+"seniority": {
+"analyst": 1,
+"entry": 2
+},
+"top_pay": "",
+"best": [
+{
+"id": "ashby:54581317-9fbc-4bab-8196-9d2a4330b01a",
+"title": "Associate, Capital Markets",
+"priority": "B"
+},
+{
+"id": "ashby:4ffc71d6-6d96-4641-ab7a-26c1c181db0f",
+"title": "Analyst, Credit",
+"priority": "C"
+},
+{
+"id": "ashby:39ce9d4a-b118-4e78-bccd-8d59bed7d509",
+"title": "Analyst, Treasury",
+"priority": "D"
+}
+],
+"signals": [
+"3 fitting openings, 0 posted in 14 days (0 the 14 before)"
 ]
 },
 {
@@ -6898,311 +7206,6 @@
 ],
 "signals": [
 "Senior Manager, Strategic Finance: pay removed"
-]
-},
-{
-"employer": "Happen Bank",
-"key": "happen bank",
-"openings": 1,
-"new_14d": 1,
-"prev_14d": 0,
-"score": 3,
-"teams": {},
-"seniority": {
-"manager": 1
-},
-"top_pay": 180000,
-"best": [
-{
-"id": "workday:R0007396",
-"title": "Sr Home Lending Strategy Manager",
-"priority": "C"
-}
-],
-"signals": [
-"Sr Home Lending Strategy Manager: pay added: 156000-180000 yearly"
-]
-},
-{
-"employer": "BVNK",
-"key": "bvnk",
-"openings": 1,
-"new_14d": 1,
-"prev_14d": 0,
-"score": 3,
-"teams": {},
-"seniority": {
-"manager": 1
-},
-"top_pay": 210000,
-"best": [
-{
-"id": "greenhouse:5025273101",
-"title": "Senior Business Operations & Strategy Manager",
-"priority": "C"
-}
-],
-"signals": [
-"hiring Senior Business Operations & Strategy Manager again (reposted 1x)"
-]
-},
-{
-"employer": "Pathos AI",
-"key": "pathos ai",
-"openings": 1,
-"new_14d": 1,
-"prev_14d": 0,
-"score": 3,
-"teams": {
-"Clinical Finance": 1
-},
-"seniority": {
-"senior": 1
-},
-"top_pay": "",
-"best": [
-{
-"id": "rippling:6268da8b-780c-4255-9512-6db160838072",
-"title": "Senior Financial Analyst, Clinical Finance",
-"priority": "D"
-}
-],
-"signals": [
-"Senior Financial Analyst, Clinical Finance: pay removed"
-]
-},
-{
-"employer": "Haleon",
-"key": "haleon",
-"openings": 1,
-"new_14d": 1,
-"prev_14d": 0,
-"score": 3,
-"teams": {
-"VMS": 1
-},
-"seniority": {
-"senior": 1
-},
-"top_pay": "",
-"best": [
-{
-"id": "workday:549555",
-"title": "Consumption Forecasting Analyst, VMS",
-"priority": "C"
-}
-],
-"signals": [
-"Consumption Forecasting Analyst, VMS: pay removed"
-]
-},
-{
-"employer": "Vestwell",
-"key": "vestwell",
-"openings": 1,
-"new_14d": 1,
-"prev_14d": 0,
-"score": 3,
-"teams": {
-"Employer Services": 1
-},
-"seniority": {
-"manager": 1
-},
-"top_pay": "",
-"best": [
-{
-"id": "greenhouse:8078925003",
-"title": "Workforce Manager, Employer Services",
-"priority": "C"
-}
-],
-"signals": [
-"Workforce Manager, Employer Services: pay removed"
-]
-},
-{
-"employer": "Ethos Life",
-"key": "ethos life",
-"openings": 1,
-"new_14d": 1,
-"prev_14d": 0,
-"score": 3,
-"teams": {
-"Distribution & Revenue Strategy": 1
-},
-"seniority": {
-"manager": 1
-},
-"top_pay": 223000,
-"best": [
-{
-"id": "greenhouse:8911631002",
-"title": "Senior Manager, Distribution & Revenue Strategy",
-"priority": "C"
-}
-],
-"signals": [
-"Senior Manager, Distribution & Revenue Strategy: pay: 120000-160000 yearly -> 127000-223000 yearly; descripti"
-]
-},
-{
-"employer": "Russell Investments",
-"key": "russell investments",
-"openings": 1,
-"new_14d": 1,
-"prev_14d": 0,
-"score": 3,
-"teams": {},
-"seniority": {
-"senior": 1
-},
-"top_pay": "",
-"best": [
-{
-"id": "workday:R-04262",
-"title": "Senior Research Analyst",
-"priority": "D"
-}
-],
-"signals": [
-"Senior Research Analyst: pay removed"
-]
-},
-{
-"employer": "GHX",
-"key": "ghx",
-"openings": 3,
-"new_14d": 0,
-"prev_14d": 1,
-"score": 3,
-"teams": {
-"or PE background": 1,
-"Corporate Strategy & Development": 1
-},
-"seniority": {
-"senior": 2,
-"manager": 1
-},
-"top_pay": 170000,
-"best": [
-{
-"id": "greenhouse:4747378005",
-"title": "Strategy & Corporate Development Associate - Investment Banking, Management Consulting, or PE background",
-"priority": "C"
-},
-{
-"id": "greenhouse:4733291005",
-"title": "Strategic Financial Analyst - Corporate Strategy & Development",
-"priority": "C"
-},
-{
-"id": "greenhouse:4723173005",
-"title": "Pricing Manager",
-"priority": "C"
-}
-],
-"signals": [
-"3 fitting openings, 0 posted in 14 days (1 the 14 before)"
-]
-},
-{
-"employer": "relx",
-"key": "relx",
-"openings": 2,
-"new_14d": 0,
-"prev_14d": 1,
-"score": 3,
-"teams": {},
-"seniority": {
-"entry": 1,
-"analyst": 1
-},
-"top_pay": "",
-"best": [
-{
-"id": "workday:R119011",
-"title": "General Management Associate, Executive Development Rotational Program (Hybrid)",
-"priority": "B"
-},
-{
-"id": "workday:R118876",
-"title": "General Management Associate, Executive Development Rotational Program (Hybrid)",
-"priority": "C"
-}
-],
-"signals": [
-"hiring General Management Associate, Executive Development Rotational Program (Hybrid) x2"
-]
-},
-{
-"employer": "wk",
-"key": "wk",
-"openings": 3,
-"new_14d": 0,
-"prev_14d": 2,
-"score": 3,
-"teams": {},
-"seniority": {
-"manager": 3
-},
-"top_pay": "",
-"best": [
-{
-"id": "workday:R0060426",
-"title": "Financial Planning Manager",
-"priority": "C"
-},
-{
-"id": "workday:R0060086",
-"title": "Financial Planning Manager",
-"priority": "C"
-},
-{
-"id": "workday:R0060212-3",
-"title": "Business Analysis Manager (Operational Excellence Manager)",
-"priority": "C"
-}
-],
-"signals": [
-"3 fitting openings, 0 posted in 14 days (2 the 14 before)",
-"hiring Financial Planning Manager x2"
-]
-},
-{
-"employer": "hopper",
-"key": "hopper",
-"openings": 3,
-"new_14d": 0,
-"prev_14d": 3,
-"score": 3,
-"teams": {
-"Finance et strat\u00e9gie// Finance & Strategy Manager": 1
-},
-"seniority": {
-"manager": 3
-},
-"top_pay": 200000,
-"best": [
-{
-"id": "ashby:f0040c7e-0970-405d-a2f8-53f147d1423c",
-"title": "Finance & Strategy Manager",
-"priority": "D"
-},
-{
-"id": "ashby:fee876d2-b5dd-44fa-a336-e81f3e12c4ae",
-"title": "Finance & Strategy Manager",
-"priority": "D"
-},
-{
-"id": "ashby:a4c6139b-5a0c-488f-9e01-dd9956b4e63a",
-"title": "Gestionnaire, Finance et strat\u00e9gie// Finance & Strategy Manager",
-"priority": "D"
-}
-],
-"signals": [
-"3 fitting openings, 0 posted in 14 days (3 the 14 before)",
-"hiring Finance & Strategy Manager x2"
 ]
 }
 ]
