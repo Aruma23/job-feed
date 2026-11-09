@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-09T12:33+00:00 · **WARN** · Published, with warnings.
+2026-11-09T16:40+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1245 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-05.
+## WARN: 1145 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-05.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Company: Senior Director Finance (last 2026-11-07)
@@ -11,17 +11,17 @@
   - Prime Equity NYC: Director of Operations (last 2026-11-05)
   - City University of New York: Administrative Officer (Director of Operations and Events) (last 2026-11-05)
 
-## WARN: 5 accounting-heavy jobs ranked A or B.
+## WARN: 6 accounting-heavy jobs ranked A or B.
 
 - What the feed did: Left as published.
 - What to do: Fit and category disagree; the relevance rules need a look.
   - HLW International: Specialty Studios Project & Operations Coordinator
   - Turner & Townsend: Financial Operations and Data Analytics Specialist
   - Planned Parenthood: Senior Specialist, Budget Administration
+  - City of New York: Analyst -  FEMA Sandy Revenue and Financial Planning
   - compass-surgical-partners: Analyst, Revenue Cycle Management & Managed Care
-  - Hospital for Special Surgery: Workday Finance Lead
 
-## INFO: 83 sets of rows share employer, title, place and description.
+## INFO: 84 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
