@@ -1,22 +1,22 @@
 # Feed audit
 
-2026-11-09T00:11+00:00 · **WARN** · Published, with warnings.
+2026-11-09T12:33+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1990 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-04.
+## WARN: 1245 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-05.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Company: Senior Director Finance (last 2026-11-07)
   - AIG Employee Services, Inc.: Director, Technology Data Analytics & Automation (last 2026-11-07)
   - Tory Burch: Director, Talent Business Partner- Corporate NA Region (last 2026-11-05)
-  - Confidential: Sr. FP&A Analyst (SaaS required) - New York (Hybrid - 140K) (last 2026-11-06)
   - Prime Equity NYC: Director of Operations (last 2026-11-05)
+  - City University of New York: Administrative Officer (Director of Operations and Events) (last 2026-11-05)
 
 ## WARN: 5 accounting-heavy jobs ranked A or B.
 
 - What the feed did: Left as published.
 - What to do: Fit and category disagree; the relevance rules need a look.
   - HLW International: Specialty Studios Project & Operations Coordinator
-  - Children's Specialized ABA: Financial Analyst
+  - Turner & Townsend: Financial Operations and Data Analytics Specialist
   - Planned Parenthood: Senior Specialist, Budget Administration
   - compass-surgical-partners: Analyst, Revenue Cycle Management & Managed Care
   - Hospital for Special Surgery: Workday Finance Lead
