@@ -1,15 +1,15 @@
 # Feed audit
 
-2026-11-09T20:27+00:00 · **WARN** · Published, with warnings.
+2026-11-10T00:11+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1089 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-05.
+## WARN: 1951 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-06.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Company: Senior Director Finance (last 2026-11-07)
   - AIG Employee Services, Inc.: Director, Technology Data Analytics & Automation (last 2026-11-07)
-  - Tory Burch: Director, Talent Business Partner- Corporate NA Region (last 2026-11-05)
-  - Prime Equity NYC: Director of Operations (last 2026-11-05)
-  - City University of New York: Administrative Officer (Director of Operations and Events) (last 2026-11-05)
+  - EOS Hospitality: Director, Commercial (last 2026-11-06)
+  - Baker Tilly Canada: Managing Director, HR & Payroll Managed Services (last 2026-11-06)
+  - Happen Bank: Sr Product Manager, Financial Crimes Compliance (FCC) (last 2026-11-06)
 
 ## WARN: 5 accounting-heavy jobs ranked A or B.
 
@@ -17,19 +17,19 @@
 - What to do: Fit and category disagree; the relevance rules need a look.
   - HLW International: Specialty Studios Project & Operations Coordinator
   - Turner & Townsend: Financial Operations and Data Analytics Specialist
+  - Robert Half: Senior Accounting Analyst
   - Planned Parenthood: Senior Specialist, Budget Administration
   - compass-surgical-partners: Analyst, Revenue Cycle Management & Managed Care
-  - Hospital for Special Surgery: Workday Finance Lead
 
-## INFO: 88 sets of rows share employer, title, place and description.
+## INFO: 82 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
-  - in-7cdc77c951153988 / in-38d7cc325166a23c (United Nations: Senior Finance and Budget Assistant, G7)
-  - in-a1395037c7b8dc96 / in-bb318f3cbd823cc0 (J.Crew: Distribution Analyst)
-  - in-04eb9af978eb6452 / in-a35bc29f1d37c8fa (Protiviti: New York Technology Audit & Advisory Associate Director)
   - li-4476052200 / greenhouse:8273992 (DoorDash: Associate, Finance & Strategy - Marketplace)
-  - li-4486812761 / li-4488056370 (Oliver Wyman: Oliver Wyman - Talent Management Lead - New York)
+  - in-138d95fbe86f609b / in-c54f9c90f1a99a43 (Columbia Bank: Sr. Commercial Credit Analyst II)
+  - li-4487219219 / li-4489110541 (McDermott Will & Schulte: Financial Analyst, FP&A)
+  - li-4476484227 / greenhouse:8278668 (DoorDash: Associate, Finance & Strategy - DashPass)
+  - in-b7e87df52baed040 / in-230963fcb65bca6b (Columbia Bank: Universal Banker I - Full Time - Heinz, Staten Island)
 
 ## INFO: 1 entry-level titles ask for 5+ years.
 
