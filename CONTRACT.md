@@ -1,6 +1,6 @@
 # Job record contract
 
-Contract version: 7 (Nov 1, 2026). `feed_status.json` → `contract.version` says which version a run wrote. Every component (this
+Contract version: 8 (Nov 9, 2026). `feed_status.json` → `contract.version` says which version a run wrote. Every component (this
 feed, the tracker's finder and gate, the Hub, the Mac runner) reads and writes jobs by these rules. `tests/test_v6.py` fails if a
 column in `scrape.py` is missing here or a value falls outside its list.
 
@@ -47,6 +47,20 @@ Priority (priority.py): `priority` (A | B | C | D), `priority_score` (0-100), `p
 the tracker's gate makes every accept/reject call. D also marks what the gate would likely reject, suspicious jobs and jobs gone
 from the employer's board. High ghost risk, 5+ years required (a figure the posting marks preferred doesn't count; `years_min`
 still carries the most demanding figure), or a fit under 50 caps it at C.
+
+Level realism (priority.py, v8): `level_fit` = in_range | stretch | out_of_range, read for an early-career seat (analyst, senior
+analyst, associate; up to `LEVEL_TARGET_YEARS` = 3 years). out_of_range (director+, an internship, a senior manager, principal,
+associate director, AVP or controller title, a manager seat asking 4+ years, or 5+ years required) caps priority at C; stretch (a
+manager title without a 4+ year ask, any title asking 4 years) caps it at B. Level never raises a job; fit orders jobs inside
+the range. It describes the seat, not a person.
+
+Who posted it (poster.py, v8): `poster` = employer (no sign of a third party: the default, not proof) | recruiter (a recruiting
+or staffing firm, by its name, or because most of its postings say they are written for a client) | recruiter_unnamed (a
+recruiter posting where the hiring company is described or called confidential instead of named). `poster_why`. Separate from
+`trust`: a staffing firm's own board is verified and still a recruiter posting. Recruiters are never D for being recruiters;
+recruiter loses 3 points, recruiter_unnamed loses 8 and is capped at C because the real employer can't be checked (companies
+to avoid, companies already applied to) until it is known. Consulting and advisory wording about the firm's own clients
+("on behalf of our clients", "confidential client information") is not evidence.
 
 Employer intelligence (intel.py, v7): `employer_signal` (what this employer's fitting postings show together: openings, posted in
 the last 14 days vs the 14 before, teams with 2+ openings, roles hired more than once, pay or title changes; empty when nothing

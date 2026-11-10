@@ -315,7 +315,8 @@ class AfterReview(unittest.TestCase):
 
 ENUMS = {"freshness": {"fresh", "active", "aging", "stale", "gone"}, "ghost_risk": {"low", "medium", "high"},
          "trust": {"verified", "consistent", "unverified", "suspicious"}, "priority": {"A", "B", "C", "D"},
-         "status": {"new", "changed", "reappeared", "unchanged"}}
+         "status": {"new", "changed", "reappeared", "unchanged"},
+         "level_fit": {"in_range", "stretch", "out_of_range"}, "poster": {"employer", "recruiter", "recruiter_unnamed"}}
 
 
 def check_values(t, rows):

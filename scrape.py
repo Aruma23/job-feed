@@ -27,6 +27,9 @@ v6 (Nov 1): the job record contract (CONTRACT.md). New columns, all computed fro
   no longer lists it is "gone").
 - trust.py: trust, trust_why (employer verification and scam screening; unknown is "unverified", never a rejection).
 - priority.py: priority (A-D), priority_score, priority_why. Orders the work; the tracker's gate still decides.
+- v8 (Nov 9 2026): poster.py adds poster, poster_why (employer | recruiter | recruiter_unnamed: who posted it, separate from
+  trust); priority.py adds level_fit (in_range | stretch | out_of_range for an early-career seat, which caps the tier) and
+  shows level and poster in priority_why.
 - discover.py: a board that suddenly returns far fewer jobs keeps its last good snapshot; per-system health in feed_status.
 - feed_status "coverage": the employer apply sites the feed can't read yet, by qualifying jobs, to pick the next adapter.
 
@@ -75,6 +78,7 @@ import footprint
 import history
 import identity
 import intel
+import poster
 import priority
 import relevance
 import reqs
@@ -121,8 +125,8 @@ COLS = ["id", "site", "title", "company", "location", "is_remote", "date_posted"
         "region", "req_id", "source_ids", "fit_score", "fit_category", "fit_why", "fit_by",
         "status", "changes", "last_change", "age_days", "skills", "years_min", "education", "seniority", "pay_low", "pay_high",
         "freshness", "ghost_risk", "freshness_why", "reposts", "repost_of", "trust", "trust_why", "priority", "priority_score",
-        "priority_why", "employer_signal", "related_ids"]
-CONTRACT_VERSION = 7
+        "priority_why", "employer_signal", "related_ids", "level_fit", "poster", "poster_why"]
+CONTRACT_VERSION = 8
 # Posting facts a re-read of the same copy may change (merge): what the employer edits. Identity and lifecycle columns never.
 UPDATABLE = ("title", "company", "location", "is_remote", "date_posted", "job_url", "job_url_direct", "min_amount", "max_amount",
              "interval", "description")
@@ -438,15 +442,20 @@ def annotate(agg_rows, direct_rows):
             d = cands[0] if len(cands) == 1 else None
         if not d:
             continue
-        sites = set(filter(None, (d.get("also_on") or "").split(";"))) | {r.get("site")} | set(filter(None, (r.get("also_on") or "").split(";")))
-        d["also_on"] = ";".join(sorted(sites - {d.get("site"), ""}))
-        d["source_ids"] = ";".join(dict.fromkeys(identity.source_ids(d) + identity.source_ids(r)))
-        if r.get("first_seen") and r["first_seen"] < (d.get("first_seen") or "9"):
-            d["first_seen"] = r["first_seen"]
-        if not (d.get("min_amount") or d.get("max_amount")) and (r.get("min_amount") or r.get("max_amount")):
-            d.update(min_amount=r.get("min_amount", ""), max_amount=r.get("max_amount", ""), interval=r.get("interval", ""))
+        _fold(d, r)
         folded.add(r["id"])
     return folded
+
+
+def _fold(d, r):
+    """Folds aggregator row r into board row d: d gains r's site, ids, earlier first_seen and pay it lacked."""
+    sites = set(filter(None, (d.get("also_on") or "").split(";"))) | {r.get("site")} | set(filter(None, (r.get("also_on") or "").split(";")))
+    d["also_on"] = ";".join(sorted(sites - {d.get("site"), ""}))
+    d["source_ids"] = ";".join(dict.fromkeys(identity.source_ids(d) + identity.source_ids(r)))
+    if r.get("first_seen") and r["first_seen"] < (d.get("first_seen") or "9"):
+        d["first_seen"] = r["first_seen"]
+    if not (d.get("min_amount") or d.get("max_amount")) and (r.get("min_amount") or r.get("max_amount")):
+        d.update(min_amount=r.get("min_amount", ""), max_amount=r.get("max_amount", ""), interval=r.get("interval", ""))
 
 
 def finish(rows, cache):
@@ -599,6 +608,10 @@ def annotate_v6(rows, hist, here, today):
     except Exception as e:
         db, good, bad, index = {"boards": {}}, {}, {}, {}
         out["trust_error"] = f"{type(e).__name__}: {str(e)[:120]}"
+    try:
+        poster.assess_all(rows)        # before priority, which reads it; judged across all rows (an employer's postings together)
+    except Exception as e:
+        out["poster_error"] = f"{type(e).__name__}: {str(e)[:120]}"
     for r in rows:
         try:
             freshness.assess(r, hist["jobs"].get(r.get("id")), history.family(hist, r), today, r.pop("_gone", ""))
@@ -608,7 +621,7 @@ def annotate_v6(rows, hist, here, today):
             out["errors"] = out.get("errors", 0) + 1
             out["last_error"] = f"{r.get('id')}: {type(e).__name__}: {str(e)[:100]}"
         r.pop("_board", None)
-    for col in ("freshness", "ghost_risk", "trust", "priority"):
+    for col in ("freshness", "ghost_risk", "trust", "priority", "level_fit", "poster"):
         out[col] = _count(r.get(col, "") for r in rows)
     out["reposted"] = sum(1 for r in rows if r.get("repost_of"))
     out["tier_A_fresh_verified"] = sum(1 for r in rows if r.get("priority") == "A" and r.get("trust") == "verified")
@@ -634,6 +647,10 @@ def after_review(rows, added, feed_dir, today):
             trust.assess(r, db, good, bad, today, index)
         except Exception:
             pass
+    try:
+        poster.assess_all(rows)
+    except Exception:
+        pass
     for r in rows:
         try:
             priority.assess(r)

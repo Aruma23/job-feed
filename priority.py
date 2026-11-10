@@ -13,12 +13,29 @@ CPA/CFA/Series license or MBA, pay below the floor, director level), a suspiciou
 employer's board is D, with the reason; 5+ years required caps it at C (years_min keeps the posting's most demanding figure for the
 gate; the ranking reads the text again and sets aside a figure that is only preferred, see reqs.years_required). Whether the job is
 already in the tracker and how his experience covers the requirements are private, so the tracker adds those.
+
+v8 (Nov 9 2026): level realism and who posted it.
+
+  level_fit  in_range | stretch | out_of_range: whether the seat is within reach for an early-career candidate (the feed ranks
+             for analyst, senior analyst and associate seats, about 0-3 years; LEVEL_TARGET_YEARS). Before v8 a manager seat
+             lost 6 points and a perfect-fit manager job still ranked A: 46% of A/B rows were senior or manager titles.
+             out_of_range (director+, a senior manager/principal/staff title, a manager asking 4+ years, any 5+ years
+             required) caps the job at C; stretch (a manager title without a 4+ year ask, a senior or other title asking 4
+             years) caps it at B. Fit still decides inside the range; level never lifts a job.
+  poster     from poster.py. A recruiter posting loses a little (the client may be anyone); one where the hiring company is
+             not named is capped at C: it can't be checked against companies to avoid or already applied to until you
+             know who it is. Recruiters are never D for being recruiters.
 """
 import re
 
 FLOOR = 75000
 ASK = 100000
 TIERS = ((85, "A"), (70, "B"), (55, "C"))
+LEVEL_TARGET_YEARS = 3          # the most years an in-range seat asks for
+# Titles above the analyst track that reqs.py files under "manager" or "senior"
+ABOVE = re.compile(r"\b(?:senior|sr\.?),?\s+(?:[a-z&]+\s+){0,2}manager\b|\bprincipal\b|\bstaff (?:financial |finance |fp&a |fp and a )?analyst\b|\bassociate director\b|\bassistant vice president\b|"
+                   r"\bavp\b|\bcontroller\b|\bhead\b", re.I)
+MANAGERISH = re.compile(r"\bmanager\b|\bteam lead\b", re.I)
 HARD_CERT = re.compile(r"\b(CPA|CFA|SERIES \d+|FRM|CMA|CLEARANCE|SECURITY CLEARANCE|SECRET CLEARANCE|TOP SECRET)\b(?! \(preferred\))", re.I)
 MBA_REQ = re.compile(r"\bMBA\b(?! \(preferred\))", re.I)
 GRAD_REQ = re.compile(r"(graduate degree|master'?s)(?! \(preferred\))", re.I)
@@ -46,6 +63,26 @@ def _years(row):
     if not rhi and not plo:
         return yrs, col, 0                  # the text doesn't say what the column was read from (another source's copy)
     return rlo, (f"{rlo}-{rhi}" if rhi != rlo else f"{rlo}+"), plo
+
+
+def level_fit(row, yrs):
+    """(in_range | stretch | out_of_range, words). yrs: the required years figure the ranking reads (see _years)."""
+    lvl, title = row.get("seniority") or "", str(row.get("title") or "")
+    if lvl == "director+":
+        return "out_of_range", "director level or above"
+    if lvl == "intern":
+        return "out_of_range", "an internship"
+    if yrs > LEVEL_TARGET_YEARS + 1:
+        return "out_of_range", f"asks for {yrs}+ years"
+    if ABOVE.search(title):
+        return "out_of_range", "a title above the analyst track"
+    if lvl == "manager" or MANAGERISH.search(title):
+        if yrs > LEVEL_TARGET_YEARS:
+            return "out_of_range", f"a manager seat asking {yrs}+ years"
+        return "stretch", "a manager title" + (f" asking {yrs} years" if yrs else " (years not stated)")
+    if yrs > LEVEL_TARGET_YEARS:
+        return "stretch", f"asks for {yrs} years"
+    return "in_range", ""
 
 
 def score(row):
@@ -96,22 +133,45 @@ def score(row):
     if lvl in ("director+", "intern"):
         gate.append({"director+": "director level or above", "intern": "an internship"}[lvl])
     add({"manager": -6, "senior": -3, "entry": 2, "analyst": 2}.get(lvl, 0), f"{lvl} level")
+    # level and poster always show in the reasons (they cap the tier), so they are kept apart from the ranked points
+    lf, lf_why = level_fit(row, yrs)
+    flags, flag_pts = [], 0
+    if lf == "out_of_range" and lvl not in ("director+", "intern"):
+        flag_pts -= 8 if yrs < 5 else 0
+        flags.append(lf_why + ": out of range for an early-career seat")
+    elif lf == "stretch":
+        flag_pts -= 3
+        flags.append(lf_why + ": a stretch")
+    who = row.get("poster")
+    if who == "recruiter_unnamed":
+        flag_pts -= 8
+        flags.append("a recruiter posting for an unnamed company: find out who it is first")
+    elif who == "recruiter":
+        flag_pts -= 3
+        flags.append("posted by a recruiter or staffing firm")
     st = row.get("status")
     add(4 if st in ("new", "changed") else 0, "pay or details changed" if st == "changed" else "new to the feed")
     n = _int(row.get("reposts")) or 0
     add(-6 if n >= 2 else 0, f"reposted {n} times")
-    total = max(0, min(100, fit + sum(p for p, _ in pts)))
+    total = max(0, min(100, fit + sum(p for p, _ in pts) + flag_pts))
     tier = next((t for cut, t in TIERS if total >= cut), "D")
     if gate or t == "suspicious" or f == "gone":
         tier = "D"
-    if (fit < 50 or row.get("ghost_risk") == "high" or yrs >= 5) and tier in ("A", "B"):
+    if (fit < 50 or row.get("ghost_risk") == "high" or yrs >= 5 or lf == "out_of_range" or who == "recruiter_unnamed") \
+            and tier in ("A", "B"):
         tier = "C"
-    reasons = [(-100, g) for g in gate] + sorted(pts, key=lambda x: -abs(x[0]))
+    if lf == "stretch" and tier == "A":
+        tier = "B"
+    row["level_fit"] = lf
+    reasons = [(-100, g) for g in gate] + [(-99, w) for w in flags] + sorted(pts, key=lambda x: -abs(x[0]))
     return total, tier, reasons
 
 
 def assess(row):
     total, tier, reasons = score(row)
-    words = ["likely fails the gate: " + w if p == -100 else ("+ " if p > 0 else "- ") + w for p, w in reasons[:4]]
+    fixed = [r for r in reasons if r[0] in (-100, -99)]
+    rest = [r for r in reasons if r[0] not in (-100, -99)][:max(0, 4 - len(fixed))]
+    words = ["likely fails the gate: " + w if p == -100 else "! " + w if p == -99 else ("+ " if p > 0 else "- ") + w
+             for p, w in fixed + rest]
     row.update(priority=tier, priority_score=str(total), priority_why="; ".join([f"fit {row.get('fit_score') or 0}"] + words))
     return row

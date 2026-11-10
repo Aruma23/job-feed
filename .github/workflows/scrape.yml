@@ -38,7 +38,8 @@ jobs:
           assert all(r["job_url"].startswith("http") for r in rows), "a row without a web link"
           assert len({r["id"] for r in rows}) == len(rows), "two rows share an id (CONTRACT.md invariant 1)"
           enums = {"freshness": {"fresh", "active", "aging", "stale", "gone"}, "ghost_risk": {"low", "medium", "high"},
-                   "trust": {"verified", "consistent", "unverified", "suspicious"}, "priority": {"A", "B", "C", "D"}}
+                   "trust": {"verified", "consistent", "unverified", "suspicious"}, "priority": {"A", "B", "C", "D"},
+                   "level_fit": {"in_range", "stretch", "out_of_range"}, "poster": {"employer", "recruiter", "recruiter_unnamed"}}
           bad = [(r["id"], c, r.get(c)) for r in rows for c, ok in enums.items() if r.get(c) not in ok]
           assert not bad, f"values outside CONTRACT.md: {bad[:5]}"
           s = json.load(open("feed_status.json"))
