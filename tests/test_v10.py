@@ -115,5 +115,48 @@ class Poster(unittest.TestCase):
         self.assertIn("recruiter", r["priority_why"])
 
 
+class FoldLate(unittest.TestCase):
+    def agg(self, **k):
+        return dict(dict(id="li-4476052200", site="linkedin", title="Associate, Finance & Strategy - Marketplace",
+                         company="DoorDash", location="New York, NY, USA", is_remote="False", source_ids="",
+                         job_url="https://www.linkedin.com/jobs/view/4476052200", job_url_direct="", first_seen="2026-10-30"), **k)
+
+    def board(self, **k):
+        return dict(dict(id="greenhouse:8273992", site="greenhouse", title="Associate, Finance & Strategy - Marketplace",
+                         company="DoorDash", location="Austin, TX; Chicago, IL; New York, NY; San Francisco, CA",
+                         is_remote="False", source_ids="", job_url="https://job-boards.greenhouse.io/doordashusa/jobs/8273992",
+                         job_url_direct="https://job-boards.greenhouse.io/doordashusa/jobs/8273992", first_seen="2026-11-01"), **k)
+
+    def test_multi_city_board_job_absorbs_its_linkedin_copy(self):
+        rows, folded = scrape.fold_late([self.agg(), self.board()])
+        self.assertEqual([r["id"] for r in rows], ["greenhouse:8273992"])
+        self.assertEqual(folded, {"li-4476052200"})
+        self.assertIn("li-4476052200", rows[0]["source_ids"])
+        self.assertEqual(rows[0]["also_on"], "linkedin")
+        self.assertEqual(rows[0]["first_seen"], "2026-10-30", "the earliest sighting is kept")
+
+    def test_remote_board_job(self):
+        rows, folded = scrape.fold_late([self.agg(), self.board(location="Remote - US", is_remote="True")])
+        self.assertEqual(len(rows), 1)
+
+    def test_kept_apart(self):
+        two_seats = [self.agg(), self.board(), self.board(id="greenhouse:8273993", job_url="https://x.greenhouse.io/j/8273993",
+                                                          job_url_direct="https://job-boards.greenhouse.io/doordashusa/jobs/8273993")]
+        self.assertEqual(len(scrape.fold_late(two_seats)[0]), 3, "two board seats with one title: can't tell which")
+        other_city = [self.agg(location="Chicago, IL, USA"), self.board(location="New York, NY")]
+        self.assertEqual(len(scrape.fold_late(other_city)[0]), 2, "different places")
+        other_req = [self.agg(job_url_direct="https://job-boards.greenhouse.io/doordashusa/jobs/999999"), self.board()]
+        self.assertEqual(len(scrape.fold_late(other_req)[0]), 2, "the copy links to a different requisition")
+        second_li = [self.agg(id="li-5"), self.board(source_ids="greenhouse:8273992;li-4476052200")]
+        self.assertEqual(len(scrape.fold_late(second_li)[0]), 2, "a second LinkedIn posting is a different listing")
+        other_co = [self.agg(company="DoorDash Labs Inc"), self.board()]
+        self.assertEqual(len(scrape.fold_late(other_co)[0]), 2)
+
+    def test_idempotent(self):
+        rows, _ = scrape.fold_late([self.agg(), self.board()])
+        again, folded = scrape.fold_late(rows)
+        self.assertEqual((len(again), folded), (1, set()))
+
+
 if __name__ == "__main__":
     unittest.main()

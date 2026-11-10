@@ -29,7 +29,7 @@ v6 (Nov 1): the job record contract (CONTRACT.md). New columns, all computed fro
 - priority.py: priority (A-D), priority_score, priority_why. Orders the work; the tracker's gate still decides.
 - v8 (Nov 9 2026): poster.py adds poster, poster_why (employer | recruiter | recruiter_unnamed: who posted it, separate from
   trust); priority.py adds level_fit (in_range | stretch | out_of_range for an early-career seat, which caps the tier) and
-  shows level and poster in priority_why.
+  shows level and poster in priority_why; fold_late() folds aggregator copies of board jobs that annotate() missed.
 - discover.py: a board that suddenly returns far fewer jobs keeps its last good snapshot; per-system health in feed_status.
 - feed_status "coverage": the employer apply sites the feed can't read yet, by qualifying jobs, to pick the next adapter.
 
@@ -458,6 +458,46 @@ def _fold(d, r):
         d.update(min_amount=r.get("min_amount", ""), max_amount=r.get("max_amount", ""), interval=r.get("interval", ""))
 
 
+def _places(row):
+    """Every place key a row names: its own key, and one per listed location ("Austin, TX; New York, NY" names both)."""
+    loc, remote = str(row.get("location") or ""), str(row.get("is_remote")) == "True"
+    keys = {geo.loc_key(loc, remote)}
+    for part in re.split(r"\s*(?:;|\||/(?=\s*[A-Z])|\bor\b)\s*", loc):
+        if part.strip():
+            keys.add(geo.loc_key(part, False))
+    return keys - {""}
+
+
+def fold_late(rows):
+    """The last duplicate check before publishing (contract invariant 1). annotate() only sees board rows read this run and
+    aggregator rows before review; a board row that was rescued by review, renamed, or listed under several cities, and an
+    aggregator copy carried over from an earlier run, slip past it (Nov 9: 14 folded from 18 candidate groups; the other 4 had several board seats with one title. E.g. a LinkedIn DoorDash listing and
+    the same opening on DoorDash's Greenhouse board). An aggregator row folds into a board row when the employer and title
+    match exactly one board row and the places agree: the same place, one of the board's listed places, the same metro
+    label, or a remote board job. Two board candidates (several seats with one title), conflicting requisition IDs or
+    employer links, or a second posting from the same site keep them apart. Returns (rows, folded ids)."""
+    boards = {}
+    for r in rows:
+        if NATIVE.match(r.get("id") or ""):
+            boards.setdefault((identity.emp_key(r.get("company")), identity.title_ident(r.get("title"))), []).append(r)
+    folded = set()
+    for r in rows:
+        if NATIVE.match(r.get("id") or "") or not r.get("id"):
+            continue
+        cands = boards.get((identity.emp_key(r.get("company")), identity.title_ident(r.get("title"))), [])
+        if len(cands) != 1 or not identity.emp_key(r.get("company")):
+            continue
+        d = cands[0]
+        mine, theirs = _places(r), _places(d)
+        region = lambda x: geo.label(geo.resolve(x.get("location"), str(x.get("is_remote")) == "True"))
+        same = bool(mine & theirs) or "remote" in theirs or (region(r) and region(r) == region(d))
+        if not same or identity.Index._conflict(d, r, identity.req_keys(r), strong=False):
+            continue
+        _fold(d, r)
+        folded.add(r["id"])
+    return [r for r in rows if r.get("id") not in folded], folded
+
+
 def finish(rows, cache):
     """Region, finder hint, requisition ID, source IDs and fit for every row. Returns the review queue (row ids)."""
     queue = []
@@ -541,6 +581,11 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     dstats["held_for_review"] = len(waiting)
     dstats["rescued_by_review"] = len(rescued)
     rows = rows + direct_rows
+    try:
+        rows, late = fold_late(rows)
+        dstats["aggregator_rows_folded_late"] = len(late)
+    except Exception as exc:          # a failed check never costs jobs
+        dstats["fold_late_error"] = f"{type(exc).__name__}: {str(exc)[:160]}"
     queue = finish(rows, cache)
     hist = history.load(os.path.join(here, "history.json"))
     hstats = history.update(hist, rows, today, closed)

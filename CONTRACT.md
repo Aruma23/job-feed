@@ -73,7 +73,10 @@ them from the last published feed and is marked `complete: false` and `partial: 
 
 ## Invariants (tested)
 
-1. The same opening from several sources is one row with one `id`.
+1. The same opening from several sources is one row with one `id`. Before publishing, `fold_late` folds an aggregator copy into
+   the one board row with the same employer and title whose places agree (same place, one of the board's listed places, the
+   same metro label, or a remote board job); several board seats with one title, conflicting requisition IDs or links, or a
+   second posting from the same site keep rows apart. `feed_status.json` → `direct.aggregator_rows_folded_late` counts them.
 2. Re-running the feed never creates a duplicate row or a new `id` for a known job, and never touches tracker decisions.
 3. A closed job can't come back as a new opportunity: the same ID returns as "reappeared"; a new ID for the same opening carries `repost_of`.
 4. A failed, partial or suspiciously small board read closes nothing (the last good snapshot is kept); an empty read of a board
