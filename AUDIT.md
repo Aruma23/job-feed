@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-10T12:27+00:00 · **WARN** · Published, with warnings.
+2026-11-10T16:27+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1628 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-06.
+## WARN: 1445 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-06.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Company: Senior Director Finance (last 2026-11-07)
@@ -21,7 +21,7 @@
   - Planned Parenthood: Senior Specialist, Budget Administration
   - compass-surgical-partners: Analyst, Revenue Cycle Management & Managed Care
 
-## INFO: 86 sets of rows share employer, title, place and description.
+## INFO: 81 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
