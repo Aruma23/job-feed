@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-11T12:32+00:00 · **WARN** · Published, with warnings.
+2026-11-11T16:30+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1599 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-07.
+## WARN: 1412 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-07.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Company: Senior Director Finance (last 2026-11-07)
@@ -21,7 +21,7 @@
   - Midea America: Commercial Finance Analyst
   - Planned Parenthood: Senior Specialist, Budget Administration
 
-## INFO: 77 sets of rows share employer, title, place and description.
+## INFO: 81 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
