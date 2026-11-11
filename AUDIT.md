@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-11T16:30+00:00 · **WARN** · Published, with warnings.
+2026-11-11T21:01+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1412 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-07.
+## WARN: 1329 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-07.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Company: Senior Director Finance (last 2026-11-07)
