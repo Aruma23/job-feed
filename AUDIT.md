@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-12T00:27+00:00 · **WARN** · Published, with warnings.
+2026-11-12T12:31+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1779 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-08.
+## WARN: 1476 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-08.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - AMC Global Media: VP - Deal Finance (last 2026-11-08)
@@ -20,7 +20,7 @@
   - Robert Half: Senior Accounting Analyst
   - Planned Parenthood: Senior Specialist, Budget Administration
 
-## INFO: 75 sets of rows share employer, title, place and description.
+## INFO: 73 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
