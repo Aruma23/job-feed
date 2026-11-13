@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-13T00:19+00:00 · **WARN** · Published, with warnings.
+2026-11-13T12:33+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1738 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-09.
+## WARN: 1431 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-09.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Confidential: Sr. FP&A Analyst (SaaS required) - New York (Hybrid - 140K) (last 2026-11-12)
@@ -11,22 +11,17 @@
   - Research Foundation for Mental Hygiene, Inc.: Financial Analyst (last 2026-11-10)
   - Visa: Senior Manager (last 2026-11-09)
 
-## WARN: 1 job ids now belong to a different employer than last run.
-
-- What the feed did: Kept the new value.
-- What to do: An id must stay with one opening; check the source.
-  - in-d617165c63566858: now BREEZE-EASTERN
-
-## WARN: 4 accounting-heavy jobs ranked A or B.
+## WARN: 6 accounting-heavy jobs ranked A or B.
 
 - What the feed did: Left as published.
 - What to do: Fit and category disagree; the relevance rules need a look.
   - HLW International: Specialty Studios Project & Operations Coordinator
   - Turner & Townsend: Financial Operations and Data Analytics Specialist
   - Robert Half: Senior Accounting Analyst
-  - Planned Parenthood: Senior Specialist, Budget Administration
+  - Everest Re Group: Claims Data Research Analyst
+  - GenServe: Project Financial Administrator
 
-## INFO: 78 sets of rows share employer, title, place and description.
+## INFO: 79 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
