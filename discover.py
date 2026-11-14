@@ -345,6 +345,8 @@ def adapter_health(db, today, per):
             why.append(f"{h['drops']} of {h['read']} boards suddenly shrank")
         if h["due"] >= 4 and h["failed"] >= 0.5 * h["due"]:
             why.append(f"{h['failed']} of {h['due']} boards failed")
+        if h.get("late", 0) >= 5 and h["late"] >= 0.2 * (h["late"] + h["read"]):
+            why.append(f"{h['late']} boards due ran out of time ({h['read']} read)")
         if h["kept"] >= 5 and h["no_desc"] >= 0.5 * h["kept"]:
             why.append(f"{h['no_desc']} of {h['kept']} kept jobs had no description")
         if h["kept"] >= 5 and h["no_loc"] >= 0.5 * h["kept"]:
@@ -362,7 +364,7 @@ def adapter_health(db, today, per):
 
 def _h(per, b):
     return per.setdefault(b.split(":")[0], {"due": 0, "read": 0, "failed": 0, "drops": 0, "repeated": 0, "kept": 0, "no_desc": 0,
-                                            "no_loc": 0, "no_link": 0, "skipped": 0, "new": 0})
+                                            "no_loc": 0, "no_link": 0, "skipped": 0, "new": 0, "late": 0})
 
 
 def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
@@ -396,14 +398,23 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
     fast = [b for b in boards if not b.startswith("workday:")]
     slow = [b for b in boards if b.startswith("workday:")]
     results = []
-    for group, workers in ((fast, 8), (slow, 3)):
-        with ThreadPoolExecutor(max_workers=workers) as ex:
-            for f in as_completed([ex.submit(one, b) for b in group]):
-                results.append(f.result())
+    # v10 (Nov 14): both groups run at the same time, each most-promising first. They used to run one after the other, and
+    # once the registry grew the fast group used the whole budget: from about Nov 10 no Workday board was read at all, and
+    # "out of time" was counted nowhere. Rate limits are per provider (ats._provider), so the groups don't slow each other.
+    exs = [ThreadPoolExecutor(max_workers=8), ThreadPoolExecutor(max_workers=3)]
+    try:
+        futs = [exs[0].submit(one, b) for b in fast] + [exs[1].submit(one, b) for b in slow]
+        for f in as_completed(futs):
+            results.append(f.result())
+    finally:
+        for ex in exs:
+            ex.shutdown(wait=True)
     for b, jobs, err in results:
         info = db["boards"][b]
         h = _h(per, b)
-        if err != "out of time":
+        if err == "out of time":
+            h["late"] += 1
+        else:
             h["due"] += 1
         if jobs is None:
             if err != "out of time":

@@ -275,6 +275,31 @@ class Evidence(unittest.TestCase):
             R.PROMPT_VERSION = keep
 
 
+class SweepFairness(unittest.TestCase):
+    def test_workday_is_read_even_when_fast_boards_use_the_budget(self):
+        import threading
+        import ats
+        import discover as D
+        boards = {f"greenhouse:g{i}": {"added": "2026-11-01", "company": f"G{i}"} for i in range(40)}
+        boards.update({f"workday:w{i}|wd1|Site": {"added": "2026-11-01", "company": f"W{i}"} for i in range(2)})
+        db = {"boards": boards, "run": 0}
+        keep = ats.fetch_board
+
+        def fetch(b, want, get=None):
+            threading.Event().wait(0.1 if b.startswith("greenhouse:") else 0.01)   # other tests stub time.sleep
+            return ats.Jobs([])
+        ats.fetch_board = fetch
+        try:
+            stats = {}
+            D.sweep(db, "2026-11-14", stats, get=None, seconds=0.25)
+        finally:
+            ats.fetch_board = keep
+        h = stats["adapter_health"]
+        self.assertEqual(h["workday"]["read"], 2, "Workday no longer waits behind the fast group")
+        self.assertGreater(h["greenhouse"]["late"], 0, "running out of time is counted, not silent")
+        self.assertIn("ran out of time", h["greenhouse"]["why"])
+
+
 class Shadow(unittest.TestCase):
     def test_records_without_raising(self):
         import shadow
