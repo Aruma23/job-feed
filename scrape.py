@@ -607,7 +607,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
             if get is None and os.environ.get("NO_SHADOW") != "1":   # real runs only: new adapters tried, nothing added (shadow.py)
                 import ats
                 import shadow
-                dstats["shadow"] = shadow.run(rows, lambda u: ats.http(u, tries=1), resolve or ats.resolve_redirect)
+                dstats["shadow"] = shadow.run(rows, lambda u, **kw: ats.http(u, tries=1, **kw), resolve or ats.resolve_redirect)
             folded = annotate(rows, direct_rows)
             rows = [r for r in rows if r["id"] not in folded]
             dstats["aggregator_rows_folded"] = len(folded)

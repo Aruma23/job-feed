@@ -11,6 +11,9 @@ Candidates:
              with finder=findReqs, and recruitingCEJobRequisitionDetails for one job's text.
   contacthr  {tenant}.contacthr.com/{n} links (JPMorgan Chase's 62 uncovered rows): where they land after redirects, so the
              real system behind them is learned.
+  workday    candidate Workday sites for employers whose registered site is the wrong one (PwC: the registered
+             Global_Experienced_Careers has 1 NYC job in 258, while 46 US postings carry Workday requisition ids): one
+             search each, total and NYC count recorded.
 Budget: SHADOW_HOSTS hosts a run, two requests each; every failure is recorded, never raised.
 """
 import re
@@ -50,6 +53,17 @@ def oracle_text(data):
     return " ".join(str(d.get(k) or "") for k in ("ExternalDescriptionStr", "ExternalResponsibilitiesStr", "ExternalQualificationsStr"))
 
 
+WORKDAY_GUESSES = [("pwc", "wd3", "US_Experienced_Careers"), ("pwc", "wd3", "US_Entry_Level_Careers"), ("pwc", "wd3", "Global_Campus_Careers")]
+
+
+def workday_try(get, tenant, shard, site):
+    data = get(f"https://{tenant}.{shard}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs",
+               {"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": "New York"})
+    posts = data.get("jobPostings") or []
+    return {"total": int(data.get("total") or 0), "got": len(posts), "nyc": sum(1 for j in posts if re.search(r"new york|ny\b", str(j.get("locationsText") or ""), re.I)),
+            "sample": [str(j.get("title") or "")[:60] for j in posts[:3]]}
+
+
 def targets(rows):
     """Oracle (host, site) pairs and ContactHR links from the aggregator rows, most rows first."""
     ora, chr_ = {}, []
@@ -64,9 +78,10 @@ def targets(rows):
     return [k for k, _ in sorted(ora.items(), key=lambda kv: -kv[1])], chr_
 
 
-def run(rows, get, resolve, budget=SHADOW_HOSTS):
-    """Never raises. Returns the feed_status "shadow" section."""
-    out = {"oracle": [], "contacthr": []}
+def run(rows, get, resolve, budget=SHADOW_HOSTS, post=None):
+    """Never raises. Returns the feed_status "shadow" section. post(url, body) for Workday's JSON search (defaults to get)."""
+    post = post or (lambda u, body: get(u, data=body))
+    out = {"oracle": [], "contacthr": [], "workday": []}
     try:
         ora, chr_ = targets(rows)
     except Exception as e:
@@ -92,4 +107,11 @@ def run(rows, get, resolve, budget=SHADOW_HOSTS):
             out["contacthr"].append({"from": u, "landed": landed[:200], "oracle": bool(ORACLE.match(landed))})
         except Exception as e:
             out["contacthr"].append({"from": u, "error": f"{type(e).__name__}: {str(e)[:120]}"})
+    for tenant, shard, site in WORKDAY_GUESSES:
+        rec = {"board": f"workday:{tenant}|{shard}|{site}"}
+        try:
+            rec.update(ok=True, **workday_try(post, tenant, shard, site))
+        except Exception as e:
+            rec.update(ok=False, error=f"{type(e).__name__}: {str(e)[:120]}")
+        out["workday"].append(rec)
     return out
