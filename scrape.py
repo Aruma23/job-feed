@@ -555,6 +555,8 @@ def finish(rows, cache):
         relevance.apply(r, v)
         r.update(reqs.requirements(r.get("title"), r.get("description")))
         r["pay_low"], r["pay_high"] = reqs.annual_pay(r)
+        if not (r["pay_low"] or r["pay_high"]):            # v10: the range the posting states in its text (NY pay transparency)
+            r["pay_low"], r["pay_high"] = reqs.pay_from_text(r.get("description"))
         if v.get("review"):
             queue.append(r)
     import discover as D

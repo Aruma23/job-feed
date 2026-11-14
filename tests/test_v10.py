@@ -350,6 +350,28 @@ class TrustTld(unittest.TestCase):
         self.assertEqual(trust.domain_verdict("acme.xyz", "Acme", set(), {}, {})[0], "suspicious")
 
 
+class PayFromText(unittest.TestCase):
+    def p(self, text):
+        import reqs
+        return reqs.pay_from_text(text)
+
+    def test_stated_ranges(self):
+        self.assertEqual(self.p("The base salary range for this role is $100,000 to $125,000 USD."), ("100000", "125000"))
+        self.assertEqual(self.p("Expected base salary: $175k-$225k."), ("175000", "225000"))
+        self.assertEqual(self.p("Compensation: $28 - $35 per hour."), ("58200", "72800"))
+
+    def test_new_york_range_wins_and_ambiguity_gives_none(self):
+        t = "Pay range: Colorado $80,000 - $95,000. New York City pay range: $110,000 - $130,000."
+        self.assertEqual(self.p(t), ("110000", "130000"))
+        self.assertEqual(self.p("Salary range $80,000 - $95,000 or $110,000 - $130,000 depending on level."), ("", ""))
+        self.assertEqual(self.p("California salary range $120,000 - $150,000."), ("", ""), "another state's range only: don't guess")
+
+    def test_not_pay(self):
+        self.assertEqual(self.p("You will manage a budget of $100,000 - $500,000 per project."), ("", ""))
+        self.assertEqual(self.p("Deals of $10,000,000 to $50,000,000 in revenue."), ("", ""))
+        self.assertEqual(self.p("No pay stated."), ("", ""))
+
+
 class Shadow(unittest.TestCase):
     def test_records_without_raising(self):
         import shadow

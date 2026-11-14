@@ -34,7 +34,9 @@ completely without it or its own page answers 404/410; closed jobs leave the fee
 "refreshed" event in history.json, not a change.
 
 Fit and requirements (relevance.py, reqs.py): `fit_score` (0-100), `fit_category`, `fit_why`, `fit_by` (rules | model),
-`skills`, `years_min`, `education`, `seniority`, `pay_low`, `pay_high` (yearly dollars).
+`skills`, `years_min`, `education`, `seniority`, `pay_low`, `pay_high` (yearly dollars; v8: when the pay fields are empty, the
+range the posting states in its text, read strictly: next to pay words, a New York range when several places are listed,
+nothing when it is ambiguous).
 
 Freshness (freshness.py):
 - `freshness`: fresh (≤ 7 days) | active (≤ 30, or a real change in the last 14) | aging (≤ 60) | stale (> 60) | gone (the employer's own board, read completely, no longer lists it).

@@ -161,3 +161,56 @@ def annual_pay(row):
     if mult == 1 and hi < 1000:                 # an hourly figure without its interval
         lo, hi = lo * 2080, hi * 2080
     return str(int(round(lo, -2))), str(int(round(hi, -2)))
+
+
+# ---------------- v10: pay stated only in the text (NY pay-transparency ranges) ----------------
+_MONEY = r"\$\s?(\d{1,3}(?:,\d{3})+(?:\.\d{2})?|\d+(?:\.\d+)?\s?[kK]|\d{2,3}(?:\.\d{2})?)"
+_RANGE = re.compile(_MONEY + r"\s*(?:USD|usd)?\s*(?:-|–|—|to|and)\s*" + _MONEY + r"(?:\s*(?:USD|usd))?(\s*(?:/|per|an|a)\s*(?:hour|hr|year|yr|annum|annually))?", re.I)
+_PAY_WORD = re.compile(r"salary|pay|compensation|base|wage|hiring range|annual|range|ote|earn", re.I)
+_NOT_PAY = re.compile(r"budget|revenue|portfolio|aum|deal|transaction|raise|funding|bonus pool|million|billion|\bmm\b|assets", re.I)
+_NY = re.compile(r"new york|\bnyc\b|\bny\b|manhattan|brooklyn|tri-?state|new jersey|\bnj\b", re.I)
+_OTHER_PLACE = re.compile(r"\b(?:california|colorado|washington|illinois|texas|massachusetts|chicago|san francisco|seattle|boston|denver|"
+                          r"los angeles|austin|tier ?[23]|zone ?[b-z23])\b", re.I)
+
+
+def _amount(x):
+    x = x.replace(",", "").replace(" ", "")
+    return float(x[:-1]) * 1000 if x[-1:] in "kK" else float(x)
+
+
+def pay_from_text(description):
+    """(low, high) a year from a salary range stated in the posting, or ('', ''). Strict, because a wrong range is worse than
+    none (the floor check can sink a job): the range must sit next to pay words and not money words (budget, revenue, AUM);
+    when the posting gives several ranges by place, only a New York one is used; several unlabeled different ranges -> none.
+    Hourly ranges ("/hr", "per hour", or both figures under 200) are annualized at 2,080 hours."""
+    text = str(description or "").replace("\\n", "\n")[:12000]
+    found = []
+    for m in _RANGE.finditer(text):
+        ctx = text[max(0, m.start() - 160):m.end() + 40]
+        near = text[max(0, m.start() - 60):m.start()]
+        if not _PAY_WORD.search(ctx) or _NOT_PAY.search(near):
+            continue
+        try:
+            lo, hi = _amount(m.group(1)), _amount(m.group(2))
+        except ValueError:
+            continue
+        hourly = bool(m.group(3) and re.search(r"hour|hr", m.group(3), re.I)) or hi < 200
+        if hourly:
+            lo, hi = lo * 2080, hi * 2080
+        if not (20000 <= lo <= hi <= 1000000) or hi > 4 * lo:
+            continue
+        place = text[max(0, m.start() - 120):m.start()]
+        found.append((lo, hi, bool(_NY.search(place)), bool(_OTHER_PLACE.search(place))))
+    if not found:
+        return "", ""
+    ny = [f for f in found if f[2]]
+    if ny:
+        lo, hi = ny[0][0], ny[0][1]
+    else:
+        if all(f[3] for f in found):
+            return "", ""                       # only other places' ranges (a California-only disclosure): not this job's
+        plain = {(f[0], f[1]) for f in found if not f[3]}
+        if len({(f[0], f[1]) for f in found}) > 1 and (len(plain) != 1 or any(f[3] for f in found)):
+            return "", ""                       # several places or several ranges, none marked New York: don't guess
+        lo, hi = found[0][0], found[0][1]
+    return str(int(round(lo, -2))), str(int(round(hi, -2)))
