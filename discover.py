@@ -401,7 +401,7 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
     # v10 (Nov 14): both groups run at the same time, each most-promising first. They used to run one after the other, and
     # once the registry grew the fast group used the whole budget: from about Nov 10 no Workday board was read at all, and
     # "out of time" was counted nowhere. Rate limits are per provider (ats._provider), so the groups don't slow each other.
-    exs = [ThreadPoolExecutor(max_workers=8), ThreadPoolExecutor(max_workers=3)]
+    exs = [ThreadPoolExecutor(max_workers=8), ThreadPoolExecutor(max_workers=6)]   # Workday: per-employer-host limits keep each polite
     try:
         futs = [exs[0].submit(one, b) for b in fast] + [exs[1].submit(one, b) for b in slow]
         for f in as_completed(futs):
