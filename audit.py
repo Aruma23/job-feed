@@ -70,7 +70,13 @@ def completeness(prev, rows, explained, today, keep_days):
 
 def coverage(log, now, items):
     """Compares this run's counts with the median of earlier runs in audit_log.json."""
-    for key, label in (("rows_by_site", "rows"), ("boards", "boards")):
+    due = now.get("boards_due")
+    if due is not None:                     # v10: boards are read on a schedule (footprint.py), so compare with what was due
+        read = (now.get("boards") or {}).get("boards read", 0)
+        if due >= 20 and read < COVERAGE_SHARE * due:
+            _item(items, "warn", "coverage-boards-due", f"Read {read} of the {due} company boards due this run.",
+                  "Boards not read keep their jobs for a few days.", "Check direct.adapter_health for failing or late systems.")
+    for key, label in (("rows_by_site", "rows"),) + ((("boards", "boards"),) if due is None else ()):
         cur = now.get(key) or {}
         for k, v in cur.items():
             past = sorted(x.get(key, {}).get(k, 0) for x in log[-8:])

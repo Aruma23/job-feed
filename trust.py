@@ -41,6 +41,9 @@ AGGREGATOR = re.compile(r"(?:^|\.)(indeed|linkedin|glassdoor|ziprecruiter|google
 CHAT_OR_FORM = re.compile(r"^(?:wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com|t\.me|telegram\.me|forms\.gle|docs\.google\.com|"
                           r"forms\.office\.com|signal\.me|discord\.gg|jotform\.com|form\.jotform\.com|typeform\.com|"
                           r"[a-z0-9-]+\.typeform\.com)$", re.I)
+# Top-level domains where a company's exact name is, in practice, the company (long registered, the brand's own); elsewhere a
+# name match needs the employer's own website (verify_employers) or domains.txt before it counts as verified.
+SETTLED_TLD = re.compile(r"\.(?:com|org|edu|gov|mil|net|jobs|io|ai)$", re.I)
 SHORTENER = re.compile(r"^(?:bit\.ly|tinyurl\.com|t\.co|ow\.ly|rebrand\.ly|cutt\.ly|is\.gd|shorturl\.at)$", re.I)
 CHEAP_TLD = re.compile(r"\.(?:xyz|top|online|site|info|icu|live|click|shop|work|buzz|cyou|rest|lol|monster|space|website|"
                        r"fun|store|link|support|cfd|sbs)$", re.I)
@@ -183,6 +186,8 @@ def domain_verdict(host, company, known_domains, good, bad):
     if label == compact or (words and label in words) or (len(label) >= 5 and compact.startswith(label)):
         if CHEAP_TLD.search(reg):
             return "suspicious", f"{reg} uses the employer's name on a throwaway domain"
+        if not SETTLED_TLD.search(reg):         # v10: "acme.careers", "acme.group", "acme.co": the name alone proves nothing there
+            return "unknown", f"{reg} carries the employer's name but isn't confirmed as theirs"
         return "employer", f"on {reg}, the employer's own domain"
     if name_match(label, compact, words) or any(name_match(p, compact, words) for p in host.split(".")[:-2]):
         if "-" in raw or CHEAP_TLD.search(reg) or not name_match(label, compact, words):

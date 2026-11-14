@@ -92,6 +92,7 @@ import priority
 import relevance
 import reqs
 import scheduler
+import textfit
 import trust
 
 LOCATION = "New York, NY"
@@ -303,7 +304,7 @@ def collect(scrape, searches=None, pause=(4, 9), sleep=time.sleep, previous=None
             else:                                  # a new link this run: kept for merge(), which folds copies of one job
                 row = {c: clean(rec.get(c)) for c in COLS[:13]}
                 row["site"] = row["site"] or site
-                row["description"] = row["description"][:DESC_CAP]
+                row["description"] = textfit.fit(row["description"], DESC_CAP)
                 fresh.append(row)
                 entry["new"] += 1
                 slot = run_idx.find(row)           # the same opening under another site's link shares one credit
@@ -640,6 +641,8 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     intel_summary = intel.annotate(rows, today, os.path.join(here, "employers.json"), D.NEVER)
     explained = set(closed) | set(dstats.pop("_explained", [])) | {h["id"] for h in held}
     now_counts = {"rows_by_site": _count(audit._site(r) for r in rows), "boards": {"boards read": dstats.get("boards_ok", 0)}}
+    if dstats.get("boards_due") is not None:
+        now_counts["boards_due"] = dstats["boards_due"]
     log_path = os.path.join(here, "audit_log.json")
     log = audit.load_log(log_path)
     n_before = len(rows)
@@ -669,7 +672,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
                "rows_written": len(rows), "by_site": by_site, "detail": status, "direct": dstats,
                "relevance": {"by_category": cats, "strong_fits": sum(1 for r in rows if int(r["fit_score"] or 0) >= 70),
                              "queued_for_review": len(queue) + len(waiting), "reviewed_by_model": sum(1 for r in rows if r["fit_by"] == "model")},
-               "regions": _count(r["region"] for r in rows),
+               "regions": _count(r["region"] for r in rows), "description_fit": dict(textfit.STATS),
                "history": hstats, "seniority": _count(r["seniority"] for r in rows),
                "scheduler": dict(scheduler.report(sched, today), decisions=decisions, settled=settled),
                "contract": contract, "coverage": coverage(rows), "intel": intel_summary, "audit": report}

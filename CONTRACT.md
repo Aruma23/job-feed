@@ -24,7 +24,9 @@ column in `scrape.py` is missing here or a value falls outside its list.
 ## Columns
 
 Posting: `id`, `site`, `title`, `company`, `location`, `is_remote`, `date_posted`, `job_url`, `job_url_direct`, `min_amount`,
-`max_amount`, `interval`, `description`, `also_on`, `region`, `req_id`, `source_ids`.
+`max_amount`, `interval`, `description`, `also_on`, `region`, `req_id`, `source_ids`. A `description` over 6,000 characters
+(v8, textfit.py) keeps its first 4,000 as they are, then the posting's own later lines that carry requirements, pay or work
+arrangements (boilerplate left out); skipped stretches are marked "[...]".
 
 Lifecycle (history.py): `first_seen`, `last_seen`, `status` (new | changed | reappeared | unchanged; new/changed/reappeared only
 for 3 days), `changes` (the latest real change in words), `last_change`, `age_days`. A job is closed only when its board was read

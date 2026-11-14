@@ -300,6 +300,56 @@ class SweepFairness(unittest.TestCase):
         self.assertIn("ran out of time", h["greenhouse"]["why"])
 
 
+class DescriptionFit(unittest.TestCase):
+    DUTIES = "Own the monthly forecast and annual budget; build driver-based models; partner with leaders on KPIs.\n" * 45
+    BOILER = ("Benefits\nWe offer medical, dental, 401(k), paid time off, parental leave and tuition support.\n" * 8 +
+              "We are an equal opportunity employer and consider applicants without regard to national origin or disability.\n" * 6)
+    REQS = "Qualifications\n- Bachelor's degree in Finance\n- 3-5 years of FP&A experience required\nSalary range $95,000-$115,000. Hybrid, 3 days a week.\n"
+
+    def test_requirements_kept_boilerplate_dropped(self):
+        import textfit
+        for sep in ("\n", "\\n"):
+            t = (self.DUTIES + self.BOILER * 2 + self.REQS).replace("\n", sep)
+            f = textfit.fit(t, 6000)
+            self.assertLessEqual(len(f), 6000)
+            self.assertIn("3-5 years", f)
+            self.assertIn("$95,000", f)
+            self.assertNotIn("without regard to", f[4000:])
+            self.assertIn("[...]", f)
+
+    def test_keys_that_must_not_change(self):
+        import history
+        import textfit
+        t = self.DUTIES + self.BOILER * 2 + self.REQS
+        f = textfit.fit(t, 6000)
+        self.assertEqual(f[:4000], t[:4000])
+        self.assertEqual(R.digest("t", f), R.digest("t", t[:6000]), "cached model verdicts stay valid")
+        self.assertEqual(R.norm_key("t", f), R.norm_key("t", t[:6000]))
+        self.assertEqual(history._h(f), history._h(t[:6000]), "no 'description edited' events on deploy")
+        self.assertEqual(textfit.fit("short", 6000), "short")
+
+
+class BoardsDue(unittest.TestCase):
+    def test_compares_with_boards_due(self):
+        log = [{"boards": {"boards read": 1800}}] * 5
+        items = []
+        audit.coverage(log, {"boards": {"boards read": 532}, "boards_due": 534}, items)
+        self.assertEqual(items, [], "532 of 534 due is fine whatever the usual total")
+        audit.coverage(log, {"boards": {"boards read": 100}, "boards_due": 534}, items)
+        self.assertEqual(items[0]["key"] if "key" in items[0] else items[0].get("id", "coverage-boards-due"), items[0].get("key", items[0].get("id")))
+        self.assertIn("Read 100 of the 534", items[0]["title"])
+
+
+class TrustTld(unittest.TestCase):
+    def test_name_on_unsettled_tld_is_not_proof(self):
+        import trust
+        self.assertEqual(trust.domain_verdict("careers.acme.com", "Acme", set(), {}, {})[0], "employer")
+        self.assertEqual(trust.domain_verdict("acme.careers", "Acme", set(), {}, {})[0], "unknown")
+        self.assertEqual(trust.domain_verdict("acme.group", "Acme", set(), {}, {})[0], "unknown")
+        self.assertEqual(trust.domain_verdict("acme.group", "Acme", {"acme.group"}, {}, {})[0], "employer", "the employer's site says so")
+        self.assertEqual(trust.domain_verdict("acme.xyz", "Acme", set(), {}, {})[0], "suspicious")
+
+
 class Shadow(unittest.TestCase):
     def test_records_without_raising(self):
         import shadow

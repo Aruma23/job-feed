@@ -468,7 +468,8 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
 
 def to_row(j, company, today):
     site = j["id"].split(":")[0]
-    desc = (j.get("description") or "").replace("\r", "")[:DESC_CAP].replace("\n", "\\n")
+    import textfit
+    desc = textfit.fit((j.get("description") or "").replace("\r", ""), DESC_CAP).replace("\n", "\\n")
     p = geo.resolve(j["location"], j.get("remote"), j.get("description") or "")
     return {"id": j["id"], "site": site, "title": j["title"], "company": company or j.get("company", ""), "location": j["location"],
             "is_remote": "True" if j.get("remote") else "False", "date_posted": j.get("posted", ""), "job_url": j["url"], "job_url_direct": j["url"],
