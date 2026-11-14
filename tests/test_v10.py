@@ -108,6 +108,19 @@ class Settle(unittest.TestCase):
         S.remember(s, {}, "2026-11-14")
         self.assertEqual(s["pending"], {})
 
+    def test_migration_retrials_paused_searches(self):
+        import tempfile
+        d = tempfile.mkdtemp()
+        path = os.path.join(d, "s.json")
+        json.dump({"v": 1, "run": 9, "sites": {}, "searches": {"indeed|wfp": {"site": "indeed", "term": "wfp", "state": "paused",
+                   "runs_total": 40, "days": {}}, "indeed|fpa": {"site": "indeed", "term": "fpa", "state": "active", "runs_total": 40, "days": {}}}},
+                  open(path, "w"))
+        st = S.load(path)
+        self.assertEqual((st["searches"]["indeed|wfp"]["runs_total"], st["searches"]["indeed|wfp"]["retrial"]), (0, "paused"))
+        self.assertEqual(st["searches"]["indeed|fpa"]["runs_total"], 40)
+        S.save(st, path)
+        self.assertEqual(S.load(path)["searches"]["indeed|wfp"]["runs_total"], 0, "migrates once")
+
     def test_old_six_field_days_still_read(self):
         e = {"days": {"2026-11-13": [1, 2, 3, 4, 5, 0]}}
         self.assertEqual(S._window(e, "2026-11-14", 7)["qnew"], 5)

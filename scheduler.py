@@ -66,10 +66,20 @@ def load(path):
         if isinstance(s, dict) and isinstance(s.get("searches"), dict):
             s.setdefault("sites", {})
             s.setdefault("run", 0)
+            if int(s.get("v") or 1) < 2:
+                # v10 migration: searches reduced or paused under first-come credit were judged by list order (a later search
+                # earned nothing for jobs an earlier one also returned). Each gets a fresh trial under fair credit; their logs
+                # are kept. A paused search can't clear itself: on its weekly run, what it finds is already known.
+                for e in s["searches"].values():
+                    if e.get("state") in ("reduced", "paused"):
+                        e["retrial"] = e.get("state")
+                        e["runs_total"] = 0
+                        e["state"] = "trial"
+                s["v"] = 2
             return s
     except (FileNotFoundError, ValueError):
         pass
-    return {"v": 1, "run": 0, "searches": {}, "sites": {}}
+    return {"v": 2, "run": 0, "searches": {}, "sites": {}}
 
 
 def save(state, path):
