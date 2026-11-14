@@ -282,7 +282,7 @@ class Contract(unittest.TestCase):
             def scrape_fn(**k):
                 return FakeDF(recs if k.get("search_term") == "FP&A analyst" and k["site_name"] == ["indeed"] else [])
             keep = scrape.collect.__defaults__
-            scrape.collect.__defaults__ = (None, (0, 0), lambda s: None, None)
+            scrape.collect.__defaults__ = (None, (0, 0), lambda s: None) + keep[3:]
             self.addCleanup(setattr, scrape.collect, "__defaults__", keep)
             scrape.main(scrape_fn, out=os.path.join(d, "jobs.csv"), status_path=os.path.join(d, "feed_status.json"),
                         direct=False, now=scrape.datetime(2026, 11, 1, 12, tzinfo=scrape.timezone.utc))

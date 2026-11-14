@@ -13,6 +13,11 @@ CPA/CFA/Series license or MBA, pay below the floor, director level), a suspiciou
 employer's board is D, with the reason; 5+ years required caps it at C (years_min keeps the posting's most demanding figure for the
 gate; the ranking reads the text again and sets aside a figure that is only preferred, see reqs.years_required). Whether the job is
 already in the tracker and how his experience covers the requirements are private, so the tracker adds those.
+
+v10 (Nov 14): three caps at C, each named in priority_why: a job whose own category is accounting-heavy (the audit found three
+ranked A/B on the model's 50-60 scores), a listing by an intermediary or an unnamed employer (employer.py), and a job the feed
+has not confirmed for 2+ days (confirm = unconfirmed). confirm also moves the score a little: a board left unread because it
+had not changed loses nothing; a job missed by this run or past the aggregators' 3-day search window loses 2 points.
 """
 import re
 
@@ -96,6 +101,15 @@ def score(row):
     if lvl in ("director+", "intern"):
         gate.append({"director+": "director level or above", "intern": "an internship"}[lvl])
     add({"manager": -6, "senior": -3, "entry": 2, "analyst": 2}.get(lvl, 0), f"{lvl} level")
+    et = row.get("employer_type")
+    if et in ("staffing", "search_firm", "marketplace", "undisclosed"):
+        add(-8, {"staffing": "listed by a staffing agency", "search_firm": "listed by a search firm", "marketplace":
+                 "a reposting or marketplace listing", "undisclosed": "employer not named"}[et])
+    elif et == "direct" and str(row.get("employer_type_why") or "").startswith("high"):
+        add(2, "the employer's own board")
+    cf = row.get("confirm")
+    add({"window": -2, "recent": -2, "unconfirmed": -8}.get(cf, 0), {"window": "past the job sites' 3-day search window", "recent":
+        "not confirmed this run", "unconfirmed": "not confirmed for 2+ days"}.get(cf, ""))
     st = row.get("status")
     add(4 if st in ("new", "changed") else 0, "pay or details changed" if st == "changed" else "new to the feed")
     n = _int(row.get("reposts")) or 0
@@ -104,8 +118,13 @@ def score(row):
     tier = next((t for cut, t in TIERS if total >= cut), "D")
     if gate or t == "suspicious" or f == "gone":
         tier = "D"
-    if (fit < 50 or row.get("ghost_risk") == "high" or yrs >= 5) and tier in ("A", "B"):
+    acct = str(row.get("fit_category") or "").startswith("Accounting")
+    capped = fit < 50 or row.get("ghost_risk") == "high" or yrs >= 5 or acct or et in ("staffing", "search_firm", "marketplace",
+             "undisclosed") or cf == "unconfirmed"
+    if capped and tier in ("A", "B"):
         tier = "C"
+        if acct:
+            pts.append((-1, "accounting-heavy work (held at C)"))
     reasons = [(-100, g) for g in gate] + sorted(pts, key=lambda x: -abs(x[0]))
     return total, tier, reasons
 

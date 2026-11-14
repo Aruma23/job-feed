@@ -25,6 +25,13 @@ Phase 1 (feed v8.1, Nov 1 2026): review capacity and quota.
   - The held queue comes most promising first (scrape.py / backlog.py). A sample of jobs the rules turned away is reviewed
     first, up to 2 requests a run; fits are rescued into the feed and counted, and a high 7-day fit rate is flagged.
 
+v10 (Nov 14): versioned verdicts and checked evidence.
+  - Every model verdict records PROMPT_VERSION ("pv"). When the target-role definition (SYSTEM) changes, bump it: older
+    verdicts keep counting (nothing drops out of the feed), but they are re-reviewed with whatever budget is left after the
+    new jobs, oldest first, until all carry the new version.
+  - The model's "strengths" must be the posting's own duties: each phrase is kept only if most of its words appear in the
+    posting; a verdict whose strengths all fail the check says so in fit_why ("evidence not found in the posting").
+
 Run as the classify job: python -I relevance.py <feed dir> <cache path>
 """
 import hashlib
@@ -73,6 +80,7 @@ _TITLE_CAT = [(WFP, r"workforce|headcount|capacity|staffing"), (FPA, r"fp\s*&\s*
               (COMM, r"business finance|business partner|commercial finance|revenue|pricing|sales finance"),
               (ADJ, r"investment|portfolio|treasury|asset management|real estate|econom|research|valuation|credit"),
               (ACCT, r"account|audit|tax|payroll|controller|bookkeep")]
+PROMPT_VERSION = 1         # bump when SYSTEM or CATS change: older verdicts are then re-reviewed as budget allows
 MODEL_RESCUE = 65          # a reviewed unconventional title joins the feed at this score or above (65+: a real partial fit or better)
 
 
@@ -244,6 +252,7 @@ def review(batch, token, model, post=http_post, usage=None):
         raise ValueError(f"no JSON in the reply: {json.dumps(data)[:200]}")
     out = {}
     ids = {b[0] for b in batch}
+    texts = {b[0]: excerpt(b[3], 4000) + " " + str(b[1] or "") for b in batch}
     for j in (json.loads(text).get("jobs") or []):
         jid = str(j.get("id") or "")
         cat = _norm_cat(j.get("category"))
@@ -254,11 +263,39 @@ def review(batch, token, model, post=http_post, usage=None):
         if jid not in ids or not cat:
             continue
         strengths = [str(s).strip()[:60] for s in (j.get("strengths") or []) if str(s).strip()][:4]
+        said = [s for s in strengths if grounded(s, texts.get(jid, ""))]
+        unchecked = bool(strengths) and not said
+        strengths = said
         gap = str(j.get("gap") or "").strip()[:100]
         why = ("Strong match: " if score >= 70 else "Some match: " if strengths else "") + ", ".join(strengths) + ("." if strengths else "")
         why = (why + (" Gap: " + gap.rstrip(".") + "." if gap else "")).strip() or "Reviewed: little planning or finance work."
-        out[jid] = {"score": score, "category": cat, "why": why, "by": "model"}
+        if unchecked:
+            why += " (Model's evidence not found in the posting.)"
+        out[jid] = {"score": score, "category": cat, "why": why, "by": "model", "pv": PROMPT_VERSION}
     return out
+
+
+_STOP = {"and", "or", "the", "a", "an", "of", "to", "for", "with", "in", "on", "by", "&", "across", "into", "from", "own", "owns",
+         "owning", "lead", "leads", "leading", "support", "supporting", "drive", "driving", "manage", "managing", "work", "partner"}
+
+
+def _stem(w):
+    return re.sub(r"(ing|ings|ed|es|s|al|ly)$", "", w)[:6]
+
+
+def grounded(phrase, text):
+    """True when most of the phrase's content words (by stem) appear in the posting text. Model phrases are paraphrases
+    ("monthly forecasting" for "forecast each month"), so stems, not exact strings."""
+    words = [w for w in re.findall(r"[a-z0-9&]+", str(phrase).lower()) if w not in _STOP and len(w) > 2]
+    if not words:
+        return True
+    have = {_stem(w) for w in re.findall(r"[a-z0-9&]+", str(text).lower())}
+    return sum(1 for w in words if _stem(w) in have) >= max(1, round(0.6 * len(words)))
+
+
+def stale(v):
+    """A verdict from an older target-role definition: still used, re-reviewed when budget allows."""
+    return bool(v) and v.get("by", "model") == "model" and int(v.get("pv") or 1) < PROMPT_VERSION
 
 
 def _limit_kind(e):
@@ -321,7 +358,8 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
         for r in batch:
             v = got.get(r["id"])
             if v:
-                v.update(h=digest(r.get("title"), r.get("description")), n=norm_key(r.get("title"), r.get("description")), at=today)
+                v.update(h=digest(r.get("title"), r.get("description")), n=norm_key(r.get("title"), r.get("description")), at=today,
+                         pv=PROMPT_VERSION)
                 cache["jobs"][r["id"]] = v
                 stats["reviewed"] += 1
         i += per
@@ -497,6 +535,8 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
     deadline = time.monotonic() + RUN_SECONDS
     todo_s, twins_s = twins_out([r for r in sample if not cached(cache, r)])
     todo, twins = twins_out([r for r in border + queue if not cached(cache, r)])
+    olds = sorted((r for r in border + queue + rows if stale(cached(cache, r))), key=lambda r: cached(cache, r).get("at") or "")
+    todo += [r for r in twins_out(olds)[0] if r["id"] not in {t["id"] for t in todo}]   # new jobs first, then re-reviews
     st_s = run_reviews(todo_s, cache, token, post, max_calls=min(AUDIT_REQUESTS, calls), today=today, per_request=per, usage=usage,
                        seconds=RUN_SECONDS)
     if st_s.get("limited"):
@@ -538,7 +578,8 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
             rescued += 1
     scrape.after_review(rows, added, feed_dir, today)
     waiting = [b for b in border if not cached(cache, b)]
-    stats.update(rescued=rescued, demoted=demoted, borderline=len(border), cache_size=len(cache["jobs"]), reused=reused,
+    stats.update(rescued=rescued, demoted=demoted, prompt_version=PROMPT_VERSION,
+                 stale_verdicts=sum(1 for r in rows if stale(cached(cache, r))), borderline=len(border), cache_size=len(cache["jobs"]), reused=reused,
                  held_waiting=len(waiting), held_oldest_days=max([_age(b.get("held_since"), today) for b in waiting] or [0]),
                  usage={k: usage.get(k, 0) for k in ("day", "requests", "ceiling", "tokens", "tokens_in", "tokens_out", "tokens_thinking", "limited")},
                  false_negatives=audit_report(cache, today, len(sample), st_s, audit_fits))

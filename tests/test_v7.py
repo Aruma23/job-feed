@@ -178,7 +178,7 @@ class EndToEnd(unittest.TestCase):
     def test_reports_written_and_loss_restored(self):
         d = tempfile.mkdtemp()
         keep = scrape.collect.__defaults__
-        scrape.collect.__defaults__ = (None, (0, 0), lambda s: None, None)
+        scrape.collect.__defaults__ = (None, (0, 0), lambda s: None) + keep[3:]
         try:
             out = os.path.join(d, "jobs.csv")
             prev = [gh(i, last_seen="2026-10-31") for i in range(40)]

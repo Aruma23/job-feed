@@ -9,6 +9,13 @@ search_stats.json keeps, per site and per search phrase, a 30-day daily log: run
   - freed slots go to trial searches from POOL (new phrases tried on their own merit), then to more results for the
     searches producing the most new qualified jobs.
 The base list never shrinks below one search per working site, and a returning site gets its full list back.
+
+v10 (Nov 14):
+  - qnew is a fractional credit: a job found by k searches gives each 1/k (scrape.collect), so the order of the list no
+    longer decides which search looks productive. "excl" (only this search found it) is logged too.
+  - Credit from the final verdict: jobs whose rules verdict was queued for the model are remembered (pending, 3 days); the
+    next run reads their published verdict and moves each search's credit up (rescued) or down (demoted) on the day it ran.
+  - Mined phrases (scrape.mined_pool) join the trial pool after POOL; MINED_ACTIVE caps how many are on trial at once.
 """
 import json
 import os
@@ -20,6 +27,8 @@ REDUCED_EVERY = 4          # runs: about once a day
 PAUSED_EVERY_DAYS = 7
 MAX_SEARCHES = 28          # per run (time on the runner)
 POOL_ADMIT = 2             # new trial searches added per run when there is room
+PENDING_DAYS = 3           # how long a job waits for its final verdict
+MINED_ACTIVE = 3           # mined phrases on trial at the same time
 BOOST_MAX = 100            # results asked for by a top search
 
 # New phrases on trial. Kept to the same lanes (FP&A, strategic/corporate/commercial finance, workforce and capacity planning,
@@ -71,11 +80,11 @@ def save(state, path):
 
 def _window(entry, today, days):
     d0 = date.fromisoformat(today) - timedelta(days=days - 1)
-    tot = [0, 0, 0, 0, 0, 0]
+    tot = [0, 0, 0, 0, 0, 0, 0]
     for d, v in (entry.get("days") or {}).items():
         if d >= d0.isoformat():
-            tot = [a + b for a, b in zip(tot, v)]
-    return dict(zip(("runs", "returned", "unique", "qualified", "qnew", "errors"), tot))
+            tot = [a + b for a, b in zip(tot, list(v) + [0] * (7 - len(v)))]
+    return dict(zip(("runs", "returned", "unique", "qualified", "qnew", "errors", "excl"), tot))
 
 
 def _state_of(entry, today):
@@ -134,13 +143,21 @@ def plan(state, base, pool, today):
     # trials from the pool when there is room
     room = MAX_SEARCHES - len(chosen)
     admitted = 0
-    for s, t, n in pool:
+    mined_on = sum(1 for e in entries.values() if e.get("mined") and e.get("state", "trial") == "trial")
+    for item in pool:
+        s, t, n = item[:3]
+        why = item[3] if len(item) > 3 else ""
         k = key(s, t)
         if k in entries or room <= 0 or admitted >= POOL_ADMIT or s in paused_sites:
             continue
+        if why and mined_on >= MINED_ACTIVE:
+            continue
         entries[k] = {"site": s, "term": t, "n": n, "src": "pool", "added": today, "runs_total": 0, "days": {}, "state": "trial"}
+        if why:
+            entries[k]["mined"] = why
+            mined_on += 1
         chosen.append(k)
-        decisions[k] = "trial (new phrase)"
+        decisions[k] = "trial (mined phrase: " + why + ")" if why else "trial (new phrase)"
         room -= 1
         admitted += 1
     chosen = chosen[:MAX_SEARCHES]
@@ -162,9 +179,10 @@ def record(state, status, today):
     for s in status:
         k = key(s["site"], s["search"])
         e = state["searches"].setdefault(k, {"site": s["site"], "term": s["search"], "n": 30, "src": "base", "added": today, "runs_total": 0, "days": {}})
-        v = e["days"].setdefault(today, [0, 0, 0, 0, 0, 0])
-        add = [1, s.get("returned", 0), s.get("new", 0), s.get("qualified", 0), s.get("qnew", 0), 1 if s.get("error") else 0]
-        e["days"][today] = [a + b for a, b in zip(v, add)]
+        v = e["days"].setdefault(today, [0, 0, 0, 0, 0, 0, 0])
+        v = v + [0] * (7 - len(v))
+        add = [1, s.get("returned", 0), s.get("new", 0), s.get("qualified", 0), s.get("qnew", 0), 1 if s.get("error") else 0, s.get("excl", 0)]
+        e["days"][today] = [round(a + b, 3) for a, b in zip(v, add)]
         e["runs_total"] = e.get("runs_total", 0) + 1
         e["last_run_day"] = today
         by_site[s["site"]] = by_site.get(s["site"], 0) + s.get("returned", 0)
@@ -183,12 +201,59 @@ def record(state, status, today):
                 info.update(state="paused", since=today)
 
 
+def remember(state, pending, today):
+    """pending: {job id: [search keys, provisional 0/1]} from collect(); kept until settled or PENDING_DAYS old."""
+    p = state.setdefault("pending", {})
+    for jid, (keys, q) in pending.items():
+        p.setdefault(jid, [today, keys, q])
+    cutoff = (date.fromisoformat(today) - timedelta(days=PENDING_DAYS)).isoformat()
+    for jid in [j for j, v in p.items() if v[0] < cutoff]:
+        del p[jid]
+
+
+def settle(state, published, today, final):
+    """Corrects the discovery credit of pending jobs with their published verdict. final(row) -> bool. A job counts as settled
+    once the classify job has reviewed it (fit_by "model"); until then it keeps waiting. Returns counts."""
+    p = state.get("pending") or {}
+    out = {"waiting": 0, "settled": 0, "rescued": 0, "demoted": 0}
+    if not p:
+        return out
+    by_id = {}
+    for r in published:
+        for i in [r.get("id")] + str(r.get("source_ids") or "").split(";"):
+            if i:
+                by_id.setdefault(i, r)
+    for jid in list(p):
+        day, keys, q = p[jid]
+        r = by_id.get(jid)
+        if r is None or r.get("fit_by") != "model":
+            out["waiting"] += 1
+            continue
+        fq = int(bool(final(r)))
+        del p[jid]
+        out["settled"] += 1
+        if fq == q:
+            continue
+        out["rescued" if fq else "demoted"] += 1
+        share = (fq - q) / max(1, len(keys))
+        for k in keys:
+            e = state["searches"].get(k)
+            if e and day in e.get("days", {}):
+                v = list(e["days"][day]) + [0] * (7 - len(e["days"][day]))
+                v[3] = round(max(0, v[3] + (fq - q)), 3)
+                v[4] = round(max(0, v[4] + share), 3)
+                e["days"][day] = v
+    out["waiting"] = len(p)
+    return out
+
+
 def report(state, today):
     """A compact view for feed_status.json: per site and per search, 7- and 30-day qualified-new counts and state."""
     out = {"run": state.get("run", 0), "sites": state.get("sites", {}), "searches": []}
     for k, e in sorted(state["searches"].items()):
         w7, w30 = _window(e, today, 7), _window(e, today, 30)
         out["searches"].append({"search": k, "state": e.get("state", ""), "src": e.get("src", ""), "runs_7d": w7["runs"],
-                                "qualified_new_7d": w7["qnew"], "qualified_new_30d": w30["qnew"], "returned_7d": w7["returned"],
+                                "qualified_new_7d": round(w7["qnew"], 2), "qualified_new_30d": round(w30["qnew"], 2),
+                                "only_here_7d": w7["excl"], "mined": e.get("mined", ""), "returned_7d": w7["returned"],
                                 "qualified_per_run_7d": round(w7["qualified"] / w7["runs"], 1) if w7["runs"] else 0})
     return out

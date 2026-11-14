@@ -96,6 +96,28 @@ def assess(row, entry, fam, today, route_gone="", ):
     return row
 
 
+SEARCH_WINDOW_DAYS = 3      # scrape.HOURS_OLD: an aggregator search never returns an older posting, so it can't reconfirm one
+_NATIVE_ID = re.compile(r"^[a-z]+:")
+
+
+def confirm(row, today):
+    """How recently the source itself showed the job (v10). current: seen this run. not_due: on a company board the feed skipped
+    this run because its fingerprint hadn't changed (footprint.py). window: a job-site listing older than the sites' 3-day search
+    window, so no search can show it again; it stays KEEP_DAYS after it was last seen. recent: missed by this run only.
+    unconfirmed: not shown by its source for 2+ days."""
+    seen = str(row.get("last_seen") or "")[:10]
+    if not seen or seen >= today:
+        return "current"
+    if row.get("_confirm") == "not_due":
+        return "not_due"
+    since = _days(date.fromisoformat(today), seen) or 0
+    if not _NATIVE_ID.match(str(row.get("id") or "")):
+        posted = _days(date.fromisoformat(today), str(row.get("date_posted") or "")[:10])
+        if posted is not None and posted > SEARCH_WINDOW_DAYS:
+            return "window"
+    return "recent" if since <= 1 else "unconfirmed"
+
+
 def board_keys(jobs):
     """Every requisition key a complete board read exposes (its jobs' links and native ids)."""
     import identity

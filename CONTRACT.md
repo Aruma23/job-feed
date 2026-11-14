@@ -1,6 +1,6 @@
 # Job record contract
 
-Contract version: 7 (Nov 1, 2026). `feed_status.json` → `contract.version` says which version a run wrote. Every component (this
+Contract version: 8 (Nov 14, 2026; v7 Nov 1). `feed_status.json` → `contract.version` says which version a run wrote. Every component (this
 feed, the tracker's finder and gate, the Hub, the Mac runner) reads and writes jobs by these rules. `tests/test_v6.py` fails if a
 column in `scrape.py` is missing here or a value falls outside its list.
 
@@ -46,7 +46,19 @@ Employer trust (trust.py):
 Priority (priority.py): `priority` (A | B | C | D), `priority_score` (0-100), `priority_why`. It orders work and never decides:
 the tracker's gate makes every accept/reject call. D also marks what the gate would likely reject, suspicious jobs and jobs gone
 from the employer's board. High ghost risk, 5+ years required (a figure the posting marks preferred doesn't count; `years_min`
-still carries the most demanding figure), or a fit under 50 caps it at C.
+still carries the most demanding figure), or a fit under 50 caps it at C. v8 adds three caps at C: an accounting-heavy
+`fit_category`, an intermediary or unnamed employer (`employer_type`), and `confirm` = unconfirmed.
+
+Who is behind the listing (employer.py, v8): `employer_type`: direct | staffing | search_firm | marketplace | undisclosed | unknown
+(the default: not enough evidence either way). `employer_type_why`: the evidence with its confidence ("high: ...", "medium: ...").
+A staffing listing is not a scam (`trust` answers that); this says whether the company hiring is the one posting. Signals: known
+firm names, the name itself ("... Staffing", "... Executive Search"), recruitment phrasing in the posting ("our client is
+seeking"), and MASS+ copies of one ad.
+
+Source confirmation (freshness.py, v8): `confirm`: current (its source showed it this run) | not_due (its company board was skipped
+this run because its fingerprint hadn't changed) | window (a job-site listing older than the sites' 3-day search window, which
+no search can show again) | recent (missed by this run only) | unconfirmed (not shown by its source for 2+ days). `last_seen` is
+the date of that last confirmation.
 
 Employer intelligence (intel.py, v7): `employer_signal` (what this employer's fitting postings show together: openings, posted in
 the last 14 days vs the 14 before, teams with 2+ openings, roles hired more than once, pay or title changes; empty when nothing
@@ -56,6 +68,11 @@ the full list.
 Self-audit (audit.py, v7): every run is checked before publishing (AUDIT.md, `feed_status.json` → `audit`: level ok | warn | block,
 `complete`, items with what happened, what the feed did, what to do). A run that lost many jobs with no confirmed closing restores
 them from the last published feed and is marked `complete: false` and `partial: true`; the tracker must not close leads on it.
+
+Search credit (scheduler.py, v8; `search_stats.json`, not part of the jobs.csv contract): a qualified job new to the feed gives each
+of the k searches that returned it 1/k of a discovery (`qnew`), `excl` counts the ones only that search found, and jobs waiting
+for the model's review are settled from the published verdict on the next run (`feed_status.json` → `scheduler.settled`).
+Mined trial phrases carry `mined` (why they were proposed). `direct.cap` reports what the company-board cap trimmed.
 
 ## Invariants (tested)
 

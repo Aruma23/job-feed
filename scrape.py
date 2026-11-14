@@ -46,6 +46,18 @@ first, with waiting time adding so nothing starves. Jobs the rules turn away on 
 sample goes to the review each run. relevance.py: Flash-Lite only, a daily request ceiling shared fairly across runs, stop on
 any rate-limit reply, token counts, 8 jobs a request, one review per posting across ids and sources.
 
+v10 (Nov 14, contract 8): an audit of where the feed learns and where it doesn't, answered in code.
+- Search credit no longer depends on list order: a job found by k searches gives each 1/k (scheduler.py), counted with the
+  model's cached verdicts, and corrected on the next run from the published verdict of jobs that were waiting for review.
+- Mined search phrases: titles of the feed's own good jobs that no current search would match become trial searches
+  (mined_pool), capped and still made to earn their place.
+- employer.py: employer_type (direct, staffing, search firm, marketplace, undisclosed, unknown) with the evidence.
+- confirm (freshness.py): current | not_due | window | recent | unconfirmed, so "not reconfirmed" says why.
+- The company-board cap keeps qualified jobs first (and spreads places across employers) instead of the newest 1,500.
+- priority.py holds at C: accounting-heavy, intermediary or unnamed employer, unconfirmed 2+ days.
+- relevance.py: model verdicts carry PROMPT_VERSION (old ones re-reviewed lazily when it changes); the model's strengths must
+  appear in the posting.
+
 v4 (Nov 1):
 - Location: geo.py's commute regions (NYC, Westchester, Long Island, Rockland, North and Central Jersey, Fairfield County)
   replace the seven-name list; remote-US eligibility is decided separately. Column "region". Rows the tracker's finder would
@@ -73,6 +85,7 @@ import audit
 import backlog
 import footprint
 import history
+import employer
 import identity
 import intel
 import priority
@@ -121,8 +134,8 @@ COLS = ["id", "site", "title", "company", "location", "is_remote", "date_posted"
         "region", "req_id", "source_ids", "fit_score", "fit_category", "fit_why", "fit_by",
         "status", "changes", "last_change", "age_days", "skills", "years_min", "education", "seniority", "pay_low", "pay_high",
         "freshness", "ghost_risk", "freshness_why", "reposts", "repost_of", "trust", "trust_why", "priority", "priority_score",
-        "priority_why", "employer_signal", "related_ids"]
-CONTRACT_VERSION = 7
+        "priority_why", "employer_signal", "related_ids", "employer_type", "employer_type_why", "confirm"]
+CONTRACT_VERSION = 8
 # Posting facts a re-read of the same copy may change (merge): what the employer edits. Identity and lifecycle columns never.
 UPDATABLE = ("title", "company", "location", "is_remote", "date_posted", "job_url", "job_url_direct", "min_amount", "max_amount",
              "interval", "description")
@@ -240,20 +253,41 @@ def verdict(row, cache=None):
     return relevance.rules(row.get("title"), str(row.get("description") or "").replace("\\n", "\n"), D.title_kind(row.get("title")))
 
 
-def qualifies(row):
+def qualifies(row, cache=None):
+    """Right place and relevant: the rules, or the model's cached verdict on the same posting when there is one (v10: the
+    scheduler is credited with the feed's final verdicts, not only the rules')."""
     p = geo.resolve(row.get("location"), str(row.get("is_remote")) == "True")
-    return p.status in ("local", "remote_us") and verdict(row)["score"] >= QUALIFY_MIN
+    return p.status in ("local", "remote_us") and verdict(row, cache)["score"] >= QUALIFY_MIN
 
 
-def collect(scrape, searches=None, pause=(4, 9), sleep=time.sleep, previous=None):
-    """Runs each search. Status per search: rows returned, unique rows, qualified rows, and qualified rows new to the feed."""
+def final_qualified(row):
+    """A published row's final verdict (after the model's review): right place and fit_score at or above the bar."""
+    p = geo.resolve(row.get("location"), str(row.get("is_remote")) == "True")
+    try:
+        fit = int(float(row.get("fit_score") or 0))
+    except ValueError:
+        fit = 0
+    return p.status in ("local", "remote_us") and fit >= QUALIFY_MIN
+
+
+def collect(scrape, searches=None, pause=(4, 9), sleep=time.sleep, previous=None, cache=None, pending=None):
+    """Runs each search. Status per search: rows returned, unique rows, qualified rows, and qualified rows new to the feed.
+
+    v10 (Nov 14): credit no longer depends on the order of the search list. Every search that returned a job is recorded
+    against it; a qualified job new to the feed gives each of the k searches that found it 1/k of a discovery ("qnew", the
+    Shapley value of the coverage game), and "excl" counts the ones only that search found (its pure incremental value).
+    "qualified" counts every qualified job a search returned, duplicates included. Rows whose rules verdict is queued for the
+    model are added to `pending` (id -> [search keys, provisional verdict]) so the next run can correct the credit with the
+    published, model-reviewed verdict (scheduler.settle)."""
     searches = SEARCHES if searches is None else searches
-    fresh, seen_urls, status = [], set(), []
+    fresh, status = [], []
     known = identity.Index()
     for p in previous or []:
         known.add(p)
+    run_idx, found, url_slot = identity.Index(), [], {}   # this run's openings; found[slot]: which searches returned it
     for site, term, n in searches:
-        entry = {"site": site, "search": term, "results": n, "returned": 0, "new": 0, "qualified": 0, "qnew": 0, "error": ""}
+        entry = {"site": site, "search": term, "results": n, "returned": 0, "new": 0, "qualified": 0, "qnew": 0, "excl": 0, "error": ""}
+        k = f"{site}|{term}"
         try:
             records = run_search(scrape, site, term, n)
         except Exception as exc:  # a blocked search must not stop the others
@@ -262,22 +296,44 @@ def collect(scrape, searches=None, pause=(4, 9), sleep=time.sleep, previous=None
         entry["returned"] = len(records)
         for rec in records:
             url = rec.get("job_url")
-            if not url or url in seen_urls or not rec.get("title"):
+            if not url or not rec.get("title"):
                 continue
-            seen_urls.add(url)
-            row = {c: clean(rec.get(c)) for c in COLS[:13]}
-            row["site"] = row["site"] or site
-            row["description"] = row["description"][:DESC_CAP]
-            fresh.append(row)
-            entry["new"] += 1
-            if qualifies(row):
+            if url in url_slot:
+                slot = url_slot[url]
+            else:                                  # a new link this run: kept for merge(), which folds copies of one job
+                row = {c: clean(rec.get(c)) for c in COLS[:13]}
+                row["site"] = row["site"] or site
+                row["description"] = row["description"][:DESC_CAP]
+                fresh.append(row)
+                entry["new"] += 1
+                slot = run_idx.find(row)           # the same opening under another site's link shares one credit
+                if slot is None:
+                    slot = run_idx.add(row)
+                    v = verdict(row, cache)
+                    found.append({"keys": [], "q": qualifies(row, cache), "new": known.find(row) is None,
+                                  "review": bool(v.get("review")) and v.get("by") == "rules", "id": row["id"]})
+                url_slot[url] = slot
+            if k in found[slot]["keys"]:
+                continue
+            found[slot]["keys"].append(k)
+            if found[slot]["q"]:
                 entry["qualified"] += 1
-                if known.find(row) is None:
-                    entry["qnew"] += 1
-                    known.add(row)
         status.append(entry)
-        print(f"{site} / {term}: {entry['new']} new, {entry['qnew']} new qualified" + (f" (skipped: {entry['error']})" if entry["error"] else ""))
         sleep(random.uniform(*pause))
+    by_key = {f"{s['site']}|{s['search']}": s for s in status}
+    for f in found:
+        share = 1 / len(f["keys"])
+        if f["q"] and f["new"]:
+            for k in f["keys"]:
+                by_key[k]["qnew"] += share
+            if len(f["keys"]) == 1:
+                by_key[f["keys"][0]]["excl"] += 1
+        if f["new"] and f["review"] and pending is not None:
+            pending[f["id"]] = [f["keys"], int(f["q"])]
+    for s in status:
+        s["qnew"] = round(s["qnew"], 3)
+        print(f"{s['site']} / {s['search']}: {s['new']} new, {s['qnew']} new qualified ({s['excl']} only here)"
+              + (f" (skipped: {s['error']})" if s["error"] else ""))
     return fresh, status
 
 
@@ -350,7 +406,7 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
         if k in rows or k in held:
             continue
         if ats.board_of(r.get("job_url")) in D.SKIPPED or (r.get("_board") and r["_board"] in D.SKIPPED):
-            rows[k] = r                             # not due this run (unchanged board): kept as last confirmed
+            rows[k] = dict(r, _confirm="not_due")   # not due this run (unchanged board): kept as last confirmed
             kept_skipped += 1
             continue
         if "~" in k and k.split("~")[0] in rows and rows[k.split("~")[0]].get("_board", "").lower() == ats.board_of(r.get("job_url")).lower():
@@ -388,8 +444,9 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
     except Exception as e:
         held_ok = False
         stats["held_error"] = f"{type(e).__name__}: {str(e)[:120]}"
-    ranked = sorted(rows.values(), key=lambda r: (r.get("date_posted") or r.get("first_seen") or ""), reverse=True)
+    ranked = cap_rank(list(rows.values()), cache)
     out = ranked[:DIRECT_CAP]
+    stats["cap"] = cap_report(ranked, DIRECT_CAP, cache)
     stats["_explained"] = [r["id"] for r in ranked[DIRECT_CAP:]] + reclassified + list(held)
     stats["reclassified"] = len(reclassified)
     stats["rows_direct"] = len(out)
@@ -417,6 +474,41 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
         stats["held_saved"] = backlog.store(db, held, lambda r: bool(cache and relevance.cached(cache, r)), today, COLS)
     D.save_db(db, db_path)
     return out, list(held.values()), stats, closed
+
+
+CAP_PER_EMPLOYER = 40       # past this many, an employer's further jobs rank after every other employer's (diversity)
+
+
+def _cap_value(r, cache):
+    v = verdict(r, cache)
+    sc = int(v.get("score") or 0)
+    acct = str(v.get("category") or "").startswith("Accounting")
+    return 2 if sc >= QUALIFY_MIN and not acct else 1 if sc >= 35 and not acct else 0, sc
+
+
+def cap_rank(rows, cache=None):
+    """Which company-board jobs keep a place under DIRECT_CAP (v10). Before: the newest 1,500, whatever they were. Now: qualified
+    jobs (fit 50+, not accounting-heavy) first, then near-misses (35+), then the rest; within each, an employer's first
+    CAP_PER_EMPLOYER jobs before its others, then newest first. Unconventional titles are not at risk here: they wait in the
+    held queue (backlog.py), which the cap doesn't touch."""
+    import discover as D
+    vals = {id(r): _cap_value(r, cache) for r in rows}
+    by_date = sorted(rows, key=lambda r: (r.get("date_posted") or r.get("first_seen") or ""), reverse=True)
+    seen, rank_in_emp = {}, {}
+    for r in sorted(by_date, key=lambda r: -vals[id(r)][0]):
+        k = (D.emp_key(r.get("company")), vals[id(r)][0])
+        seen[k] = seen.get(k, 0) + 1
+        rank_in_emp[id(r)] = seen[k]
+    order = {id(r): i for i, r in enumerate(by_date)}
+    return sorted(rows, key=lambda r: (-vals[id(r)][0], rank_in_emp[id(r)] > CAP_PER_EMPLOYER, order[id(r)]))
+
+
+def cap_report(ranked, cap, cache=None):
+    cut = ranked[cap:]
+    vals = [_cap_value(r, cache) for r in cut]
+    return {"cap": cap, "candidates": len(ranked), "trimmed": len(cut), "trimmed_qualified": sum(1 for b, _ in vals if b == 2),
+            "trimmed_avg_fit": round(sum(sc for _, sc in vals) / len(vals), 1) if vals else 0,
+            "note": ("raise DIRECT_CAP: qualified jobs were trimmed" if any(b == 2 for b, _ in vals) else "")}
 
 
 def annotate(agg_rows, direct_rows):
@@ -487,8 +579,11 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     cache = relevance.load_cache(os.path.join(here, "classify_cache.json"))
     stats_path = os.path.join(here, "search_stats.json")
     sched = scheduler.load(stats_path)
-    searches, decisions = scheduler.plan(sched, SEARCHES, POOL if POOL_ON else [], today)
-    fresh, status = collect(scrape, searches, previous=previous_all)
+    settled = scheduler.settle(sched, previous_all, today, final_qualified)   # last run's credit, corrected by the final verdicts
+    searches, decisions = scheduler.plan(sched, SEARCHES, (POOL if POOL_ON else []) + mined_pool(previous_all, sched), today)
+    pending = {}
+    fresh, status = collect(scrape, searches, previous=previous_all, cache=cache, pending=pending)
+    scheduler.remember(sched, pending, today)
     scheduler.record(sched, status, today)
     scheduler.save(sched, stats_path)
     failed = [s for s in status if s["error"]]
@@ -547,6 +642,9 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     rows, report = audit.run(previous_all, rows, explained, today, KEEP_DAYS, log, now_counts)
     for r in rows[n_before:]:
         r["location"] = geo.finder_location(r.get("location") or "", geo.resolve(r.get("location"), str(r.get("is_remote")) == "True"))
+        r["confirm"] = freshness.confirm(r, today)              # restored from the last feed: not confirmed by this run
+    if len(rows) > n_before:
+        employer.annotate(rows[n_before:])
     audit.save_log(log, dict(now_counts, ran=now.isoformat(timespec="seconds"), level=report["level"]), log_path)
     try:
         dstats["sources"] = footprint.source_graph(D.load_db(os.path.join(here, "boards.json")), rows, coverage(rows)["uncovered_hosts"],
@@ -569,7 +667,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
                              "queued_for_review": len(queue) + len(waiting), "reviewed_by_model": sum(1 for r in rows if r["fit_by"] == "model")},
                "regions": _count(r["region"] for r in rows),
                "history": hstats, "seniority": _count(r["seniority"] for r in rows),
-               "scheduler": dict(scheduler.report(sched, today), decisions=decisions),
+               "scheduler": dict(scheduler.report(sched, today), decisions=decisions, settled=settled),
                "contract": contract, "coverage": coverage(rows), "intel": intel_summary, "audit": report}
     if not fresh:
         summary["note"] = "Nothing came back this run; earlier jobs kept."
@@ -603,13 +701,27 @@ def annotate_v6(rows, hist, here, today):
         try:
             freshness.assess(r, hist["jobs"].get(r.get("id")), history.family(hist, r), today, r.pop("_gone", ""))
             trust.assess(r, db, good, bad, today, index)
+        except Exception as e:
+            out["errors"] = out.get("errors", 0) + 1
+            out["last_error"] = f"{r.get('id')}: {type(e).__name__}: {str(e)[:100]}"
+        r["confirm"] = freshness.confirm(r, today)
+        r.pop("_board", None)
+        r.pop("_confirm", None)
+    out["employer_type"] = employer.annotate(rows)
+    for r in rows:
+        try:
             priority.assess(r)
         except Exception as e:
             out["errors"] = out.get("errors", 0) + 1
             out["last_error"] = f"{r.get('id')}: {type(e).__name__}: {str(e)[:100]}"
-        r.pop("_board", None)
-    for col in ("freshness", "ghost_risk", "trust", "priority"):
+    for col in ("freshness", "ghost_risk", "trust", "priority", "confirm"):
         out[col] = _count(r.get(col, "") for r in rows)
+    ab = [r for r in rows if r.get("priority") in ("A", "B")]
+    out["quality"] = {"a_b": len(ab), "a_b_direct_employer": sum(1 for r in ab if r.get("employer_type") == "direct"),
+                      "a_b_intermediary": sum(1 for r in ab if employer.is_intermediary(r)),
+                      "a_b_accounting": sum(1 for r in ab if str(r.get("fit_category") or "").startswith("Accounting")),
+                      "a_b_confirmed_current": sum(1 for r in ab if r.get("confirm") in ("current", "not_due")),
+                      "share_direct_employer": round(sum(1 for r in rows if r.get("employer_type") == "direct") / max(1, len(rows)), 3)}
     out["reposted"] = sum(1 for r in rows if r.get("repost_of"))
     out["tier_A_fresh_verified"] = sum(1 for r in rows if r.get("priority") == "A" and r.get("trust") == "verified")
     return out
@@ -632,8 +744,13 @@ def after_review(rows, added, feed_dir, today):
             r["age_days"] = str((d0 - date.fromisoformat(dp)).days) if re.match(r"\d{4}-\d{2}-\d{2}$", dp) else "0"
             freshness.assess(r, None, {}, today)
             trust.assess(r, db, good, bad, today, index)
+            r["confirm"] = freshness.confirm(r, today)
         except Exception:
             pass
+    try:
+        employer.annotate(rows)
+    except Exception:
+        pass
     for r in rows:
         try:
             priority.assess(r)
@@ -675,6 +792,71 @@ def _count(xs):
 
 POOL = scheduler.POOL
 POOL_ON = True
+
+# ---------------- v10: search phrases mined from the feed's own good jobs ----------------
+MINE_FIT = 70                # a "good" job: final fit 70+, not accounting-heavy, in the commute area
+MINE_EMPLOYERS = 3           # a phrase needs this many employers whose good jobs no current search would match
+MINE_PRECISION = 0.5         # and at least half of all feed jobs with that title phrase must qualify
+_ANCHOR = re.compile(r"\b(financ\w*|fp&a|fpa|planning|budget\w*|forecast\w*|strateg\w*|revenue|treasury|capacity|workforce|headcount|"
+                     r"investment|pricing|commercial|portfolio|valuation|economic\w*|business performance|corporate development)\b")
+_NO_MINE = re.compile(r"\b(director|vp|vice president|head|chief|intern|internship|summer|accountant|accounting|tax|audit|payroll|"
+                      r"engineer|developer|sales|controller|bookkeep\w*|clerk|assistant|manager|recruit\w*)\b")
+_LEVEL = re.compile(r"\b(senior|sr|junior|jr|lead|staff|principal|i{1,3}|iv|1|2|3)\b\.?")
+
+
+def title_core(title):
+    """'Sr. Revenue Finance Analyst II, Ads (Hybrid)' -> 'revenue finance analyst'."""
+    t = str(title or "").lower()
+    t = re.split(r"\s[-–|/]\s|,|\(|\[|:", t)[0]
+    t = t.replace(" & ", " and ").replace("&amp;", "&")
+    t = _LEVEL.sub(" ", t)
+    t = re.sub(r"[^a-z0-9& ]+", " ", t)
+    return re.sub(r"\s+", " ", t).strip()
+
+
+def _covers(term, title):
+    words = [w for w in re.sub(r"[^a-z0-9& ]+", " ", term.lower().split(" jobs ")[0]).split() if w not in ("and", "of", "the")]
+    t = title.lower()
+    return bool(words) and all(re.search(r"\b" + re.escape(w) + r"\b", t) for w in words)
+
+
+def mined_pool(published, sched, limit=4):
+    """New search hypotheses from the feed's own good jobs (no model, no cost). A title phrase is proposed when good jobs at
+    MINE_EMPLOYERS+ employers carry it, no current search's words would match those titles (Indeed matches every word, so a
+    search whose words all appear in a title would have found it), and most feed jobs with that phrase qualify. Proposals go
+    to the scheduler as trials on Indeed: they still have to earn their place with new qualified jobs, and at most
+    scheduler.MINED_ACTIVE are on trial at once. Returns [(site, term, n, why)], strongest first."""
+    try:
+        terms = [e.get("term", "") for e in (sched.get("searches") or {}).values()] + [t for _, t, _ in SEARCHES + POOL]
+        have = {re.sub(r"\s+", " ", t.lower()).strip() for t in terms}
+        good, allc = {}, {}
+        for r in published:
+            core = title_core(r.get("title"))
+            if not (2 <= len(core.split()) <= 5) or not _ANCHOR.search(core) or _NO_MINE.search(core):
+                continue
+            ok = final_qualified(r)
+            a = allc.setdefault(core, [0, 0])
+            a[0] += 1
+            a[1] += 1 if ok else 0
+            try:
+                fit = int(float(r.get("fit_score") or 0))
+            except ValueError:
+                fit = 0
+            if ok and fit >= MINE_FIT and not str(r.get("fit_category") or "").startswith("Accounting"):
+                if any(_covers(t, r.get("title") or "") for t in terms):
+                    continue
+                good.setdefault(core, set()).add(identity.emp_key(r.get("company")))
+        out = []
+        for core, emps in good.items():
+            n, q = allc[core]
+            if len(emps) < MINE_EMPLOYERS or core in have or q / n < MINE_PRECISION:
+                continue
+            out.append((len(emps), q / n, core))
+        out.sort(reverse=True)
+        return [("indeed", core, 30, f"{k} employers no search covers, {round(100 * p)}% of {allc[core][0]} feed jobs qualify")
+                for k, p, core in out[:limit]]
+    except Exception:
+        return []
 
 
 if __name__ == "__main__":

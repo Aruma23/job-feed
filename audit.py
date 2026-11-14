@@ -84,14 +84,23 @@ def coverage(log, now, items):
 
 
 def unconfirmed(rows, today, items):
+    """v10: split by why (freshness.confirm). Only jobs no source has shown for 2+ days are a warning; a board skipped because
+    it hadn't changed, or a job-site listing past the sites' 3-day search window, is the design working."""
     old = [r for r in rows if (r.get("last_seen") or today) < today]
     if not old:
         return
+    why = {}
+    for r in old:
+        why[r.get("confirm") or "?"] = why.get(r.get("confirm") or "?", 0) + 1
+    bad = [r for r in old if r.get("confirm") in ("unconfirmed", "?", "", None)]
     oldest = min(old, key=lambda r: r.get("last_seen"))
-    _item(items, "info" if len(old) < 0.2 * max(1, len(rows)) else "warn", "unconfirmed",
-          f"{len(old)} jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed "
-          f"{oldest.get('last_seen')}.", "Kept for up to 4 days after they were last seen.", "",
-          [f"{r.get('company')}: {r.get('title')} (last {r.get('last_seen')})" for r in old[:5]])
+    parts = {"not_due": "on unchanged boards not due for a read", "window": "job-site listings past the 3-day search window",
+             "recent": "missed by this run only", "unconfirmed": "not shown by their source for 2+ days"}
+    _item(items, "warn" if len(bad) > 0.15 * max(1, len(rows)) else "info", "unconfirmed",
+          f"{len(old)} jobs are shown from earlier runs (" + ", ".join(f"{n} {parts.get(k, k)}" for k, n in sorted(why.items(), key=lambda kv: -kv[1]))
+          + f"); the oldest was last confirmed {oldest.get('last_seen')}.",
+          "Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.", "",
+          [f"{r.get('company')}: {r.get('title')} (last {r.get('last_seen')})" for r in (bad or old)[:5]])
 
 
 def _dhash(r):
@@ -155,7 +164,7 @@ def consistency(rows, items):
     acct = [r for r in rows if r.get("priority") in ("A", "B") and str(r.get("fit_category", "")).startswith("Accounting")]
     if acct:
         _item(items, "warn", "fit-contradiction", f"{len(acct)} accounting-heavy jobs ranked A or B.", "Left as published.",
-              "Fit and category disagree; the relevance rules need a look.", [f"{r.get('company')}: {r.get('title')}" for r in acct])
+              "priority.py should hold these at C (v10); a row here means a path skipped priority.assess.", [f"{r.get('company')}: {r.get('title')}" for r in acct])
     return len(off)
 
 
