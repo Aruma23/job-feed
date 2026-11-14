@@ -262,5 +262,26 @@ class Evidence(unittest.TestCase):
             R.PROMPT_VERSION = keep
 
 
+class Shadow(unittest.TestCase):
+    def test_records_without_raising(self):
+        import shadow
+        rows = [{"job_url_direct": "https://ejcu.fa.us6.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1033/requisitions/preview/1000430"},
+                {"job_url_direct": "https://JPMorganChase.contacthr.com/154174946"}]
+        def get(url, **kw):
+            if "recruitingCEJobRequisitions?" in url:
+                self.assertIn("siteNumber=CX_1033", url)
+                return {"items": [{"TotalJobsCount": 2, "requisitionList": [{"Id": "1", "Title": "FP&A Analyst", "PostedDate": "2026-11-10"},
+                                                                          {"Id": "2", "Title": "Analyst"}]}]}
+            return {"items": [{"ExternalDescriptionStr": "Own the forecast."}]}
+        out = shadow.run(rows, get, lambda u: "https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/1")
+        self.assertEqual((out["oracle"][0]["ok"], out["oracle"][0]["total"], out["oracle"][0]["detail_chars"] > 5), (True, 2, True))
+        self.assertTrue(out["contacthr"][0]["oracle"])
+        def bad(url, **kw):
+            raise OSError("blocked")
+        out = shadow.run(rows, bad, bad)
+        self.assertFalse(out["oracle"][0]["ok"])
+        self.assertIn("error", out["contacthr"][0])
+
+
 if __name__ == "__main__":
     unittest.main()
