@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-14T16:15+00:00 · **WARN** · Published, with warnings.
+2026-11-14T20:13+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1629 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-10.
+## WARN: 1256 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-10.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Confidential: Sr. FP&A Analyst (SaaS required) - New York (Hybrid - 140K) (last 2026-11-12)
@@ -11,17 +11,15 @@
   - Concourse: Founding Finance Lead (last 2026-11-13)
   - Ralph Lauren: Senior FP&A Manager, Corporate (last 2026-11-13)
 
-## WARN: 6 accounting-heavy jobs ranked A or B.
+## WARN: 3 accounting-heavy jobs ranked A or B.
 
 - What the feed did: Left as published.
 - What to do: Fit and category disagree; the relevance rules need a look.
   - Robert Half: Senior Accounting Analyst
   - Everest Re Group: Claims Data Research Analyst
   - GenServe: Project Financial Administrator
-  - Bloomberg: Logistics Business Analyst – Finance & Controls
-  - Columbia University: Financial Analyst
 
-## INFO: 75 sets of rows share employer, title, place and description.
+## INFO: 77 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
