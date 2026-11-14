@@ -1,35 +1,35 @@
 # Feed audit
 
-2026-11-13T12:33+00:00 · **WARN** · Published, with warnings.
+2026-11-14T16:15+00:00 · **WARN** · Published, with warnings.
 
-## WARN: 1431 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-09.
+## WARN: 1629 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-10.
 
 - What the feed did: Kept for up to 4 days after they were last seen.
   - Confidential: Sr. FP&A Analyst (SaaS required) - New York (Hybrid - 140K) (last 2026-11-12)
-  - Happen Bank: Sr Compliance Data Analyst (last 2026-11-09)
-  - Ann Taylor: Customer Data & Insights Analyst (last 2026-11-09)
+  - Confidential Financial Services: Financial Planning Analyst (FP&A) Healthcare - NYC Hybrid ($130K) (last 2026-11-13)
   - Research Foundation for Mental Hygiene, Inc.: Financial Analyst (last 2026-11-10)
-  - Visa: Senior Manager (last 2026-11-09)
+  - Concourse: Founding Finance Lead (last 2026-11-13)
+  - Ralph Lauren: Senior FP&A Manager, Corporate (last 2026-11-13)
 
 ## WARN: 6 accounting-heavy jobs ranked A or B.
 
 - What the feed did: Left as published.
 - What to do: Fit and category disagree; the relevance rules need a look.
-  - HLW International: Specialty Studios Project & Operations Coordinator
-  - Turner & Townsend: Financial Operations and Data Analytics Specialist
   - Robert Half: Senior Accounting Analyst
   - Everest Re Group: Claims Data Research Analyst
   - GenServe: Project Financial Administrator
+  - Bloomberg: Logistics Business Analyst – Finance & Controls
+  - Columbia University: Financial Analyst
 
-## INFO: 79 sets of rows share employer, title, place and description.
+## INFO: 75 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
-  - in-ebc161ad49e831b0 / in-2b7dffd3f318ac17 (Citi: IT Business Lead Analyst, Vice President)
-  - li-4486252149 / li-4487416748 (Northbound Executive Search: Human Resources Business Partner, Technology)
-  - in-cfc2aa98682372b3 / in-ef5de0bb7eecb268 (Uber: Manager, Global Delivery Partner Enablement)
-  - in-5a55cab70806efdf / in-5725da902cd0097f (Uber: Senior Associate, Global Commercial Enablement Seismic Content & Learning Platforms)
   - li-4463130325 / li-4490381049 (Lantern: Director, Healthcare Economics)
+  - li-4479382921 / li-4479391585 (Morgan Stanley: Wealth Management Finance - Reporting & Analytics, Associate)
+  - in-eb5b61528aba0253 / in-3436ba3a5dcea763 (Houlihan Lokey: Workday Analyst, IT (Payroll))
+  - li-4487973541 / li-4489196018 (Soni: Financial Reporting Analyst)
+  - li-4475713155 / li-4475706591 (Morgan Stanley: WM Administration - Strategy, Vice President)
 
 ## INFO: 1 entry-level titles ask for 5+ years.
 
