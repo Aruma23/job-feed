@@ -157,9 +157,10 @@ def annual_pay(row):
     mult = 2080 if iv.startswith("hour") else 12 if iv.startswith("month") else 52 if iv.startswith("week") else 1
     if lo is None and hi is None:
         return "", ""
-    lo, hi = (lo or hi) * mult, (hi or lo) * mult
-    if mult == 1 and hi < 1000:                 # an hourly figure without its interval
-        lo, hi = lo * 2080, hi * 2080
+    lo, hi = (lo or hi), (hi or lo)
+    if not iv and hi < 1000:                    # no interval: cannot tell hourly from malformed/shorthand annual pay
+        return "", ""
+    lo, hi = lo * mult, hi * mult
     return str(int(lo)), str(int(hi))
 
 
