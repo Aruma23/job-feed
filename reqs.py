@@ -160,7 +160,7 @@ def annual_pay(row):
     lo, hi = (lo or hi) * mult, (hi or lo) * mult
     if mult == 1 and hi < 1000:                 # an hourly figure without its interval
         lo, hi = lo * 2080, hi * 2080
-    return str(int(round(lo, -2))), str(int(round(hi, -2)))
+    return str(int(round(lo))), str(int(round(hi)))
 
 
 # ---------------- v10: pay stated only in the text (NY pay-transparency ranges) ----------------
@@ -194,7 +194,9 @@ def pay_from_text(description):
             lo, hi = _amount(m.group(1)), _amount(m.group(2))
         except ValueError:
             continue
-        hourly = bool(m.group(3) and re.search(r"hour|hr", m.group(3), re.I)) or hi < 200
+        hourly = bool(m.group(3) and re.search(r"hour|hr", m.group(3), re.I))
+        if hi < 200 and not hourly:
+            continue                                      # $100-$150 could be hourly or shorthand annual salary; do not guess
         if hourly:
             lo, hi = lo * 2080, hi * 2080
         if not (20000 <= lo <= hi <= 1000000) or hi > 4 * lo:
@@ -213,4 +215,4 @@ def pay_from_text(description):
         if len({(f[0], f[1]) for f in found}) > 1 and (len(plain) != 1 or any(f[3] for f in found)):
             return "", ""                       # several places or several ranges, none marked New York: don't guess
         lo, hi = found[0][0], found[0][1]
-    return str(int(round(lo, -2))), str(int(round(hi, -2)))
+    return str(int(round(lo))), str(int(round(hi)))
