@@ -1,23 +1,45 @@
 {
- "ran_at": "2026-11-14T20:13:42+00:00",
- "partial": false,
- "empty_sites": [],
+ "ran_at": "2026-11-15T00:10:37+00:00",
+ "partial": true,
+ "empty_sites": [
+  "glassdoor",
+  "google",
+  "zip_recruiter"
+ ],
  "searches": 28,
  "failed": 0,
- "fresh_rows": 513,
- "rows_written": 3106,
+ "fresh_rows": 391,
+ "rows_written": 2967,
  "by_site": {
   "indeed": {
-   "searches": 20,
+   "searches": 19,
    "failed": 0,
-   "new": 392,
-   "qualified_new": 3
+   "new": 306,
+   "qualified_new": 3.999000000000001
   },
   "linkedin": {
-   "searches": 8,
+   "searches": 6,
    "failed": 0,
-   "new": 121,
-   "qualified_new": 5
+   "new": 85,
+   "qualified_new": 1.0
+  },
+  "glassdoor": {
+   "searches": 1,
+   "failed": 0,
+   "new": 0,
+   "qualified_new": 0
+  },
+  "zip_recruiter": {
+   "searches": 1,
+   "failed": 0,
+   "new": 0,
+   "qualified_new": 0
+  },
+  "google": {
+   "searches": 1,
+   "failed": 0,
+   "new": 0,
+   "qualified_new": 0
   }
  },
  "detail": [
@@ -25,30 +47,33 @@
    "site": "indeed",
    "search": "FP&A analyst",
    "results": 60,
-   "returned": 8,
-   "new": 8,
-   "qualified": 7,
+   "returned": 6,
+   "new": 6,
+   "qualified": 5,
    "qnew": 0,
+   "excl": 0,
    "error": ""
   },
   {
    "site": "indeed",
    "search": "financial planning and analysis",
    "results": 90,
-   "returned": 84,
-   "new": 77,
-   "qualified": 17,
-   "qnew": 2,
+   "returned": 79,
+   "new": 73,
+   "qualified": 24,
+   "qnew": 0.611,
+   "excl": 0,
    "error": ""
   },
   {
    "site": "indeed",
    "search": "financial analyst",
    "results": 60,
-   "returned": 43,
-   "new": 28,
-   "qualified": 11,
-   "qnew": 0,
+   "returned": 38,
+   "new": 27,
+   "qualified": 20,
+   "qnew": 0.111,
+   "excl": 0,
    "error": ""
   },
   {
@@ -56,19 +81,54 @@
    "search": "strategic finance",
    "results": 60,
    "returned": 60,
-   "new": 44,
-   "qualified": 5,
-   "qnew": 0,
+   "new": 47,
+   "qualified": 18,
+   "qnew": 1.0,
+   "excl": 1,
+   "error": ""
+  },
+  {
+   "site": "indeed",
+   "search": "corporate finance analyst",
+   "results": 40,
+   "returned": 40,
+   "new": 20,
+   "qualified": 13,
+   "qnew": 0.111,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "indeed",
+   "search": "business finance analyst",
+   "results": 40,
+   "returned": 40,
+   "new": 8,
+   "qualified": 23,
+   "qnew": 0.111,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "indeed",
+   "search": "workforce planning analyst",
+   "results": 40,
+   "returned": 5,
+   "new": 2,
+   "qualified": 2,
+   "qnew": 0.111,
+   "excl": 0,
    "error": ""
   },
   {
    "site": "indeed",
    "search": "headcount planning",
    "results": 30,
-   "returned": 20,
-   "new": 17,
-   "qualified": 3,
+   "returned": 17,
+   "new": 14,
+   "qualified": 4,
    "qnew": 0,
+   "excl": 0,
    "error": ""
   },
   {
@@ -76,9 +136,10 @@
    "search": "business planning analyst",
    "results": 40,
    "returned": 40,
-   "new": 26,
-   "qualified": 1,
-   "qnew": 0,
+   "new": 21,
+   "qualified": 13,
+   "qnew": 0.111,
+   "excl": 0,
    "error": ""
   },
   {
@@ -86,9 +147,10 @@
    "search": "finance associate",
    "results": 60,
    "returned": 46,
-   "new": 35,
-   "qualified": 6,
+   "new": 30,
+   "qualified": 13,
    "qnew": 0,
+   "excl": 0,
    "error": ""
   },
   {
@@ -96,9 +158,10 @@
    "search": "investment analyst",
    "results": 40,
    "returned": 40,
-   "new": 16,
-   "qualified": 0,
-   "qnew": 0,
+   "new": 4,
+   "qualified": 14,
+   "qnew": 0.111,
+   "excl": 0,
    "error": ""
   },
   {
@@ -106,9 +169,21 @@
    "search": "portfolio analyst",
    "results": 30,
    "returned": 30,
-   "new": 10,
-   "qualified": 0,
+   "new": 11,
+   "qualified": 7,
+   "qnew": 0.111,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "indeed",
+   "search": "economic consulting analyst",
+   "results": 30,
+   "returned": 15,
+   "new": 7,
+   "qualified": 2,
    "qnew": 0,
+   "excl": 0,
    "error": ""
   },
   {
@@ -117,18 +192,20 @@
    "results": 37,
    "returned": 37,
    "new": 37,
-   "qualified": 36,
-   "qnew": 3,
+   "qualified": 35,
+   "qnew": 0,
+   "excl": 0,
    "error": ""
   },
   {
    "site": "linkedin",
    "search": "financial analyst",
-   "results": 37,
-   "returned": 37,
-   "new": 5,
-   "qualified": 5,
+   "results": 25,
+   "returned": 25,
+   "new": 1,
+   "qualified": 24,
    "qnew": 0,
+   "excl": 0,
    "error": ""
   },
   {
@@ -136,9 +213,10 @@
    "search": "strategic finance",
    "results": 25,
    "returned": 25,
-   "new": 18,
-   "qualified": 10,
-   "qnew": 2,
+   "new": 19,
+   "qualified": 17,
+   "qnew": 1.0,
+   "excl": 1,
    "error": ""
   },
   {
@@ -147,148 +225,75 @@
    "results": 20,
    "returned": 20,
    "new": 18,
-   "qualified": 7,
+   "qualified": 11,
    "qnew": 0,
+   "excl": 0,
    "error": ""
   },
   {
-   "site": "indeed",
-   "search": "finance and strategy manager",
+   "site": "glassdoor",
+   "search": "FP&A analyst",
    "results": 30,
-   "returned": 30,
-   "new": 18,
-   "qualified": 4,
-   "qnew": 1,
-   "error": ""
-  },
-  {
-   "site": "linkedin",
-   "search": "commercial finance",
-   "results": 20,
-   "returned": 20,
-   "new": 7,
-   "qualified": 6,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "linkedin",
-   "search": "financial planning and analysis",
-   "results": 25,
-   "returned": 25,
-   "new": 3,
-   "qualified": 3,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "linkedin",
-   "search": "strategy and operations finance",
-   "results": 20,
-   "returned": 20,
-   "new": 15,
-   "qualified": 4,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "linkedin",
-   "search": "revenue strategy",
-   "results": 20,
-   "returned": 20,
-   "new": 18,
-   "qualified": 3,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "indeed",
-   "search": "capacity planning analyst",
-   "results": 30,
-   "returned": 3,
-   "new": 3,
-   "qualified": 1,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "indeed",
-   "search": "revenue strategy",
-   "results": 30,
-   "returned": 30,
-   "new": 25,
-   "qualified": 0,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "indeed",
-   "search": "business operations forecasting budget",
-   "results": 30,
-   "returned": 30,
-   "new": 13,
-   "qualified": 1,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "indeed",
-   "search": "commercial finance",
-   "results": 30,
-   "returned": 30,
-   "new": 17,
-   "qualified": 0,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "indeed",
-   "search": "business planning manager",
-   "results": 30,
-   "returned": 30,
-   "new": 21,
-   "qualified": 0,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "indeed",
-   "search": "finance business partner",
-   "results": 30,
-   "returned": 30,
-   "new": 11,
-   "qualified": 0,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "indeed",
-   "search": "commercial finance analyst",
-   "results": 30,
-   "returned": 30,
-   "new": 8,
-   "qualified": 1,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "indeed",
-   "search": "corporate development analyst",
-   "results": 30,
-   "returned": 30,
-   "new": 8,
-   "qualified": 0,
-   "qnew": 0,
-   "error": ""
-  },
-  {
-   "site": "indeed",
-   "search": "operations finance analyst",
-   "results": 30,
-   "returned": 2,
+   "returned": 0,
    "new": 0,
    "qualified": 0,
    "qnew": 0,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "zip_recruiter",
+   "search": "FP&A analyst",
+   "results": 30,
+   "returned": 0,
+   "new": 0,
+   "qualified": 0,
+   "qnew": 0,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "google",
+   "search": "FP&A analyst jobs near New York, NY since 3 days ago",
+   "results": 30,
+   "returned": 0,
+   "new": 0,
+   "qualified": 0,
+   "qnew": 0,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "indeed",
+   "search": "FP&A associate",
+   "results": 40,
+   "returned": 2,
+   "new": 0,
+   "qualified": 1,
+   "qnew": 0,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "indeed",
+   "search": "budget analyst",
+   "results": 30,
+   "returned": 2,
+   "new": 1,
+   "qualified": 1,
+   "qnew": 0,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "indeed",
+   "search": "forecasting analyst",
+   "results": 30,
+   "returned": 28,
+   "new": 3,
+   "qualified": 16,
+   "qnew": 0.111,
+   "excl": 0,
    "error": ""
   },
   {
@@ -299,50 +304,97 @@
    "new": 7,
    "qualified": 0,
    "qnew": 0,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "indeed",
+   "search": "strategy and operations analyst",
+   "results": 30,
+   "returned": 6,
+   "new": 2,
+   "qualified": 1,
+   "qnew": 0,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "indeed",
+   "search": "finance and strategy manager",
+   "results": 45,
+   "returned": 42,
+   "new": 23,
+   "qualified": 16,
+   "qnew": 1.5,
+   "excl": 1,
+   "error": ""
+  },
+  {
+   "site": "linkedin",
+   "search": "commercial finance",
+   "results": 20,
+   "returned": 20,
+   "new": 8,
+   "qualified": 16,
+   "qnew": 0,
+   "excl": 0,
+   "error": ""
+  },
+  {
+   "site": "linkedin",
+   "search": "financial planning and analysis",
+   "results": 25,
+   "returned": 25,
+   "new": 2,
+   "qualified": 20,
+   "qnew": 0,
+   "excl": 0,
    "error": ""
   }
  ],
  "direct": {
-  "boards_new": 39,
+  "boards_new": 33,
   "version": "v5",
   "new_from": {
    "feed-link": 1,
-   "registry": 38
+   "name-probe": 1,
+   "registry": 31
   },
   "links_opened": 40,
-  "names_tried": 15,
+  "names_tried": 23,
   "harvest_blocks": 0,
   "harvest_new": 0,
-  "harvest_seconds": 0.0,
+  "harvest_seconds": 0.4,
   "harvest_progress": "240/240 crawl-system pairs",
   "verified": 212,
   "verified_by_status": {
-   "other": 66,
-   "empty": 95,
-   "gone": 13,
-   "local": 38
+   "local": 31,
+   "empty": 108,
+   "gone": 8,
+   "other": 65
   },
   "verify_seconds": 211.3,
-  "registry_size": 58898,
-  "registry_waiting": 31273,
-  "boards_total": 8819,
-  "boards_due": 4217,
-  "boards_ok": 2425,
-  "boards_failed": 4,
+  "registry_size": 58899,
+  "registry_waiting": 31061,
+  "boards_total": 8852,
+  "boards_due": 5832,
+  "boards_ok": 3700,
+  "boards_failed": 6,
   "failed_sample": [
    "ashby:maple",
-   "greenhouse:viseai",
    "ashby:shuttlelabs",
-   "ashby:tavily"
+   "ashby:tavily",
+   "greenhouse:crescendohealth",
+   "ashby:kinetic",
+   "ashby:stork"
   ],
-  "sweep_seconds": 750.3,
-  "borderline": 873,
-  "boards_hot": 1200,
-  "drops": 8,
+  "sweep_seconds": 777.2,
+  "borderline": 1400,
+  "boards_hot": 1223,
+  "drops": 7,
   "drops_sample": [
-   "greenhouse:altamirafreelance: sudden drop: 0 jobs vs usual 2",
-   "lever:solutuslegal: sudden drop: 0 jobs vs usual 28",
-   "ashby:sourgum: sudden drop: 0 jobs vs usual 9",
+   "lever:shieldai: sudden drop: 0 jobs vs usual 663",
+   "lever:daniels-sharpsmart: sudden drop: 6 jobs vs usual 184",
    "ashby:Empo Health: sudden drop: 0 jobs vs usual 3",
    "greenhouse:sifthealthcare: sudden drop: 0 jobs vs usual 2",
    "greenhouse:sylogist: sudden drop: 0 jobs vs usual 2",
@@ -351,22 +403,74 @@
   ],
   "adapter_health": {
    "ashby": {
-    "due": 592,
-    "read": 589,
-    "failed": 3,
-    "drops": 2,
+    "due": 852,
+    "read": 847,
+    "failed": 5,
+    "drops": 1,
     "repeated": 0,
-    "kept": 293,
+    "kept": 154,
     "no_desc": 0,
     "no_loc": 0,
     "no_link": 0,
-    "skipped": 949,
-    "new": 7,
-    "state": "ok",
-    "since": "2026-11-01",
-    "why": ""
+    "skipped": 907,
+    "new": 1,
+    "late": 468,
+    "state": "degraded",
+    "since": "2026-11-15",
+    "why": "468 boards due ran out of time (847 read)"
    },
    "breezy": {
+    "due": 0,
+    "read": 0,
+    "failed": 0,
+    "drops": 0,
+    "repeated": 0,
+    "kept": 0,
+    "no_desc": 0,
+    "no_loc": 0,
+    "no_link": 0,
+    "skipped": 2,
+    "new": 0,
+    "late": 3,
+    "state": "ok",
+    "since": "2026-11-02",
+    "why": ""
+   },
+   "greenhouse": {
+    "due": 1484,
+    "read": 1483,
+    "failed": 1,
+    "drops": 2,
+    "repeated": 0,
+    "kept": 396,
+    "no_desc": 0,
+    "no_loc": 0,
+    "no_link": 0,
+    "skipped": 777,
+    "new": 61,
+    "late": 596,
+    "state": "degraded",
+    "since": "2026-11-15",
+    "why": "596 boards due ran out of time (1483 read)"
+   },
+   "lever": {
+    "due": 343,
+    "read": 343,
+    "failed": 0,
+    "drops": 2,
+    "repeated": 0,
+    "kept": 223,
+    "no_desc": 0,
+    "no_loc": 0,
+    "no_link": 0,
+    "skipped": 345,
+    "new": 46,
+    "late": 224,
+    "state": "degraded",
+    "since": "2026-11-15",
+    "why": "224 boards due ran out of time (343 read)"
+   },
+   "pinpoint": {
     "due": 2,
     "read": 2,
     "failed": 0,
@@ -376,56 +480,9 @@
     "no_desc": 0,
     "no_loc": 0,
     "no_link": 0,
-    "skipped": 0,
-    "new": 0,
-    "state": "ok",
-    "since": "2026-11-02",
-    "why": ""
-   },
-   "greenhouse": {
-    "due": 808,
-    "read": 807,
-    "failed": 1,
-    "drops": 3,
-    "repeated": 0,
-    "kept": 610,
-    "no_desc": 0,
-    "no_loc": 0,
-    "no_link": 0,
-    "skipped": 860,
-    "new": 65,
-    "state": "ok",
-    "since": "2026-11-01",
-    "why": ""
-   },
-   "lever": {
-    "due": 322,
-    "read": 322,
-    "failed": 0,
-    "drops": 1,
-    "repeated": 0,
-    "kept": 282,
-    "no_desc": 2,
-    "no_loc": 0,
-    "no_link": 0,
-    "skipped": 350,
-    "new": 49,
-    "state": "ok",
-    "since": "2026-11-01",
-    "why": ""
-   },
-   "pinpoint": {
-    "due": 1,
-    "read": 1,
-    "failed": 0,
-    "drops": 0,
-    "repeated": 0,
-    "kept": 1,
-    "no_desc": 0,
-    "no_loc": 0,
-    "no_link": 0,
     "skipped": 1,
     "new": 0,
+    "late": 1,
     "state": "ok",
     "since": "2026-11-02",
     "why": ""
@@ -436,51 +493,54 @@
     "failed": 0,
     "drops": 0,
     "repeated": 0,
-    "kept": 6,
+    "kept": 0,
     "no_desc": 0,
     "no_loc": 0,
     "no_link": 0,
-    "skipped": 2,
+    "skipped": 1,
     "new": 0,
+    "late": 1,
     "state": "ok",
     "since": "2026-11-01",
     "why": ""
    },
    "rippling": {
-    "due": 279,
-    "read": 279,
+    "due": 223,
+    "read": 223,
     "failed": 0,
     "drops": 2,
-    "repeated": 126,
-    "kept": 33,
+    "repeated": 98,
+    "kept": 22,
     "no_desc": 0,
     "no_loc": 0,
     "no_link": 0,
-    "skipped": 354,
+    "skipped": 339,
     "new": 0,
-    "state": "ok",
-    "since": "2026-11-01",
-    "why": ""
+    "late": 295,
+    "state": "degraded",
+    "since": "2026-11-15",
+    "why": "295 boards due ran out of time (223 read)"
    },
    "smartrecruiters": {
-    "due": 183,
-    "read": 183,
+    "due": 243,
+    "read": 243,
     "failed": 0,
     "drops": 0,
     "repeated": 0,
-    "kept": 193,
+    "kept": 100,
     "no_desc": 0,
     "no_loc": 0,
     "no_link": 0,
-    "skipped": 179,
+    "skipped": 153,
     "new": 6,
-    "state": "ok",
-    "since": "2026-11-01",
-    "why": ""
+    "late": 165,
+    "state": "degraded",
+    "since": "2026-11-15",
+    "why": "165 boards due ran out of time (243 read)"
    },
    "teamtailor": {
-    "due": 0,
-    "read": 0,
+    "due": 1,
+    "read": 1,
     "failed": 0,
     "drops": 0,
     "repeated": 0,
@@ -490,292 +550,489 @@
     "no_link": 0,
     "skipped": 1,
     "new": 0,
+    "late": 0,
     "state": "ok",
     "since": "2026-11-02",
     "why": ""
    },
    "workable": {
-    "due": 240,
-    "read": 240,
+    "due": 236,
+    "read": 236,
     "failed": 0,
     "drops": 0,
-    "repeated": 165,
-    "kept": 92,
+    "repeated": 145,
+    "kept": 98,
     "no_desc": 0,
     "no_loc": 0,
     "no_link": 0,
-    "skipped": 276,
-    "new": 2,
-    "state": "ok",
-    "since": "2026-11-10",
-    "why": ""
+    "skipped": 256,
+    "new": 1,
+    "late": 373,
+    "state": "degraded",
+    "since": "2026-11-15",
+    "why": "373 boards due ran out of time (236 read)"
    },
    "workday": {
-    "due": 0,
-    "read": 0,
+    "due": 320,
+    "read": 320,
     "failed": 0,
     "drops": 0,
     "repeated": 0,
-    "kept": 0,
+    "kept": 457,
     "no_desc": 0,
     "no_loc": 0,
     "no_link": 0,
     "skipped": 0,
-    "new": 0,
+    "new": 70,
+    "late": 0,
     "state": "ok",
     "since": "2026-11-01",
     "why": ""
    }
   },
-  "adapters_degraded": [],
+  "adapters_degraded": [
+   "ashby",
+   "greenhouse",
+   "lever",
+   "rippling",
+   "smartrecruiters",
+   "workable"
+  ],
   "footprint": {
-   "run": 50,
-   "skipped_unchanged": 2972,
+   "run": 51,
+   "skipped_unchanged": 2782,
    "by_system": {
     "ashby": {
-     "read": 589,
-     "skipped": 949,
-     "requests": 616,
-     "new_fitting": 7,
-     "per_100_requests": 1.1
+     "read": 847,
+     "skipped": 907,
+     "requests": 884,
+     "new_fitting": 1,
+     "per_100_requests": 0.1
     },
     "breezy": {
+     "read": 0,
+     "skipped": 2,
+     "requests": 0,
+     "new_fitting": 0,
+     "per_100_requests": null
+    },
+    "greenhouse": {
+     "read": 1483,
+     "skipped": 777,
+     "requests": 1520,
+     "new_fitting": 61,
+     "per_100_requests": 4.0
+    },
+    "lever": {
+     "read": 343,
+     "skipped": 345,
+     "requests": 381,
+     "new_fitting": 46,
+     "per_100_requests": 12.1
+    },
+    "pinpoint": {
      "read": 2,
-     "skipped": 0,
-     "requests": 5,
+     "skipped": 1,
+     "requests": 2,
      "new_fitting": 0,
      "per_100_requests": 0.0
     },
-    "greenhouse": {
-     "read": 807,
-     "skipped": 860,
-     "requests": 838,
-     "new_fitting": 65,
-     "per_100_requests": 7.8
+    "recruitee": {
+     "read": 2,
+     "skipped": 1,
+     "requests": 2,
+     "new_fitting": 0,
+     "per_100_requests": 0.0
     },
-    "lever": {
-     "read": 322,
-     "skipped": 350,
-     "requests": 360,
-     "new_fitting": 49,
-     "per_100_requests": 13.6
+    "rippling": {
+     "read": 223,
+     "skipped": 339,
+     "requests": 471,
+     "new_fitting": 0,
+     "per_100_requests": 0.0
     },
-    "pinpoint": {
+    "smartrecruiters": {
+     "read": 243,
+     "skipped": 153,
+     "requests": 846,
+     "new_fitting": 6,
+     "per_100_requests": 0.7
+    },
+    "teamtailor": {
      "read": 1,
      "skipped": 1,
      "requests": 1,
      "new_fitting": 0,
      "per_100_requests": 0.0
     },
-    "recruitee": {
-     "read": 2,
-     "skipped": 2,
-     "requests": 2,
-     "new_fitting": 0,
-     "per_100_requests": 0.0
-    },
-    "rippling": {
-     "read": 279,
-     "skipped": 354,
-     "requests": 541,
-     "new_fitting": 0,
-     "per_100_requests": 0.0
-    },
-    "smartrecruiters": {
-     "read": 183,
-     "skipped": 179,
-     "requests": 835,
-     "new_fitting": 6,
-     "per_100_requests": 0.7
-    },
-    "teamtailor": {
-     "read": 0,
-     "skipped": 1,
-     "requests": 0,
-     "new_fitting": 0,
-     "per_100_requests": null
-    },
     "workable": {
-     "read": 240,
-     "skipped": 276,
-     "requests": 452,
-     "new_fitting": 2,
-     "per_100_requests": 0.4
+     "read": 236,
+     "skipped": 256,
+     "requests": 448,
+     "new_fitting": 1,
+     "per_100_requests": 0.2
     },
     "workday": {
-     "read": 0,
+     "read": 320,
      "skipped": 0,
-     "requests": 0,
-     "new_fitting": 0,
-     "per_100_requests": null
+     "requests": 6360,
+     "new_fitting": 70,
+     "per_100_requests": 1.1
     }
    },
-   "read": 2425,
-   "new_fitting": 129
+   "read": 3700,
+   "new_fitting": 185
   },
-  "unconventional": 246,
+  "unconventional": 227,
   "held": {
-   "carried": 10,
+   "carried": 0,
    "closed": 0,
    "no_longer_borderline": 0,
-   "now_in_feed": 3,
-   "board_removed": 2,
+   "now_in_feed": 0,
+   "board_removed": 0,
    "page_checks": 0,
-   "carried_not_due": 10
+   "carried_not_due": 0
   },
-  "rejects_pooled": 2738,
-  "reclassified": 2,
+  "rejects_pooled": 2779,
+  "cap": {
+   "cap": 1500,
+   "candidates": 2191,
+   "trimmed": 691,
+   "trimmed_qualified": 0,
+   "trimmed_avg_fit": 30.6,
+   "note": ""
+  },
+  "reclassified": 0,
   "rows_direct": 1500,
-  "kept_unread": 417,
-  "kept_not_due": 225,
-  "closed_confirmed": 9,
-  "still_open_checked": 34,
-  "still_open": 34,
+  "kept_unread": 130,
+  "kept_not_due": 591,
+  "closed_confirmed": 0,
+  "still_open_checked": 40,
+  "still_open": 19,
   "requests": {
-   "api.smartrecruiters.com": {
-    "requests": 866,
-    "retries": 0,
-    "throttled": 0,
-    "failed": 0
-   },
    "boards-api.greenhouse.io": {
-    "requests": 838,
+    "requests": 1520,
     "retries": 0,
     "throttled": 0,
     "failed": 0
    },
    "api.ashbyhq.com": {
-    "requests": 616,
+    "requests": 884,
+    "retries": 0,
+    "throttled": 0,
+    "failed": 0
+   },
+   "api.smartrecruiters.com": {
+    "requests": 851,
     "retries": 0,
     "throttled": 0,
     "failed": 0
    },
    "rippling.com": {
-    "requests": 544,
+    "requests": 471,
     "retries": 0,
     "throttled": 0,
     "failed": 0
    },
    "workable.com": {
-    "requests": 452,
+    "requests": 448,
     "retries": 0,
     "throttled": 0,
     "failed": 0
    },
    "api.lever.co": {
-    "requests": 348,
-    "retries": 1,
-    "throttled": 0,
-    "failed": 0
-   },
-   "api.eu.lever.co": {
-    "requests": 12,
+    "requests": 375,
     "retries": 0,
     "throttled": 0,
     "failed": 0
    },
-   "breezy.hr": {
-    "requests": 5,
+   "pnc.wd5.myworkdayjobs.com": {
+    "requests": 121,
     "retries": 0,
     "throttled": 0,
     "failed": 0
    },
-   "recruitee.com": {
-    "requests": 2,
+   "raymondjames.wd1.myworkdayjobs.com": {
+    "requests": 95,
     "retries": 0,
     "throttled": 0,
     "failed": 0
    },
-   "pinpointhq.com": {
-    "requests": 1,
+   "ghr.wd1.myworkdayjobs.com": {
+    "requests": 93,
+    "retries": 0,
+    "throttled": 0,
+    "failed": 0
+   },
+   "relx.wd3.myworkdayjobs.com": {
+    "requests": 82,
+    "retries": 0,
+    "throttled": 0,
+    "failed": 0
+   },
+   "guidehouse.wd1.myworkdayjobs.com": {
+    "requests": 69,
+    "retries": 0,
+    "throttled": 0,
+    "failed": 0
+   },
+   "pru.wd5.myworkdayjobs.com": {
+    "requests": 63,
     "retries": 0,
     "throttled": 0,
     "failed": 0
    }
   },
-  "new_today": 178,
-  "employers": 764,
-  "routes_gone": 3,
+  "new_today": 447,
+  "employers": 771,
+  "routes_gone": 4,
   "employers_checked": 15,
-  "employers_verified": 212,
-  "held_saved": 25,
-  "aggregator_rows_folded": 30,
+  "employers_verified": 216,
+  "held_saved": 82,
+  "shadow": {
+   "oracle": [
+    {
+     "host": "egug.fa.us2.oraclecloud.com",
+     "site": "CX_1",
+     "ok": true,
+     "total": 69,
+     "got": 25,
+     "sample": [
+      "Manager - Controller",
+      "Business Analyst - Senior Strategic Planning & Initiatives",
+      "Director - Amex Ads Agency Development"
+     ],
+     "posted": [
+      "2026-11-13",
+      "2026-11-13",
+      "2026-11-13"
+     ],
+     "detail_chars": 3935
+    },
+    {
+     "host": "ejcu.fa.us6.oraclecloud.com",
+     "site": "CX_1033",
+     "ok": true,
+     "total": 4,
+     "got": 4,
+     "sample": [
+      "Project Specialist  Finance, Enterprise Risk Management",
+      "O&R Analyst Aide Temp - Summer Interns (Business Majors)",
+      "Analyst - Gas Control"
+     ],
+     "posted": [
+      "2026-11-09",
+      "2026-10-28",
+      "2026-10-28"
+     ],
+     "detail_chars": 3869
+    },
+    {
+     "host": "ebqb.fa.us2.oraclecloud.com",
+     "site": "CX_xx",
+     "ok": true,
+     "total": 470,
+     "got": 25,
+     "sample": [
+      "Financial Management Lead - Public Sector, Intel",
+      "Senior Financial Management Consultant - Public Sector, Inte",
+      "Financial Management SME \u2013 Public Sector, Intel"
+     ],
+     "posted": [
+      "2026-11-13",
+      "2026-11-13",
+      "2026-11-13"
+     ],
+     "detail_chars": 12080
+    },
+    {
+     "host": "hdow.fa.us6.oraclecloud.com",
+     "site": "CX_1001",
+     "ok": true,
+     "total": 61,
+     "got": 25,
+     "sample": [
+      "Analyst, Data",
+      "Analyst",
+      "Financial Analyst"
+     ],
+     "posted": [
+      "2026-11-13",
+      "2026-11-13",
+      "2026-11-13"
+     ],
+     "detail_chars": 5485
+    },
+    {
+     "host": "emit.fa.ca3.oraclecloud.com",
+     "site": "CX_2001",
+     "ok": true,
+     "total": 212,
+     "got": 25,
+     "sample": [
+      "Principal Consultant- Sustainability",
+      "Project Financial Advisor (Project Accountant)",
+      "Senior Professional, Project Accounting"
+     ],
+     "posted": [
+      "2026-11-13",
+      "2026-11-13",
+      "2026-11-13"
+     ],
+     "detail_chars": 8570
+    },
+    {
+     "host": "hcfa.fa.us2.oraclecloud.com",
+     "site": "CX",
+     "ok": true,
+     "total": 9,
+     "got": 9,
+     "sample": [
+      "Senior Key Accounts Manager (Central/West)",
+      "Senior Key Accounts Manager (East)",
+      "Sales Demand Forecasting & Analytics Lead"
+     ],
+     "posted": [
+      "2026-11-02",
+      "2026-11-02",
+      "2026-10-21"
+     ],
+     "detail_chars": 9790
+    }
+   ],
+   "contacthr": [
+    {
+     "from": "https://JPMorganChase.contacthr.com/154185228",
+     "landed": "https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/210807776?utm_medium=jobboard&utm_source=Indeed_Organic",
+     "oracle": true
+    },
+    {
+     "from": "https://travelersindex.contacthr.com/154187404",
+     "error": "HTTPError: HTTP Error 403: Forbidden"
+    },
+    {
+     "from": "https://JPMorganChase.contacthr.com/154194948",
+     "landed": "https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/210802558?utm_medium=jobboard&utm_source=Indeed_Organic",
+     "oracle": true
+    }
+   ],
+   "workday": [
+    {
+     "board": "workday:pwc|wd3|US_Experienced_Careers",
+     "ok": true,
+     "total": 562,
+     "got": 20,
+     "nyc": 0,
+     "sample": [
+      "Commercial Lending Transformation Manager",
+      "Commercial Lending Transformation Sr Manager",
+      "Commercial Lending Transformation Sr Associate"
+     ]
+    },
+    {
+     "board": "workday:pwc|wd3|US_Entry_Level_Careers",
+     "ok": true,
+     "total": 7,
+     "got": 7,
+     "nyc": 0,
+     "sample": [
+      "Cybersecurity Consulting Associate - Winter 2027",
+      "Transfer Pricing - Japanese Business Network (JBN) - Intern ",
+      "Tax - Japanese Business Network (JBN) - Intern - Summer 2027"
+     ]
+    },
+    {
+     "board": "workday:pwc|wd3|Global_Campus_Careers",
+     "ok": true,
+     "total": 0,
+     "got": 0,
+     "nyc": 0,
+     "sample": []
+    }
+   ]
+  },
+  "aggregator_rows_folded": 43,
   "held_oldest_days": 0,
-  "rows_aggregator": 1465,
-  "pct_direct": 53,
-  "held_for_review": 25,
-  "rescued_by_review": 139,
+  "rows_aggregator": 1245,
+  "pct_direct": 58,
+  "held_for_review": 82,
+  "rescued_by_review": 207,
   "sources": {
-   "employers": 1308,
-   "boards": 1326,
+   "employers": 1364,
+   "boards": 1388,
    "roles": {
-    "primary": 1293,
-    "secondary": 32,
+    "primary": 1349,
+    "secondary": 38,
     "failing": 1,
     "quiet": 0
    },
-   "employers_with_2_boards": 31
+   "employers_with_2_boards": 36
   }
  },
  "relevance": {
   "by_category": {
-   "FP&A / forecasting / budgeting": 657,
-   "Accounting-heavy / unsuitable": 1257,
-   "Treasury / investment / adjacent finance": 551,
-   "Corporate / strategic finance": 232,
-   "Commercial finance / business partnering": 240,
-   "Workforce & capacity planning": 167
+   "FP&A / forecasting / budgeting": 811,
+   "Accounting-heavy / unsuitable": 805,
+   "Corporate / strategic finance": 284,
+   "Commercial finance / business partnering": 279,
+   "Workforce & capacity planning": 193,
+   "Treasury / investment / adjacent finance": 580
   },
-  "strong_fits": 861,
-  "queued_for_review": 43,
-  "reviewed_by_model": 1215
+  "strong_fits": 1032,
+  "queued_for_review": 197,
+  "reviewed_by_model": 1084
  },
  "regions": {
-  "New York City": 1872,
-  "Remote (US)": 825,
-  "Morris County NJ": 71,
-  "Bergen/Passaic NJ": 62,
-  "Hudson County NJ": 59,
-  "Essex/Union NJ": 55,
-  "Middlesex/Monmouth NJ": 50,
-  "Long Island": 32,
-  "Westchester": 30,
-  "Fairfield County CT": 15,
-  "Somerset NJ": 14,
-  "Outside area": 13,
-  "Rockland": 3,
+  "New York City": 1798,
+  "Remote (US)": 730,
+  "Morris County NJ": 88,
+  "Bergen/Passaic NJ": 81,
+  "Essex/Union NJ": 52,
+  "Hudson County NJ": 50,
+  "Middlesex/Monmouth NJ": 41,
+  "Long Island": 30,
+  "Westchester": 26,
+  "Fairfield County CT": 21,
+  "Somerset NJ": 17,
+  "Outside area": 11,
+  "Rockland": 4,
   "Outer NJ (outside commute area)": 3
  },
+ "description_fit": {
+  "over_cap": 1807,
+  "years_recovered": 97,
+  "chars_boilerplate_dropped": 862753
+ },
  "history": {
-  "new": 73,
-  "changed": 12,
+  "new": 181,
+  "changed": 24,
   "reappeared": 0,
-  "closed": 9,
-  "refreshed": 0,
-  "tracked": 6933
+  "closed": 0,
+  "refreshed": 5,
+  "tracked": 7114
  },
  "seniority": {
-  "analyst": 948,
-  "manager": 845,
-  "senior": 799,
-  "director+": 326,
-  "entry": 177,
-  "intern": 9
+  "analyst": 891,
+  "manager": 818,
+  "senior": 780,
+  "director+": 282,
+  "entry": 173,
+  "intern": 8
  },
  "scheduler": {
-  "run": 57,
+  "run": 58,
   "sites": {
    "glassdoor": {
-    "probed": "2026-11-14",
+    "probed": "2026-11-15",
     "since": "2026-11-01",
     "state": "paused",
-    "zero_runs": 20
+    "zero_runs": 21
    },
    "google": {
-    "probed": "2026-11-14",
+    "probed": "2026-11-15",
     "since": "2026-11-01",
     "state": "paused",
-    "zero_runs": 20
+    "zero_runs": 21
    },
    "indeed": {
     "state": "active",
@@ -786,10 +1043,10 @@
     "zero_runs": 0
    },
    "zip_recruiter": {
-    "probed": "2026-11-14",
+    "probed": "2026-11-15",
     "since": "2026-11-01",
     "state": "paused",
-    "zero_runs": 20
+    "zero_runs": 21
    }
   },
   "searches": [
@@ -800,6 +1057,8 @@
     "runs_7d": 7,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0.0
    },
@@ -810,6 +1069,8 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    },
@@ -820,6 +1081,8 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    },
@@ -830,6 +1093,8 @@
     "runs_7d": 7,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0.0
    },
@@ -840,6 +1105,8 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    },
@@ -850,6 +1117,8 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    },
@@ -857,90 +1126,108 @@
     "search": "indeed|FP&A analyst",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
+    "runs_7d": 21,
     "qualified_new_7d": 9,
     "qualified_new_30d": 25,
-    "returned_7d": 163,
-    "qualified_per_run_7d": 6.6
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 146,
+    "qualified_per_run_7d": 6.7
    },
    {
     "search": "indeed|FP&A associate",
-    "state": "reduced",
+    "state": "trial",
     "src": "pool",
     "runs_7d": 9,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 17,
-    "qualified_per_run_7d": 0.0
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 18,
+    "qualified_per_run_7d": 0.1
    },
    {
     "search": "indeed|budget analyst",
-    "state": "reduced",
+    "state": "trial",
     "src": "pool",
-    "runs_7d": 8,
+    "runs_7d": 9,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 24,
-    "qualified_per_run_7d": 0.0
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 26,
+    "qualified_per_run_7d": 0.1
    },
    {
     "search": "indeed|business finance analyst",
-    "state": "paused",
+    "state": "trial",
     "src": "base",
-    "runs_7d": 6,
-    "qualified_new_7d": 0,
-    "qualified_new_30d": 0,
-    "returned_7d": 197,
-    "qualified_per_run_7d": 0.8
+    "runs_7d": 5,
+    "qualified_new_7d": 0.11,
+    "qualified_new_30d": 0.11,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 157,
+    "qualified_per_run_7d": 5.2
    },
    {
     "search": "indeed|business operations forecasting budget",
     "state": "active",
     "src": "pool",
-    "runs_7d": 24,
+    "runs_7d": 20,
     "qualified_new_7d": 2,
     "qualified_new_30d": 5,
-    "returned_7d": 713,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 593,
     "qualified_per_run_7d": 0.5
    },
    {
     "search": "indeed|business planning analyst",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
-    "qualified_new_7d": 4,
-    "qualified_new_30d": 16,
-    "returned_7d": 949,
-    "qualified_per_run_7d": 1.4
+    "runs_7d": 21,
+    "qualified_new_7d": 4.11,
+    "qualified_new_30d": 16.11,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 829,
+    "qualified_per_run_7d": 1.8
    },
    {
     "search": "indeed|business planning manager",
     "state": "active",
     "src": "pool",
-    "runs_7d": 21,
+    "runs_7d": 19,
     "qualified_new_7d": 1,
     "qualified_new_30d": 2,
-    "returned_7d": 630,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 570,
     "qualified_per_run_7d": 0.5
    },
    {
     "search": "indeed|capacity planning analyst",
     "state": "active",
     "src": "pool",
-    "runs_7d": 7,
+    "runs_7d": 6,
     "qualified_new_7d": 1,
     "qualified_new_30d": 1,
-    "returned_7d": 36,
-    "qualified_per_run_7d": 0.7
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 31,
+    "qualified_per_run_7d": 0.8
    },
    {
     "search": "indeed|commercial finance",
     "state": "active",
     "src": "pool",
-    "runs_7d": 24,
+    "runs_7d": 20,
     "qualified_new_7d": 2,
     "qualified_new_30d": 5,
-    "returned_7d": 720,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 600,
     "qualified_per_run_7d": 0.6
    },
    {
@@ -950,6 +1237,8 @@
     "runs_7d": 2,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 55,
     "qualified_per_run_7d": 1.5
    },
@@ -960,108 +1249,130 @@
     "runs_7d": 2,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 60,
     "qualified_per_run_7d": 0.5
    },
    {
     "search": "indeed|corporate finance analyst",
-    "state": "paused",
+    "state": "trial",
     "src": "base",
-    "runs_7d": 6,
-    "qualified_new_7d": 0,
-    "qualified_new_30d": 0,
-    "returned_7d": 187,
-    "qualified_per_run_7d": 2.5
+    "runs_7d": 4,
+    "qualified_new_7d": 0.11,
+    "qualified_new_30d": 0.11,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 125,
+    "qualified_per_run_7d": 4.0
    },
    {
     "search": "indeed|economic consulting analyst",
-    "state": "paused",
+    "state": "trial",
     "src": "base",
-    "runs_7d": 6,
+    "runs_7d": 4,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
-    "returned_7d": 54,
-    "qualified_per_run_7d": 0.0
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 30,
+    "qualified_per_run_7d": 0.5
    },
    {
     "search": "indeed|finance and strategy manager",
     "state": "active",
     "src": "pool",
-    "runs_7d": 24,
-    "qualified_new_7d": 19,
-    "qualified_new_30d": 28,
-    "returned_7d": 572,
-    "qualified_per_run_7d": 2.5
+    "runs_7d": 21,
+    "qualified_new_7d": 20.5,
+    "qualified_new_30d": 29.5,
+    "only_here_7d": 1,
+    "mined": "",
+    "returned_7d": 511,
+    "qualified_per_run_7d": 3.4
    },
    {
     "search": "indeed|finance associate",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
+    "runs_7d": 21,
     "qualified_new_7d": 18,
     "qualified_new_30d": 25,
-    "returned_7d": 819,
-    "qualified_per_run_7d": 4.4
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 720,
+    "qualified_per_run_7d": 5.2
    },
    {
     "search": "indeed|finance business partner",
     "state": "active",
     "src": "pool",
-    "runs_7d": 23,
+    "runs_7d": 20,
     "qualified_new_7d": 1,
     "qualified_new_30d": 3,
-    "returned_7d": 690,
-    "qualified_per_run_7d": 0.6
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 600,
+    "qualified_per_run_7d": 0.5
    },
    {
     "search": "indeed|financial analyst",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
-    "qualified_new_7d": 16,
-    "qualified_new_30d": 26,
-    "returned_7d": 773,
-    "qualified_per_run_7d": 6.2
+    "runs_7d": 21,
+    "qualified_new_7d": 16.11,
+    "qualified_new_30d": 26.11,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 675,
+    "qualified_per_run_7d": 6.4
    },
    {
     "search": "indeed|financial planning and analysis",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
-    "qualified_new_7d": 42,
-    "qualified_new_30d": 92,
-    "returned_7d": 1567,
-    "qualified_per_run_7d": 15.2
+    "runs_7d": 21,
+    "qualified_new_7d": 39.61,
+    "qualified_new_30d": 92.61,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 1410,
+    "qualified_per_run_7d": 15.9
    },
    {
     "search": "indeed|forecasting analyst",
-    "state": "reduced",
+    "state": "trial",
     "src": "pool",
-    "runs_7d": 17,
-    "qualified_new_7d": 0,
-    "qualified_new_30d": 3,
-    "returned_7d": 406,
-    "qualified_per_run_7d": 0.2
+    "runs_7d": 14,
+    "qualified_new_7d": 0.11,
+    "qualified_new_30d": 3.11,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 316,
+    "qualified_per_run_7d": 1.2
    },
    {
     "search": "indeed|headcount planning",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
+    "runs_7d": 21,
     "qualified_new_7d": 5,
     "qualified_new_30d": 9,
-    "returned_7d": 467,
-    "qualified_per_run_7d": 2.4
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 398,
+    "qualified_per_run_7d": 2.8
    },
    {
     "search": "indeed|investment analyst",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
-    "qualified_new_7d": 2,
-    "qualified_new_30d": 4,
-    "returned_7d": 566,
-    "qualified_per_run_7d": 0.4
+    "runs_7d": 21,
+    "qualified_new_7d": 2.11,
+    "qualified_new_30d": 4.11,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 531,
+    "qualified_per_run_7d": 1.1
    },
    {
     "search": "indeed|operations finance analyst",
@@ -1070,28 +1381,34 @@
     "runs_7d": 2,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 7,
     "qualified_per_run_7d": 0.0
    },
    {
     "search": "indeed|planning and analysis associate",
-    "state": "reduced",
+    "state": "trial",
     "src": "pool",
-    "runs_7d": 18,
+    "runs_7d": 16,
     "qualified_new_7d": 0,
     "qualified_new_30d": 1,
-    "returned_7d": 176,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 147,
     "qualified_per_run_7d": 0.0
    },
    {
     "search": "indeed|portfolio analyst",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
-    "qualified_new_7d": 1,
-    "qualified_new_30d": 3,
-    "returned_7d": 681,
-    "qualified_per_run_7d": 0.4
+    "runs_7d": 21,
+    "qualified_new_7d": 1.11,
+    "qualified_new_30d": 3.11,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 591,
+    "qualified_per_run_7d": 0.5
    },
    {
     "search": "indeed|pricing strategy financial model",
@@ -1100,6 +1417,8 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    },
@@ -1110,6 +1429,8 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    },
@@ -1117,10 +1438,12 @@
     "search": "indeed|revenue strategy",
     "state": "active",
     "src": "pool",
-    "runs_7d": 22,
+    "runs_7d": 19,
     "qualified_new_7d": 2,
     "qualified_new_30d": 4,
-    "returned_7d": 660,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 570,
     "qualified_per_run_7d": 0.8
    },
    {
@@ -1130,6 +1453,8 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    },
@@ -1137,21 +1462,25 @@
     "search": "indeed|strategic finance",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
-    "qualified_new_7d": 10,
-    "qualified_new_30d": 29,
-    "returned_7d": 1440,
-    "qualified_per_run_7d": 3.8
+    "runs_7d": 21,
+    "qualified_new_7d": 11.0,
+    "qualified_new_30d": 30.0,
+    "only_here_7d": 1,
+    "mined": "",
+    "returned_7d": 1260,
+    "qualified_per_run_7d": 4.3
    },
    {
     "search": "indeed|strategy and operations analyst",
-    "state": "reduced",
+    "state": "trial",
     "src": "pool",
-    "runs_7d": 16,
+    "runs_7d": 15,
     "qualified_new_7d": 0,
     "qualified_new_30d": 1,
-    "returned_7d": 36,
-    "qualified_per_run_7d": 0.0
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 32,
+    "qualified_per_run_7d": 0.1
    },
    {
     "search": "indeed|strategy operations forecast budget variance",
@@ -1160,6 +1489,8 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    },
@@ -1170,6 +1501,8 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    },
@@ -1180,98 +1513,118 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    },
    {
     "search": "indeed|workforce planning analyst",
-    "state": "paused",
+    "state": "trial",
     "src": "base",
-    "runs_7d": 6,
-    "qualified_new_7d": 0,
-    "qualified_new_30d": 0,
-    "returned_7d": 54,
-    "qualified_per_run_7d": 0.5
+    "runs_7d": 5,
+    "qualified_new_7d": 0.11,
+    "qualified_new_30d": 0.11,
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 36,
+    "qualified_per_run_7d": 0.6
    },
    {
     "search": "linkedin|FP&A analyst",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
-    "qualified_new_7d": 76,
+    "runs_7d": 21,
+    "qualified_new_7d": 72,
     "qualified_new_30d": 155,
-    "returned_7d": 790,
-    "qualified_per_run_7d": 30.9
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 706,
+    "qualified_per_run_7d": 31.8
    },
    {
     "search": "linkedin|commercial finance",
     "state": "active",
     "src": "pool",
-    "runs_7d": 24,
-    "qualified_new_7d": 16,
+    "runs_7d": 21,
+    "qualified_new_7d": 14,
     "qualified_new_30d": 35,
-    "returned_7d": 530,
-    "qualified_per_run_7d": 6.7
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 470,
+    "qualified_per_run_7d": 7.0
    },
    {
     "search": "linkedin|financial analyst",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
-    "qualified_new_7d": 19,
+    "runs_7d": 21,
+    "qualified_new_7d": 15,
     "qualified_new_30d": 43,
-    "returned_7d": 773,
-    "qualified_per_run_7d": 7.1
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 684,
+    "qualified_per_run_7d": 8.0
    },
    {
     "search": "linkedin|financial planning and analysis",
     "state": "active",
     "src": "pool",
-    "runs_7d": 24,
-    "qualified_new_7d": 10,
+    "runs_7d": 21,
+    "qualified_new_7d": 8,
     "qualified_new_30d": 15,
-    "returned_7d": 510,
-    "qualified_per_run_7d": 2.6
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 465,
+    "qualified_per_run_7d": 3.6
    },
    {
     "search": "linkedin|revenue strategy",
     "state": "active",
     "src": "pool",
-    "runs_7d": 24,
-    "qualified_new_7d": 7,
+    "runs_7d": 20,
+    "qualified_new_7d": 6,
     "qualified_new_30d": 19,
-    "returned_7d": 410,
-    "qualified_per_run_7d": 3.1
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 340,
+    "qualified_per_run_7d": 3.2
    },
    {
     "search": "linkedin|strategic finance",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
-    "qualified_new_7d": 18,
-    "qualified_new_30d": 30,
-    "returned_7d": 535,
-    "qualified_per_run_7d": 8.5
+    "runs_7d": 21,
+    "qualified_new_7d": 15.0,
+    "qualified_new_30d": 31.0,
+    "only_here_7d": 1,
+    "mined": "",
+    "returned_7d": 465,
+    "qualified_per_run_7d": 8.7
    },
    {
     "search": "linkedin|strategy and operations finance",
     "state": "active",
     "src": "pool",
-    "runs_7d": 24,
+    "runs_7d": 20,
     "qualified_new_7d": 8,
     "qualified_new_30d": 18,
-    "returned_7d": 460,
-    "qualified_per_run_7d": 4.1
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 390,
+    "qualified_per_run_7d": 3.6
    },
    {
     "search": "linkedin|workforce planning",
     "state": "active",
     "src": "base",
-    "runs_7d": 24,
-    "qualified_new_7d": 15,
+    "runs_7d": 21,
+    "qualified_new_7d": 14,
     "qualified_new_30d": 25,
-    "returned_7d": 430,
-    "qualified_per_run_7d": 5.5
+    "only_here_7d": 0,
+    "mined": "",
+    "returned_7d": 370,
+    "qualified_per_run_7d": 5.9
    },
    {
     "search": "zip_recruiter|FP&A analyst",
@@ -1280,6 +1633,8 @@
     "runs_7d": 7,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0.0
    },
@@ -1290,6 +1645,8 @@
     "runs_7d": 0,
     "qualified_new_7d": 0,
     "qualified_new_30d": 0,
+    "only_here_7d": 0,
+    "mined": "",
     "returned_7d": 0,
     "qualified_per_run_7d": 0
    }
@@ -1299,28 +1656,33 @@
    "indeed|financial planning and analysis": "active (boosted to 90)",
    "indeed|financial analyst": "active",
    "indeed|strategic finance": "active",
-   "indeed|corporate finance analyst": "paused: no new qualified jobs in 30 days",
-   "indeed|business finance analyst": "paused: no new qualified jobs in 30 days",
-   "indeed|workforce planning analyst": "paused: no new qualified jobs in 30 days",
+   "indeed|corporate finance analyst": "trial",
+   "indeed|business finance analyst": "trial",
+   "indeed|workforce planning analyst": "trial",
    "indeed|headcount planning": "active",
    "indeed|business planning analyst": "active",
    "indeed|finance associate": "active (boosted to 60)",
    "indeed|investment analyst": "active",
    "indeed|portfolio analyst": "active",
-   "indeed|economic consulting analyst": "paused: no new qualified jobs in 30 days",
+   "indeed|economic consulting analyst": "trial",
    "linkedin|FP&A analyst": "active (boosted to 37)",
-   "linkedin|financial analyst": "active (boosted to 37)",
+   "linkedin|financial analyst": "active",
    "linkedin|strategic finance": "active",
    "linkedin|workforce planning": "active",
-   "glassdoor|FP&A analyst": "site paused",
+   "glassdoor|FP&A analyst": "site paused: daily probe",
    "glassdoor|financial analyst": "site paused",
    "glassdoor|strategic finance": "site paused",
-   "zip_recruiter|FP&A analyst": "site paused",
+   "zip_recruiter|FP&A analyst": "site paused: daily probe",
    "zip_recruiter|financial analyst": "site paused",
-   "google|FP&A analyst jobs near New York, NY since 3 days ago": "site paused",
+   "google|FP&A analyst jobs near New York, NY since 3 days ago": "site paused: daily probe",
    "google|strategic finance analyst jobs near New York, NY since 3 days ago": "site paused",
    "google|financial planning analyst jobs near New York, NY since 3 days ago": "site paused",
-   "indeed|finance and strategy manager": "active",
+   "indeed|FP&A associate": "trial",
+   "indeed|budget analyst": "trial",
+   "indeed|forecasting analyst": "trial",
+   "indeed|planning and analysis associate": "trial",
+   "indeed|strategy and operations analyst": "trial",
+   "indeed|finance and strategy manager": "active (boosted to 45)",
    "linkedin|commercial finance": "active",
    "linkedin|financial planning and analysis": "active",
    "linkedin|strategy and operations finance": "active",
@@ -1331,74 +1693,92 @@
    "indeed|commercial finance": "active",
    "indeed|business planning manager": "active",
    "indeed|finance business partner": "active",
-   "indeed|FP&A associate": "reduced: no new qualified jobs in 7 days",
-   "indeed|budget analyst": "reduced: no new qualified jobs in 7 days",
    "indeed|commercial finance analyst": "active",
    "indeed|corporate development analyst": "active",
-   "indeed|forecasting analyst": "reduced: no new qualified jobs in 7 days",
    "indeed|operations finance analyst": "active",
-   "indeed|planning and analysis associate": "reduced",
    "indeed|pricing strategy financial model": "active",
    "indeed|revenue analyst": "active",
    "indeed|senior financial analyst": "active",
-   "indeed|strategy and operations analyst": "reduced",
    "indeed|strategy operations forecast budget variance": "active",
    "indeed|treasury analyst": "active",
    "indeed|workforce management analyst": "active"
+  },
+  "settled": {
+   "waiting": 0,
+   "settled": 0,
+   "rescued": 0,
+   "demoted": 0
   }
  },
  "contract": {
-  "version": 7,
+  "version": 8,
+  "employer_type": {
+   "undisclosed": 3,
+   "unknown": 984,
+   "direct": 1816,
+   "staffing": 9,
+   "search_firm": 16,
+   "marketplace": 124
+  },
   "freshness": {
-   "fresh": 1894,
-   "active": 781,
-   "aging": 388,
-   "stale": 38,
-   "gone": 3
+   "fresh": 1592,
+   "active": 629,
+   "stale": 374,
+   "aging": 353,
+   "gone": 4
   },
   "ghost_risk": {
-   "low": 3014,
-   "medium": 87,
-   "high": 3
+   "low": 2701,
+   "medium": 244,
+   "high": 7
   },
   "trust": {
-   "consistent": 1382,
-   "unverified": 975,
-   "verified": 739,
+   "consistent": 1496,
+   "unverified": 835,
+   "verified": 613,
    "suspicious": 8
   },
   "priority": {
-   "D": 1890,
-   "C": 560,
-   "A": 433,
-   "B": 221
+   "D": 1577,
+   "C": 693,
+   "A": 449,
+   "B": 233
   },
-  "reposted": 88,
-  "tier_A_fresh_verified": 106
+  "confirm": {
+   "current": 1501,
+   "window": 699,
+   "not_due": 448,
+   "recent": 201,
+   "unconfirmed": 103
+  },
+  "quality": {
+   "a_b": 682,
+   "a_b_direct_employer": 553,
+   "a_b_intermediary": 0,
+   "a_b_accounting": 0,
+   "a_b_confirmed_current": 556,
+   "share_direct_employer": 0.615
+  },
+  "reposted": 77,
+  "tier_A_fresh_verified": 120
  },
  "coverage": {
   "uncovered_hosts": [
    {
     "host": "pwc.com",
-    "rows": 46,
-    "qualified": 20,
+    "rows": 47,
+    "qualified": 21,
     "employers": 1
    },
    {
     "host": "contacthr.com",
-    "rows": 63,
-    "qualified": 9,
+    "rows": 51,
+    "qualified": 7,
     "employers": 1
    },
    {
-    "host": "adp.com",
-    "rows": 39,
-    "qualified": 6,
-    "employers": 6
-   },
-   {
     "host": "alvarezandmarsal.com",
-    "rows": 12,
+    "rows": 10,
     "qualified": 6,
     "employers": 1
    },
@@ -1409,78 +1789,84 @@
     "employers": 4
    },
    {
-    "host": "grnh.se",
-    "rows": 40,
+    "host": "adp.com",
+    "rows": 34,
     "qualified": 4,
     "employers": 4
    },
    {
     "host": "icims.com",
-    "rows": 33,
+    "rows": 29,
     "qualified": 4,
     "employers": 4
    },
    {
     "host": "recruitics.com",
-    "rows": 14,
+    "rows": 15,
     "qualified": 4,
     "employers": 3
    },
    {
-    "host": "jometer.com",
-    "rows": 10,
-    "qualified": 4,
-    "employers": 1
-   },
-   {
     "host": "eightfold.ai",
-    "rows": 10,
+    "rows": 9,
     "qualified": 4,
     "employers": 1
    },
    {
-    "host": "citi.com",
-    "rows": 18,
+    "host": "grnh.se",
+    "rows": 33,
     "qualified": 3,
-    "employers": 1
+    "employers": 3
    },
    {
     "host": "google.com",
-    "rows": 12,
+    "rows": 9,
     "qualified": 3,
     "employers": 1
    },
    {
-    "host": "amazon.jobs",
+    "host": "jometer.com",
     "rows": 7,
     "qualified": 3,
     "employers": 1
    },
    {
-    "host": "avature.net",
-    "rows": 6,
+    "host": "amazon.jobs",
+    "rows": 5,
     "qualified": 3,
     "employers": 1
    },
    {
-    "host": "nomura.com",
-    "rows": 5,
+    "host": "avature.net",
+    "rows": 4,
     "qualified": 3,
     "employers": 1
+   },
+   {
+    "host": "workable.com",
+    "rows": 18,
+    "qualified": 2,
+    "employers": 2
+   },
+   {
+    "host": "ultipro.com",
+    "rows": 10,
+    "qualified": 2,
+    "employers": 2
    }
   ],
-  "aggregator_rows_unreadable": 1167
+  "aggregator_rows_unreadable": 986
  },
  "intel": {
-  "employers_with_signals": 200,
+  "employers_with_signals": 240,
   "top": [
    {
     "employer": "PwC",
-    "openings": 25,
-    "new_14d": 25,
+    "openings": 26,
+    "new_14d": 26,
     "prev_14d": 0,
     "signals": [
-     "25 fitting openings, 25 posted in 14 days (0 the 14 before)",
+     "26 fitting openings, 26 posted in 14 days (0 the 14 before)",
      "5 in Senior Associate",
      "2 in Senior Manager",
      "hiring Organization and Talent- Workforce Planning Consultant- Senior Associate x2",
@@ -1499,16 +1885,6 @@
     ]
    },
    {
-    "employer": "JPMorganChase",
-    "openings": 12,
-    "new_14d": 12,
-    "prev_14d": 0,
-    "signals": [
-     "12 fitting openings, 12 posted in 14 days (0 the 14 before)",
-     "3 in Senior Associate"
-    ]
-   },
-   {
     "employer": "ghr",
     "openings": 14,
     "new_14d": 10,
@@ -1521,16 +1897,40 @@
     ]
    },
    {
-    "employer": "Morgan Stanley",
-    "openings": 7,
-    "new_14d": 7,
+    "employer": "DLA Piper",
+    "openings": 12,
+    "new_14d": 4,
+    "prev_14d": 6,
+    "signals": [
+     "12 fitting openings, 4 posted in 14 days (6 the 14 before)",
+     "2 in Data Analytics",
+     "2 in Workforce Planning",
+     "hiring Sr Financial Data Analyst x2",
+     "hiring Strategic Finance Analyst, Workforce Planning x2",
+     "hiring Leveraged Finance Associate (Multi City) x2"
+    ]
+   },
+   {
+    "employer": "JPMorganChase",
+    "openings": 8,
+    "new_14d": 8,
     "prev_14d": 0,
     "signals": [
-     "7 fitting openings, 7 posted in 14 days (0 the 14 before)",
-     "3 in Banking",
-     "2 in Wealth Management CFO Support",
-     "hiring Wealth Management Finance - Reporting & Analytics, Associate x2",
-     "hiring Associate, Banking x3"
+     "8 fitting openings, 8 posted in 14 days (0 the 14 before)"
+    ]
+   },
+   {
+    "employer": "Broadridge",
+    "openings": 8,
+    "new_14d": 6,
+    "prev_14d": 0,
+    "signals": [
+     "8 fitting openings, 6 posted in 14 days (0 the 14 before)",
+     "5 in Broadridge",
+     "3 in FP&A",
+     "hiring Lead Financial Analyst - FP&A x3",
+     "Finance Manager, Corporate Planning & Analytics ( Hybrid) NYC: pay added: 100000-110000 yearly",
+     "Lead Financial Analyst - FP&A: pay added: 95000-115000 yearly"
     ]
    },
    {
@@ -1547,43 +1947,6 @@
     ]
    },
    {
-    "employer": "DoorDash",
-    "openings": 14,
-    "new_14d": 3,
-    "prev_14d": 3,
-    "signals": [
-     "14 fitting openings, 3 posted in 14 days (3 the 14 before)"
-    ]
-   },
-   {
-    "employer": "DLA Piper",
-    "openings": 10,
-    "new_14d": 3,
-    "prev_14d": 6,
-    "signals": [
-     "10 fitting openings, 3 posted in 14 days (6 the 14 before)",
-     "2 in Data Analytics",
-     "2 in Workforce Planning",
-     "hiring Sr Financial Data Analyst x2",
-     "hiring Strategic Finance Analyst, Workforce Planning x2",
-     "Strategic Finance Analyst, Workforce Planning: pay added: 85000-123000 yearly"
-    ]
-   },
-   {
-    "employer": "Broadridge",
-    "openings": 7,
-    "new_14d": 5,
-    "prev_14d": 0,
-    "signals": [
-     "7 fitting openings, 5 posted in 14 days (0 the 14 before)",
-     "5 in Broadridge",
-     "2 in FP&A",
-     "hiring Financial Analyst (Hybrid - NYC, Newark, NJ, Edgewood, NY) x2",
-     "hiring Lead Financial Analyst - FP&A x2",
-     "Lead Financial Analyst - FP&A: pay added: 95000-115000 yearly"
-    ]
-   },
-   {
     "employer": "humana",
     "openings": 8,
     "new_14d": 6,
@@ -1593,99 +1956,100 @@
      "3 in Analytics/Forecasting",
      "hiring Actuary, Analytics/Forecasting x2"
     ]
+   },
+   {
+    "employer": "DoorDash",
+    "openings": 13,
+    "new_14d": 2,
+    "prev_14d": 3,
+    "signals": [
+     "13 fitting openings, 2 posted in 14 days (3 the 14 before)"
+    ]
+   },
+   {
+    "employer": "Mizuho",
+    "openings": 13,
+    "new_14d": 1,
+    "prev_14d": 2,
+    "signals": [
+     "13 fitting openings, 1 posted in 14 days (2 the 14 before)",
+     "Investment and Corporate Banking \u2013 Real Estate, Analyst: pay removed",
+     "Investment & Corporate Banking - Project Finance, Power & Infrastructure \u2013 Associate: pay removed"
+    ]
    }
   ]
  },
  "audit": {
-  "level": "warn",
+  "level": "ok",
   "complete": true,
   "restored": 0,
-  "checked": 3104,
+  "checked": 3106,
   "items": [
    {
     "id": "unconfirmed",
-    "level": "warn",
-    "title": "1256 jobs are shown from earlier runs because this run couldn't confirm them; the oldest was last confirmed 2026-11-10.",
-    "did": "Kept for up to 4 days after they were last seen.",
+    "level": "info",
+    "title": "1451 jobs are shown from earlier runs (699 job-site listings past the 3-day search window, 448 on unchanged boards not due for a read, 201 missed by this run only, 103 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-11.",
+    "did": "Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.",
     "todo": "",
     "examples": [
-     "Confidential: Sr. FP&A Analyst (SaaS required) - New York (Hybrid - 140K) (last 2026-11-12)",
-     "Confidential Financial Services: Financial Planning Analyst (FP&A) Healthcare - NYC Hybrid ($130K) (last 2026-11-13)",
-     "Research Foundation for Mental Hygiene, Inc.: Financial Analyst (last 2026-11-10)",
-     "Concourse: Founding Finance Lead (last 2026-11-13)",
-     "Ralph Lauren: Senior FP&A Manager, Corporate (last 2026-11-13)"
+     "PwC: Finance Function Strategy Consulting Senior Associate (last 2026-11-13)",
+     "NASDAQ: Senior Director, Financial Planning & Analysis \u2013 Digital Liquidity Networks (last 2026-11-13)",
+     "Moody's: Director-Relationship Manager-Strategic Accounts-Technology (last 2026-11-12)",
+     "Seville Nomad: Director of Revenue Management (last 2026-11-12)",
+     "BlackRock: Vice President, Private Funds Legal Counsel (last 2026-11-12)"
     ]
    },
    {
     "id": "likely-duplicates",
     "level": "info",
-    "title": "77 sets of rows share employer, title, place and description.",
+    "title": "58 sets of rows share employer, title, place and description.",
     "did": "Kept apart: employers sometimes post several seats with one description.",
     "todo": "If the tracker shows these twice, tell Claude so identity can merge them.",
     "examples": [
-     "li-4463130325 / li-4490381049 (Lantern: Director, Healthcare Economics)",
-     "li-4479382921 / li-4479391585 (Morgan Stanley: Wealth Management Finance - Reporting & Analytics, Associate)",
-     "in-eb5b61528aba0253 / in-3436ba3a5dcea763 (Houlihan Lokey: Workday Analyst, IT (Payroll))",
      "li-4487973541 / li-4489196018 (Soni: Financial Reporting Analyst)",
-     "li-4475713155 / li-4475706591 (Morgan Stanley: WM Administration - Strategy, Vice President)"
-    ]
-   },
-   {
-    "id": "reqs-contradiction",
-    "level": "info",
-    "title": "1 entry-level titles ask for 5+ years.",
-    "did": "Ranked by the years asked.",
-    "todo": "",
-    "examples": [
-     "everai: Junior Performance Marketer (Remote - Malta) (10 yrs)"
-    ]
-   },
-   {
-    "id": "fit-contradiction",
-    "level": "warn",
-    "title": "3 accounting-heavy jobs ranked A or B.",
-    "did": "Left as published.",
-    "todo": "Fit and category disagree; the relevance rules need a look.",
-    "examples": [
-     "Robert Half: Senior Accounting Analyst",
-     "Everest Re Group: Claims Data Research Analyst",
-     "GenServe: Project Financial Administrator"
+     "in-97e33995a998149c / in-a407b3dfb429e85f (Bank of China: Executive Office - Planning & Risk Control Associate/Assistant Vice President)",
+     "in-077ac1188a9b43f7 / in-43e9fc1734b024f2 (Bank of China: Chief Information Security Office-Strategy, Programs & GRC Associate)",
+     "in-8a85a34a698d5fdc / in-f3e427591680c2ef (Arrow Search Partners: Reporting Associate)",
+     "li-4487416748 / li-4488929983 (Northbound Executive Search: Human Resources Business Partner, Technology)"
     ]
    }
   ]
  },
  "classifier": {
-  "queued": 32,
-  "calls": 4,
-  "reviewed": 32,
+  "queued": 170,
+  "calls": 22,
+  "reviewed": 160,
   "model": "gemini-flash-lite-latest",
-  "error": "",
+  "error": "JSONDecodeError: Expecting ':' delimiter: line 59 column 28 (char 1975)",
   "per_request": 8,
-  "sent": 32,
+  "sent": 162,
+  "failed_calls": 1,
   "left": 0,
-  "rescued": 2,
-  "demoted": 0,
-  "borderline": 25,
-  "cache_size": 5227,
-  "reused": 12,
-  "held_waiting": 0,
+  "rescued": 15,
+  "demoted": 24,
+  "prompt_version": 1,
+  "stale_verdicts": 0,
+  "borderline": 82,
+  "cache_size": 5416,
+  "reused": 29,
+  "held_waiting": 2,
   "held_oldest_days": 0,
   "usage": {
    "day": "2026-11-14",
-   "requests": 24,
+   "requests": 48,
    "ceiling": 160,
-   "tokens": 71655,
-   "tokens_in": 53588,
-   "tokens_out": 18067,
+   "tokens": 143384,
+   "tokens_in": 108186,
+   "tokens_out": 35198,
    "tokens_thinking": 0,
    "limited": false
   },
   "false_negatives": {
    "sampled": 16,
-   "reviewed": 0,
+   "reviewed": 14,
    "fits": [],
-   "week_reviewed": 222,
-   "week_fits": 5
+   "week_reviewed": 190,
+   "week_fits": 4
   }
  }
 }

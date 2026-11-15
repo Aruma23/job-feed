@@ -1,5 +1,66 @@
 {
-"run": 57,
+"pending": {
+"in-1174e9314b37e3e0": [
+"2026-11-15",
+[
+"indeed|strategic finance"
+],
+1
+],
+"in-140ce08cd188fbf4": [
+"2026-11-15",
+[
+"indeed|strategy and operations analyst"
+],
+0
+],
+"in-72dc400eeb38be4a": [
+"2026-11-15",
+[
+"indeed|financial planning and analysis",
+"indeed|financial analyst",
+"indeed|corporate finance analyst",
+"indeed|business finance analyst",
+"indeed|workforce planning analyst",
+"indeed|business planning analyst",
+"indeed|investment analyst",
+"indeed|portfolio analyst",
+"indeed|forecasting analyst"
+],
+1
+],
+"in-917493582103dda5": [
+"2026-11-15",
+[
+"indeed|forecasting analyst"
+],
+0
+],
+"in-9c2df2ef00fcdd6c": [
+"2026-11-15",
+[
+"indeed|financial planning and analysis",
+"indeed|finance and strategy manager"
+],
+1
+],
+"in-a7df0bbefdbc9ea3": [
+"2026-11-15",
+[
+"indeed|corporate finance analyst",
+"indeed|economic consulting analyst"
+],
+0
+],
+"in-efa0785f9d08ca08": [
+"2026-11-15",
+[
+"indeed|forecasting analyst"
+],
+0
+]
+},
+"run": 58,
 "searches": {
 "glassdoor|FP&A analyst": {
 "added": "2026-11-01",
@@ -115,11 +176,20 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+0,
+0,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 20,
+"runs_total": 21,
 "site": "glassdoor",
 "src": "base",
 "state": "trial",
@@ -279,11 +349,20 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+0,
+0,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 20,
+"runs_total": 21,
 "site": "google",
 "src": "base",
 "state": "trial",
@@ -443,11 +522,20 @@
 15,
 1,
 0
+],
+"2026-11-15": [
+1,
+6,
+6,
+5,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 60,
-"runs_total": 57,
+"runs_total": 58,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -519,14 +607,24 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+2,
+0,
+1,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-13",
+"last_run_day": "2026-11-15",
 "n": 40,
-"runs_total": 18,
+"retrial": "reduced",
+"runs_total": 1,
 "site": "indeed",
 "src": "pool",
-"state": "reduced",
+"state": "trial",
 "term": "FP&A associate"
 },
 "indeed|budget analyst": {
@@ -611,14 +709,24 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+2,
+1,
+1,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 18,
+"retrial": "reduced",
+"runs_total": 1,
 "site": "indeed",
 "src": "pool",
-"state": "reduced",
+"state": "trial",
 "term": "budget analyst"
 },
 "indeed|business finance analyst": {
@@ -711,14 +819,24 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+40,
+8,
+23,
+0.111,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-11",
+"last_run_day": "2026-11-15",
 "n": 40,
-"runs_total": 20,
+"retrial": "paused",
+"runs_total": 1,
 "site": "indeed",
 "src": "base",
-"state": "paused",
+"state": "trial",
 "term": "business finance analyst"
 },
 "indeed|business operations forecasting budget": {
@@ -951,11 +1069,20 @@
 3,
 0,
 0
+],
+"2026-11-15": [
+1,
+40,
+21,
+13,
+0.111,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 40,
-"runs_total": 57,
+"runs_total": 58,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -1503,14 +1630,24 @@
 2,
 0,
 0
+],
+"2026-11-15": [
+1,
+40,
+20,
+13,
+0.111,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-11",
+"last_run_day": "2026-11-15",
 "n": 40,
-"runs_total": 20,
+"retrial": "paused",
+"runs_total": 1,
 "site": "indeed",
 "src": "base",
-"state": "paused",
+"state": "trial",
 "term": "corporate finance analyst"
 },
 "indeed|economic consulting analyst": {
@@ -1603,14 +1740,24 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+15,
+7,
+2,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-11",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 20,
+"retrial": "paused",
+"runs_total": 1,
 "site": "indeed",
 "src": "base",
-"state": "paused",
+"state": "trial",
 "term": "economic consulting analyst"
 },
 "indeed|finance and strategy manager": {
@@ -1719,11 +1866,20 @@
 11,
 3,
 0
+],
+"2026-11-15": [
+1,
+42,
+23,
+16,
+1.5,
+0,
+1
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 46,
+"runs_total": 47,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -1843,11 +1999,20 @@
 11,
 4,
 0
+],
+"2026-11-15": [
+1,
+46,
+30,
+13,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 40,
-"runs_total": 52,
+"runs_total": 53,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2083,11 +2248,20 @@
 23,
 6,
 0
+],
+"2026-11-15": [
+1,
+38,
+27,
+20,
+0.111,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 60,
-"runs_total": 47,
+"runs_total": 48,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2207,11 +2381,20 @@
 33,
 10,
 0
+],
+"2026-11-15": [
+1,
+79,
+73,
+24,
+0.611,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 60,
-"runs_total": 54,
+"runs_total": 55,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2307,14 +2490,24 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+28,
+3,
+16,
+0.111,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-12",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 41,
+"retrial": "reduced",
+"runs_total": 1,
 "site": "indeed",
 "src": "pool",
-"state": "reduced",
+"state": "trial",
 "term": "forecasting analyst"
 },
 "indeed|headcount planning": {
@@ -2431,11 +2624,20 @@
 7,
 0,
 0
+],
+"2026-11-15": [
+1,
+17,
+14,
+4,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 54,
+"runs_total": 55,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2555,11 +2757,20 @@
 1,
 1,
 0
+],
+"2026-11-15": [
+1,
+40,
+4,
+14,
+0.111,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 40,
-"runs_total": 53,
+"runs_total": 54,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2699,14 +2910,24 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+9,
+7,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 31,
+"retrial": "reduced",
+"runs_total": 1,
 "site": "indeed",
 "src": "pool",
-"state": "reduced",
+"state": "trial",
 "term": "planning and analysis associate"
 },
 "indeed|portfolio analyst": {
@@ -2823,11 +3044,20 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+30,
+11,
+7,
+0.111,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 54,
+"runs_total": 55,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -3187,11 +3417,20 @@
 8,
 1,
 0
+],
+"2026-11-15": [
+1,
+60,
+47,
+18,
+1.0,
+0,
+1
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 60,
-"runs_total": 57,
+"runs_total": 58,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -3271,14 +3510,24 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+6,
+2,
+1,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-12",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 30,
+"retrial": "reduced",
+"runs_total": 1,
 "site": "indeed",
 "src": "pool",
-"state": "reduced",
+"state": "trial",
 "term": "strategy and operations analyst"
 },
 "indeed|strategy operations forecast budget variance": {
@@ -3495,14 +3744,24 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+5,
+2,
+2,
+0.111,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-12",
+"last_run_day": "2026-11-15",
 "n": 40,
-"runs_total": 20,
+"retrial": "paused",
+"runs_total": 1,
 "site": "indeed",
 "src": "base",
-"state": "paused",
+"state": "trial",
 "term": "workforce planning analyst"
 },
 "linkedin|FP&A analyst": {
@@ -3619,11 +3878,20 @@
 72,
 12,
 0
+],
+"2026-11-15": [
+1,
+37,
+37,
+35,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 25,
-"runs_total": 57,
+"runs_total": 58,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -3727,11 +3995,20 @@
 14,
 4,
 0
+],
+"2026-11-15": [
+1,
+20,
+8,
+16,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 20,
-"runs_total": 41,
+"runs_total": 42,
 "site": "linkedin",
 "src": "pool",
 "state": "active",
@@ -3851,11 +4128,20 @@
 10,
 1,
 0
+],
+"2026-11-15": [
+1,
+25,
+1,
+24,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 25,
-"runs_total": 57,
+"runs_total": 58,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -3951,11 +4237,20 @@
 7,
 2,
 0
+],
+"2026-11-15": [
+1,
+25,
+2,
+20,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 25,
-"runs_total": 37,
+"runs_total": 38,
 "site": "linkedin",
 "src": "pool",
 "state": "active",
@@ -4183,11 +4478,20 @@
 15,
 3,
 0
+],
+"2026-11-15": [
+1,
+25,
+19,
+17,
+1.0,
+0,
+1
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 25,
-"runs_total": 54,
+"runs_total": 55,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -4415,11 +4719,20 @@
 12,
 1,
 0
+],
+"2026-11-15": [
+1,
+20,
+18,
+11,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 20,
-"runs_total": 57,
+"runs_total": 58,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -4539,11 +4852,20 @@
 0,
 0,
 0
+],
+"2026-11-15": [
+1,
+0,
+0,
+0,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-15",
 "n": 30,
-"runs_total": 20,
+"runs_total": 21,
 "site": "zip_recruiter",
 "src": "base",
 "state": "trial",
@@ -4572,16 +4894,16 @@
 },
 "sites": {
 "glassdoor": {
-"probed": "2026-11-14",
+"probed": "2026-11-15",
 "since": "2026-11-01",
 "state": "paused",
-"zero_runs": 20
+"zero_runs": 21
 },
 "google": {
-"probed": "2026-11-14",
+"probed": "2026-11-15",
 "since": "2026-11-01",
 "state": "paused",
-"zero_runs": 20
+"zero_runs": 21
 },
 "indeed": {
 "state": "active",
@@ -4592,11 +4914,11 @@
 "zero_runs": 0
 },
 "zip_recruiter": {
-"probed": "2026-11-14",
+"probed": "2026-11-15",
 "since": "2026-11-01",
 "state": "paused",
-"zero_runs": 20
+"zero_runs": 21
 }
 },
-"v": 1
+"v": 2
 }
