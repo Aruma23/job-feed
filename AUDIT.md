@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-15T12:16+00:00 · **OK** · All checks passed.
+2026-11-15T16:15+00:00 · **OK** · All checks passed.
 
-## INFO: 900 jobs are shown from earlier runs (691 job-site listings past the 3-day search window, 97 missed by this run only, 64 not shown by their source for 2+ days, 48 on unchanged boards not due for a read); the oldest was last confirmed 2026-11-11.
+## INFO: 884 jobs are shown from earlier runs (690 job-site listings past the 3-day search window, 91 missed by this run only, 63 not shown by their source for 2+ days, 40 on unchanged boards not due for a read); the oldest was last confirmed 2026-11-11.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
   - PwC: Finance Function Strategy Consulting Senior Associate (last 2026-11-13)
@@ -11,7 +11,7 @@
   - Seville Nomad: Director of Revenue Management (last 2026-11-12)
   - BlackRock: Vice President, Private Funds Legal Counsel (last 2026-11-12)
 
-## INFO: 41 sets of rows share employer, title, place and description.
+## INFO: 35 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
