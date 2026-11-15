@@ -224,7 +224,7 @@ def merge(previous, fresh, today, index_out=None):
         if slot is None:
             slot = idx.find(f)
         if slot is None:
-            f = dict(f, first_seen=today, last_seen=today, also_on="", source_ids=f["id"])
+            f = dict(f, first_seen=today, last_seen=today, also_on="", source_ids=f["id"], _confirm="current")
             f.pop("_new", None)
             idx.add(f)
             continue
@@ -239,7 +239,7 @@ def merge(previous, fresh, today, index_out=None):
         merged = dict(best)
         if again:
             merged.update({c: f[c] for c in UPDATABLE if f.get(c)})
-        merged.update(id=old["id"], site=old["site"], first_seen=old["first_seen"], last_seen=today,
+        merged.update(id=old["id"], site=old["site"], first_seen=old["first_seen"], last_seen=today, _confirm="current",
                       also_on=";".join(sorted(sites - {old["site"]})),
                       source_ids=";".join(dict.fromkeys(identity.source_ids(old) + [f["id"]])))
         for c in ("job_url_direct", "description", "min_amount", "max_amount", "interval"):
@@ -391,6 +391,7 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
         owner[j["id"]] = board
         r = D.to_row(j, (db["boards"].get(board) or {}).get("company"), today)
         r["_board"] = board
+        r["_confirm"] = "current"
         if j["id"] in prev:
             r["first_seen"] = prev[j["id"]].get("first_seen") or today
         target[j["id"]] = r
@@ -411,14 +412,15 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
     for k, r in prev.items():
         if k in rows or k in held:
             continue
-        if ats.board_of(r.get("job_url")) in D.SKIPPED or (r.get("_board") and r["_board"] in D.SKIPPED):
-            rows[k] = dict(r, _confirm="not_due")   # not due this run (unchanged board): kept as last confirmed
+        b = ats.board_of(r.get("job_url"))
+        if b in D.SKIPPED or (r.get("_board") and r["_board"] in D.SKIPPED) or (
+                b in db.get("boards", {}) and not D.due(db["boards"][b], b, today)):
+            rows[k] = dict(r, _confirm="not_due")   # board was deliberately not scheduled/read this run
             kept_skipped += 1
             continue
         if "~" in k and k.split("~")[0] in rows and rows[k.split("~")[0]].get("_board", "").lower() == ats.board_of(r.get("job_url")).lower():
             reclassified.append(k)                  # the same job read earlier under a second spelling of its board
             continue
-        b = ats.board_of(r.get("job_url"))
         if b in ok_boards and ok_boards[b]:          # the whole board was read and the job isn't on it: closed
             if k in D.PRESENT.get(b, ()):           # still listed, just no longer a match: not a closing
                 reclassified.append(k)
@@ -433,7 +435,7 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
                 continue
             if v:
                 still += 1
-                rows[k] = dict(r, last_seen=today)
+                rows[k] = dict(r, last_seen=today, _confirm="current")
                 continue
         if r.get("last_seen", today) >= cutoff:        # board unreadable, or no answer: keep it a while
             rows[k] = r
@@ -602,9 +604,9 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
         d["failed"] += 1 if s["error"] else 0
         d["new"] += s["new"]
         d["qualified_new"] += s["qnew"]
-    # JobSpy logs most blocks and returns nothing instead of raising, so a site where every
-    # search came back empty also counts as a partial run.
-    empty_sites = sorted(k for k, d in by_site.items() if d["new"] == 0)
+    # JobSpy logs most blocks and returns nothing instead of raising. A source returning only
+    # previously-known jobs is healthy; zero new jobs is not evidence of an empty/blocked source.
+    empty_sites = empty_sources(status)
     rows = merge(previous, fresh, today)
     direct = DIRECT_DEFAULT if direct is None else direct
     direct_rows, held, dstats, closed = [], [], {"version": "v5", "skipped": True}, []
@@ -705,6 +707,17 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     return summary
 
 
+def empty_sources(status):
+    """Sources with no returned records. Duplicate/previously-known results are still a healthy response."""
+    by_site = {}
+    for entry in status:
+        d = by_site.setdefault(entry["site"], {"searches": 0, "failed": 0, "returned": 0})
+        d["searches"] += 1
+        d["failed"] += bool(entry.get("error"))
+        d["returned"] += int(entry.get("returned") or 0)
+    return sorted(site for site, d in by_site.items() if d["returned"] == 0 and d["failed"] < d["searches"])
+
+
 def unique_ids(rows):
     """Last line of defence for CONTRACT invariant 1 (one row per id): a second row under an id already written is folded
     into the first (its source ids kept) instead of failing the run's output check, which throws the whole run away.
@@ -781,6 +794,7 @@ def after_review(rows, added, feed_dir, today):
             r["age_days"] = str((d0 - date.fromisoformat(dp)).days) if re.match(r"\d{4}-\d{2}-\d{2}$", dp) else "0"
             freshness.assess(r, None, {}, today)
             trust.assess(r, db, good, bad, today, index)
+            r["_confirm"] = "current"       # these rescued rows came from a board read in this run
             r["confirm"] = freshness.confirm(r, today)
         except Exception:
             pass
