@@ -361,7 +361,7 @@ def smartrecruiters(company, want, get=http):
 
 
 WORKDAY_SEARCHES = ["financial planning", "FP&A", "financial analyst", "strategic finance", "workforce planning", "business planning"]
-WORKDAY_PAGES = 3          # 20 a page; a page that adds nothing new ends the search (Workday can repeat results across pages)
+WORKDAY_PAGES = 3          # 20 a page; an empty or identical page ends the search (duplicates across different queries do not)
 
 
 def workday(spec, want, get=http):
