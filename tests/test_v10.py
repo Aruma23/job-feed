@@ -402,6 +402,12 @@ class PayFromText(unittest.TestCase):
         self.assertEqual(self.p("Deals of $10,000,000 to $50,000,000 in revenue."), ("", ""))
         self.assertEqual(self.p("No pay stated."), ("", ""))
 
+    def test_structured_small_pay_needs_an_interval(self):
+        import reqs
+        self.assertEqual(reqs.annual_pay({"min_amount": "100", "max_amount": "150", "interval": ""}), ("", ""))
+        self.assertEqual(reqs.annual_pay({"min_amount": "100", "max_amount": "150", "interval": "hourly"}),
+                         ("208000", "312000"))
+
 
 class EmptySources(unittest.TestCase):
     def test_known_results_are_not_misreported_as_empty(self):
