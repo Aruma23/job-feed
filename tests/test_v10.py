@@ -487,8 +487,6 @@ class Shadow(unittest.TestCase):
         self.assertIn("error", out["contacthr"][0])
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class ClauseOf(unittest.TestCase):
@@ -514,3 +512,7 @@ class ClauseOf(unittest.TestCase):
         for _ in range(20):
             reqs.requirements("Financial Analyst", d)
         self.assertLess(time.time() - t, 2.0)
+
+
+if __name__ == "__main__":
+    unittest.main()
