@@ -1,5 +1,8 @@
 # NYC employers that hire for FP&A, corporate finance, strategic finance and planning. One per line. The feed tries a few
 # dozen names a run on Greenhouse, Lever and Ashby and keeps the boards it finds (boards.json). Add any name.
+# A line can also name a board exactly, as "<system>:<board> = <Company>" (for sites a name can't be guessed from, such as a
+# Workday site): it is added as it is.
+workday:pwc|wd3|US_Experienced_Careers = PwC
 Ramp
 Brex
 Plaid

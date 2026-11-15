@@ -436,6 +436,18 @@ class SweepOrder(unittest.TestCase):
         self.assertAlmostEqual(D.system_rates(db)["smartrecruiters"], rates["smartrecruiters"], places=5)
 
 
+class SeedBoards(unittest.TestCase):
+    def test_board_lines_and_names(self):
+        names, boards = scrape.split_seeds(["Ramp", "workday:pwc|wd3|US_Experienced_Careers = PwC", "J.P. Morgan: Chase"])
+        self.assertEqual(names, ["Ramp", "J.P. Morgan: Chase"])
+        self.assertEqual(boards, [("workday:pwc|wd3|US_Experienced_Careers", "PwC")])
+
+    def test_one_employer_two_sites_is_one_job(self):
+        self.assertTrue(scrape.same_tenant("workday:pwc|wd3|US_Experienced_Careers", "workday:pwc|wd3|Global_Experienced_Careers"))
+        self.assertTrue(scrape.same_tenant("ashby:Crusoe", "ashby:crusoe"))
+        self.assertFalse(scrape.same_tenant("workday:pnc|wd5|External", "workday:pru|wd5|Careers"), "two employers: two jobs")
+
+
 class Shadow(unittest.TestCase):
     def test_records_without_raising(self):
         import shadow
@@ -449,13 +461,16 @@ class Shadow(unittest.TestCase):
                 return {"items": [{"TotalJobsCount": 2, "requisitionList": [{"Id": "1", "Title": "FP&A Analyst", "PostedDate": "2026-11-10"},
                                                                           {"Id": "2", "Title": "Analyst"}]}]}
             return {"items": [{"ExternalDescriptionStr": "Own the forecast."}]}
-        out = shadow.run(rows, get, lambda u: "https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/1")
+        keep = shadow.WORKDAY_GUESSES
+        shadow.WORKDAY_GUESSES = [("pwc", "wd3", "US_Experienced_Careers")]
+        self.addCleanup(setattr, shadow, "WORKDAY_GUESSES", keep)
+        out = shadow.run(rows, get, lambda u: "https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/1", budget=6)
         self.assertEqual((out["oracle"][0]["ok"], out["oracle"][0]["total"], out["oracle"][0]["detail_chars"] > 5), (True, 2, True))
         self.assertTrue(out["contacthr"][0]["oracle"])
         self.assertEqual((out["workday"][0]["total"], out["workday"][0]["nyc"]), (40, 1))
         def bad(url, *a, **kw):
             raise OSError("blocked")
-        out = shadow.run(rows, bad, bad)
+        out = shadow.run(rows, bad, bad, budget=6)
         self.assertFalse(out["oracle"][0]["ok"])
         self.assertIn("error", out["contacthr"][0])
 

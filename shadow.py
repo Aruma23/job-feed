@@ -20,7 +20,7 @@ Budget: SHADOW_HOSTS hosts a run, two requests each; every failure is recorded, 
 import re
 import urllib.parse
 
-SHADOW_HOSTS = 6
+SHADOW_HOSTS = 0           # Oracle: proven in run #82 and live in ats.py since Nov 14; set > 0 to probe again
 ORACLE = re.compile(r"https://([a-z0-9.-]+\.oraclecloud\.com)/hcmUI/CandidateExperience/[a-z]{2}(?:-[A-Z]{2})?/sites/([A-Za-z0-9_]+)/", re.I)
 CONTACTHR = re.compile(r"https://[a-z0-9-]+\.contacthr\.com/\d+", re.I)
 
@@ -54,7 +54,9 @@ def oracle_text(data):
     return " ".join(str(d.get(k) or "") for k in ("ExternalDescriptionStr", "ExternalResponsibilitiesStr", "ExternalQualificationsStr"))
 
 
-WORKDAY_GUESSES = [("pwc", "wd3", "US_Experienced_Careers"), ("pwc", "wd3", "US_Entry_Level_Careers"), ("pwc", "wd3", "Global_Campus_Careers")]
+# Answered in run #82: PwC's US_Experienced_Careers has 562 results for "New York" (seeded as a board in seeds.txt);
+# US_Entry_Level_Careers 7 (interns), Global_Campus_Careers 0. Add (tenant, shard, site) here to test another guess.
+WORKDAY_GUESSES = []
 
 
 def workday_try(get, tenant, shard, site):
@@ -102,7 +104,7 @@ def run(rows, get, resolve, budget=SHADOW_HOSTS, post=None):
         except Exception as e:
             rec.update(ok=False, error=f"{type(e).__name__}: {str(e)[:160]}")
         out["oracle"].append(rec)
-    for u in chr_:
+    for u in chr_[:budget]:
         try:
             landed = resolve(u) or u
             out["contacthr"].append({"from": u, "landed": landed[:200], "oracle": bool(ORACLE.match(landed))})

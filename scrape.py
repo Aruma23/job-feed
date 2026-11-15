@@ -348,6 +348,29 @@ STILL_OPEN_CHECKS = 40       # jobs missing from a partial board read, checked o
 DIRECT_CAP = 1500
 
 
+def same_tenant(a, b):
+    """Two board keys of one employer account: the same system and tenant ("workday:pwc|wd3|US_Experienced_Careers" and
+    "workday:pwc|wd3|Global_Experienced_Careers"), spelling aside. A job id seen on both is one job."""
+    ka, _, ra = a.partition(":")
+    kb, _, rb = b.partition(":")
+    return ka == kb and ra.split("|")[0].lower() == rb.split("|")[0].lower()
+
+
+def split_seeds(lines):
+    """seeds.txt lines -> (company names to probe, [(board key, company)] to add as they are). A board line starts with a
+    known system ("workday:tenant|wd3|Site = Company"); everything else is a name."""
+    import ats
+    names, boards = [], []
+    for ln in lines:
+        key, _, company = ln.partition(" = ")
+        kind = key.split(":", 1)[0]
+        if ":" in key and kind in ats.FETCH and " " not in key.strip():
+            boards.append((key.strip(), company.strip()))
+        else:
+            names.append(ln)
+    return names, boards
+
+
 def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, cc_text=None, weekday=None, range_get=None, cache=None):
     """Grows the board list, reads every board, and returns (direct rows, borderline rows, stats). Never raises: a failed
     step is noted."""
@@ -366,7 +389,9 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
         stats["links_error"] = f"{type(e).__name__}: {str(e)[:120]}"
     try:
         names = [r.get("company") for r in agg_rows if qualifies(r)] + [r.get("company") for r in agg_rows if D.title_kind(r.get("title"))]
-        sd = D.seeds(os.path.join(os.path.dirname(db_path) or ".", D.SEEDS))
+        sd, seed_boards = split_seeds(D.seeds(os.path.join(os.path.dirname(db_path) or ".", D.SEEDS)))
+        for key, company in seed_boards:              # boards named exactly in seeds.txt ("workday:pwc|wd3|Site = PwC")
+            D.add_board(db, key, company, "seed-board", today, stats)
         cur = db.get("seed_cursor", 0) % max(1, len(sd)) if sd else 0
         D.probe_names(db, names, today, stats, get, budget=15)
         D.probe_names(db, sd[cur:cur + 20], today, stats, get, budget=20)
@@ -384,8 +409,8 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
 
     def put(j, target):
         board = ats.board_of(j["url"])
-        if j["id"] in owner and owner[j["id"]].lower() == board.lower() and owner[j["id"]] != board:
-            return                                              # one board stored under two spellings: the same job
+        if j["id"] in owner and owner[j["id"]] != board and same_tenant(owner[j["id"]], board):
+            return                     # one employer's job on two of its sites (PwC US and global), or one board in two spellings
         if j["id"] in owner and owner[j["id"]] != board:        # the same Workday req number at two employers
             j = dict(j, id=j["id"] + "~" + board.split(":", 1)[1].split("|")[0])
         owner[j["id"]] = board
