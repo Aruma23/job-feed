@@ -81,6 +81,14 @@ class Findings(unittest.TestCase):
         self.assertIn("classifier", keys, "'delimiter' contains 'limit': the error used to be skipped")
         self.assertNotIn("system-zero-breezy", keys, "3 tail boards of a tiny system are not an outage")
 
+    def test_title_lets_a_mail_filter_route_red(self):
+        red = W.check(OK_STATUS, [RUN_BAD], NOW, W.failure_of(JOBS_CHECK, LOG_DUP))
+        self.assertTrue(W.issue_title(red).startswith("Feed health: RED (1) - Run 80 failure"))
+        amber = [{"level": "amber", "key": "x", "title": "The board sweep ran out of time", "todo": ""}]
+        self.assertTrue(W.issue_title(amber).startswith("Feed health: amber (1)"))
+        self.assertNotIn("RED", W.issue_title(amber))
+        self.assertEqual(W.issue_title([]), "Feed health: all clear")
+
     def test_render_carries_keys(self):
         body = W.render(W.check(OK_STATUS, [RUN_BAD], NOW, W.failure_of(JOBS_CHECK, LOG_DUP)), OK_STATUS, [RUN_BAD])
         self.assertIn("watchdog keys: run-failed", body)

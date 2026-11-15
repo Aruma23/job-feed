@@ -152,6 +152,18 @@ def render(findings, status, runs, healed=""):
     return "\n".join(head + [""] + (body or ["All clear."]) + ["", "<!-- watchdog keys: " + ",".join(f["key"] for f in findings) + " -->"])
 
 
+def issue_title(findings):
+    """The issue title is also the subject of GitHub's notification mail, so a Gmail filter can route by it: "Feed health: RED"
+    only when something is red (keep in the inbox, star), "Feed health: amber" otherwise (archive), "all clear" on closing.
+    Gabriel's filter F4 archives all job-feed GitHub mail; it should exclude subject:"Feed health: RED"."""
+    reds = [f for f in findings if f["level"] == "red"]
+    if reds:
+        return f"Feed health: RED ({len(reds)}) - {reds[0]['title'][:90]}"
+    if findings:
+        return f"Feed health: amber ({len(findings)}) - {findings[0]['title'][:90]}"
+    return "Feed health: all clear"
+
+
 # ---------------- GitHub ----------------
 def gh(method, path, token, body=None, raw=False):
     req = urllib.request.Request(API + path, method=method, data=json.dumps(body).encode() if body is not None else None,
@@ -203,7 +215,7 @@ def main():
     issues = gh("GET", f"/repos/{repo}/issues?labels={LABEL}&state=open&per_page=5", token)
     issue = issues[0] if issues else None
     reds = {f["key"] for f in findings if f["level"] == "red"}
-    title = f"Feed health: {len(findings)} finding(s), {len(reds)} red" if findings else "Feed health: all clear"
+    title = issue_title(findings)
     if findings:
         if issue is None:
             try:
