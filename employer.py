@@ -97,6 +97,9 @@ def classify(row, mass=False):
         return "staffing", "medium: the posting says " + said[0]
     if mass:
         return "marketplace", "medium: many copies of one ad under this name"
+    other = re.search(r"applies through (.{1,60})'s board \(a recruiter or parent company\?\)", str(row.get("trust_why") or ""))
+    if other:                                        # trust.py: the board belongs to another company. Parent or recruiter can't
+        return "unknown", f"medium: applies through {other.group(1)}'s board (parent company or recruiter)"   # be told apart
     native = bool(_NATIVE.match(str(row.get("id") or "")))
     trust = row.get("trust")
     if native and trust in ("verified", "consistent"):

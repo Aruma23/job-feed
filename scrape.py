@@ -764,8 +764,9 @@ def annotate_v6(rows, hist, here, today):
 
 
 def after_review(rows, added, feed_dir, today):
-    """The classify job changes fit scores and adds rescued board jobs: those get freshness and trust, and every row's priority
-    is recomputed from its final fit. Used by relevance.main; never raises."""
+    """The classify job changes fit scores and adds rescued board jobs: those get freshness, trust, confirmation, requirements
+    and pay (v10: requirements and pay were missing on rescued rows), and every row's employer type and priority are recomputed
+    from its final fit. Used by relevance.main; never raises."""
     try:
         db = json.load(open(os.path.join(feed_dir, "boards.json"), encoding="utf-8"))
     except (OSError, ValueError):
@@ -781,6 +782,13 @@ def after_review(rows, added, feed_dir, today):
             freshness.assess(r, None, {}, today)
             trust.assess(r, db, good, bad, today, index)
             r["confirm"] = freshness.confirm(r, today)
+        except Exception:
+            pass
+        try:                                     # the same requirement and pay fields as every other row (finish())
+            r.update(reqs.requirements(r.get("title"), r.get("description")))
+            r["pay_low"], r["pay_high"] = reqs.annual_pay(r)
+            if not (r["pay_low"] or r["pay_high"]):
+                r["pay_low"], r["pay_high"] = reqs.pay_from_text(r.get("description"))
         except Exception:
             pass
     try:

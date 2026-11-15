@@ -183,6 +183,12 @@ class EmployerType(unittest.TestCase):
         self.assertEqual(self.c("Alldus", "Our client, an AI-driven company, is hiring a Founding Analyst."), "staffing")
         self.assertEqual(self.c("Pavago", "One of our clients is seeking an FP&A Analyst."), "staffing")
 
+    def test_another_companys_board_is_not_direct(self):
+        t, why = employer.classify({"company": "Acme", "id": "greenhouse:9", "trust": "unverified",
+                                    "trust_why": "applies through Bigco's board (a recruiter or parent company?)"})
+        self.assertEqual(t, "unknown")
+        self.assertIn("Bigco", why)
+
     def test_board_and_mass(self):
         self.assertEqual(self.c("Acme", id="greenhouse:1", trust="verified"), "direct")
         rows = [{"company": "BigPost", "title": "Remote Advisor", "id": f"in-{i}"} for i in range(9)]
@@ -387,6 +393,23 @@ class OneRowPerId(unittest.TestCase):
         self.assertEqual([r["id"] for r in rows], ["a", "b"])
         self.assertEqual(rows[0]["source_ids"], "a;x")
         self.assertEqual(dup["count"], 1)
+
+
+class RescuedRows(unittest.TestCase):
+    def test_rescued_rows_get_requirements_and_pay(self):
+        import tempfile
+        d = tempfile.mkdtemp()
+        added = [{"id": "greenhouse:5", "title": "Senior Financial Analyst", "company": "Acme", "location": "New York, NY",
+                  "date_posted": "2026-11-10", "fit_score": "80", "fit_category": R.FPA, "job_url": "https://boards.greenhouse.io/acme/jobs/5",
+                  "description": DUTIES + " Requirements: 3+ years of FP&A experience required; bachelor's degree. "
+                                 "The base salary range for this role is $110,000 to $130,000."}]
+        rows = list(added)
+        scrape.after_review(rows, added, d, "2026-11-14")
+        r = rows[0]
+        self.assertEqual((r["pay_low"], r["pay_high"]), ("110000", "130000"))
+        self.assertTrue(r.get("years_min"))
+        self.assertTrue(r.get("seniority"))
+        self.assertIn("pay up to $130,000", r["priority_why"])
 
 
 class Shadow(unittest.TestCase):
