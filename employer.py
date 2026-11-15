@@ -104,8 +104,10 @@ def classify(row, mass=False):
     trust = row.get("trust")
     if native and trust in ("verified", "consistent"):
         return "direct", f"high: on its own board ({trust})"
+    if native and trust == "suspicious":
+        return "unknown", "high: the application route is marked suspicious"
     if native:
-        return "direct", "medium: on a company board under this name"
+        return "unknown", "medium: company-board ownership is not independently linked to the named employer"
     if trust == "verified":
         return "direct", "medium: applies on the employer's verified site"
     return "unknown", ""
@@ -121,11 +123,12 @@ def annotate(rows, mass_keys=None):
         for r in rows:
             k = (identity.emp_key(r.get("company")), identity.title_ident(r.get("title")))
             fam[k] = fam.get(k, 0) + 1
-        mass_keys = {e for (e, _), n in fam.items() if e and n >= intel.MASS}
+        mass_keys = {(e, title) for (e, title), n in fam.items() if e and title and n >= intel.MASS}
     out = {}
     for r in rows:
         try:
-            t, why = classify(r, identity.emp_key(r.get("company")) in mass_keys)
+            mass_key = (identity.emp_key(r.get("company")), identity.title_ident(r.get("title")))
+            t, why = classify(r, mass_key in mass_keys)
         except Exception:
             t, why = "unknown", ""
         r["employer_type"], r["employer_type_why"] = t, why
