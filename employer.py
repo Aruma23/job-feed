@@ -15,6 +15,7 @@ Signals: the company name (known firms, "Staffing", "Recruiting", "Executive Sea
 ("our client is seeking", "on behalf of our client", "confidential client", "we are a staffing firm"), and the intel cluster
 (MASS copies of one title). Nothing is hidden here: priority.py caps intermediaries at C and the tracker decides. Public data only.
 """
+import hashlib
 import re
 
 TYPES = ("direct", "staffing", "search_firm", "marketplace", "undisclosed", "unknown")
@@ -31,7 +32,8 @@ _FIRMS = {
                  "parker + lynch", "parker lynch", "a-line staffing", "collabera", "russell tobin", "artech", "talentburst",
                  "ledgent", "medix", "allegis", "experis", "pyramid consulting", "judge group", "the judge group",
                  "nesco resource", "aston carter", "actalent", "eliassen", "bcforward", "advantage resourcing",
-                 "goodwin recruiting", "korn ferry staffing"],
+                 "goodwin recruiting", "korn ferry staffing", "clark davis associates", "hire resolve",
+                 "hire resolve.com"],
     "search_firm": ["korn ferry", "heidrick", "spencer stuart", "russell reynolds", "egon zehnder", "dynamics execusearch",
                     "glocap", "smith hanley", "options group", "sterling search"],
     "marketplace": ["jobgether", "lensa", "jooble", "talent.com", "talentify", "jobs via dice", "dice", "hirebus", "hiring cafe",
@@ -104,28 +106,54 @@ def classify(row, mass=False):
     trust = row.get("trust")
     if native and trust in ("verified", "consistent"):
         return "direct", f"high: on its own board ({trust})"
+    if native and trust == "suspicious":
+        return "unknown", "high: the application route is marked suspicious"
     if native:
-        return "direct", "medium: on a company board under this name"
+        return "unknown", "medium: company-board ownership is not independently linked to the named employer"
     if trust == "verified":
         return "direct", "medium: applies on the employer's verified site"
     return "unknown", ""
 
 
+def _mass_key(row):
+    """Only call a repeated posting a marketplace when its substantive description is also repeated."""
+    import identity
+    description = re.sub(r"[^a-z0-9]+", " ", str(row.get("description") or "").lower()).strip()
+    if len(description) < 200:
+        return None
+    digest = hashlib.sha1(description[:6000].encode()).hexdigest()[:12]
+    employer_key = identity.emp_key(row.get("company"))
+    title_key = identity.title_ident(row.get("title"))
+    return (employer_key, title_key, digest) if employer_key and title_key else None
+
+
 def annotate(rows, mass_keys=None):
-    """Fills employer_type and employer_type_why. mass_keys: employer keys with MASS+ copies of one title (worked out from the
-    rows when not given, as intel.py does). Returns counts by type."""
+    """Fills employer_type and employer_type_why. Returns counts by type.
+
+    mass_keys: what counts as mass posting, worked out from the rows when not given. Two signals, either is enough (Nov 14 review
+    of the deep-audit PRs #3-#5): MASS+ copies of one title at one employer (the v10 rule: on the Nov 15 00:10 UTC feed it caught
+    Clark Davis Associates, a recruiting firm, 47 rows on its own SmartRecruiters board with a different text per ad, and an
+    insurance agency's 40 city copies of one sales ad), or MASS+ copies of one substantive description (the PR's rule: the same
+    ad under several titles). The PR replaced the first with the second; on the real feed that fixed no misread employer and
+    lifted 12 of the firm's ads into A/B, so both are kept. A real employer misread by the title rule shows in the audit's
+    marketplace counts; exempt it on evidence."""
     import identity
     import intel
     if mass_keys is None:
-        fam = {}
+        titles, ads = {}, {}
         for r in rows:
-            k = (identity.emp_key(r.get("company")), identity.title_ident(r.get("title")))
-            fam[k] = fam.get(k, 0) + 1
-        mass_keys = {e for (e, _), n in fam.items() if e and n >= intel.MASS}
+            e, t = identity.emp_key(r.get("company")), identity.title_ident(r.get("title"))
+            if e and t:
+                titles[(e, t)] = titles.get((e, t), 0) + 1
+            k = _mass_key(r)
+            if k:
+                ads[k] = ads.get(k, 0) + 1
+        mass_keys = {e for (e, _), n in titles.items() if n >= intel.MASS} | {k for k, n in ads.items() if n >= intel.MASS}
     out = {}
     for r in rows:
         try:
-            t, why = classify(r, identity.emp_key(r.get("company")) in mass_keys)
+            mass = identity.emp_key(r.get("company")) in mass_keys or (_mass_key(r) or ()) in mass_keys
+            t, why = classify(r, mass)
         except Exception:
             t, why = "unknown", ""
         r["employer_type"], r["employer_type_why"] = t, why

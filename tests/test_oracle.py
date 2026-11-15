@@ -2,6 +2,7 @@
 import os
 import sys
 import unittest
+import urllib.parse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
@@ -69,6 +70,47 @@ class Oracle(unittest.TestCase):
         self.assertTrue(scrape.NATIVE.match("oracle:jpmc:210807776"))
         self.assertTrue(D.due({"ok": "2026-11-13"}, "oracle:jpmc.fa.oraclecloud.com|CX_1001", "2026-11-14"))
         self.assertFalse(D.due({"ok": "2026-11-14"}, "oracle:jpmc.fa.oraclecloud.com|CX_1001", "2026-11-14"))
+
+    def test_duplicate_first_page_from_prior_query_does_not_stop_pagination(self):
+        old_searches = ats.WORKDAY_SEARCHES
+        try:
+            ats.WORKDAY_SEARCHES = ["first", "second"]
+            first_page = [{"Id": f"job-{i}", "Title": "Financial Analyst", "PrimaryLocation": "New York, NY",
+                           "PostedDate": "2026-11-14"} for i in range(25)]
+            extra = {"Id": "job-26", "Title": "Financial Analyst", "PrimaryLocation": "New York, NY",
+                     "PostedDate": "2026-11-14"}
+            def get(url, **kw):
+                decoded = urllib.parse.unquote(url)
+                offset = 25 if "offset=25" in decoded else 0
+                if 'keyword="first"' in decoded:
+                    return {"items": [{"TotalJobsCount": 50, "requisitionList": first_page if offset == 0 else []}]}
+                if offset == 0:
+                    return {"items": [{"TotalJobsCount": 26, "requisitionList": first_page}]}
+                return {"items": [{"TotalJobsCount": 26, "requisitionList": [extra]}]}
+            jobs = ats.oracle(f"{HOST}|{SITE}", lambda job: False, get)
+            self.assertIn("oracle:jpmc:job-26", {j["id"] for j in jobs})
+        finally:
+            ats.WORKDAY_SEARCHES = old_searches
+
+    def test_workday_duplicate_first_page_from_prior_query_does_not_stop_pagination(self):
+        old_searches = ats.WORKDAY_SEARCHES
+        try:
+            ats.WORKDAY_SEARCHES = ["first", "second"]
+            first_page = [{"externalPath": f"/job/US/Job_{i}", "title": "Financial Analyst", "locationsText": "New York, NY"}
+                          for i in range(25)]
+            extra = {"externalPath": "/job/US/Job_26", "title": "Financial Analyst", "locationsText": "New York, NY"}
+            def get(url, data=None, **kw):
+                q, offset = data["searchText"], data["offset"]
+                if q == "first":
+                    postings = first_page if offset == 0 else []
+                    return {"total": 50, "jobPostings": postings}
+                if offset == 0:
+                    return {"total": 26, "jobPostings": first_page}
+                return {"total": 26, "jobPostings": [extra]}
+            jobs = ats.workday("tenant|wd1|site", lambda job: False, get)
+            self.assertIn("workday:26", {j["id"] for j in jobs})
+        finally:
+            ats.WORKDAY_SEARCHES = old_searches
 
 
 if __name__ == "__main__":

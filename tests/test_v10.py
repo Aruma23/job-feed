@@ -191,9 +191,33 @@ class EmployerType(unittest.TestCase):
 
     def test_board_and_mass(self):
         self.assertEqual(self.c("Acme", id="greenhouse:1", trust="verified"), "direct")
-        rows = [{"company": "BigPost", "title": "Remote Advisor", "id": f"in-{i}"} for i in range(9)]
+        desc = "A repeated marketplace posting description with substantive duties and requirements. " * 5
+        rows = [{"company": "BigPost", "title": "Remote Advisor", "id": f"in-{i}", "description": desc} for i in range(9)]
         employer.annotate(rows)
         self.assertEqual(rows[0]["employer_type"], "marketplace")
+
+    def test_same_title_with_distinct_descriptions_stays_an_intermediary(self):
+        # Nov 14 review of the deep-audit PRs: on the real feed the title rule's only hits were intermediaries (Clark Davis
+        # Associates, 47 rows on its own SmartRecruiters board with a different text per ad; an insurance agency's 40 city
+        # copies). Dropping it lifted 12 of those rows into A/B and fixed no misread employer. The losses are not symmetric: a
+        # real employer held at C is still one tap away in the tracker; an agency ad treated as direct hides who is hiring.
+        rows = [{"company": "BigPost", "title": "Financial Analyst", "id": f"in-{i}",
+                 "description": f"Distinct role {i}. " + ("Substantive requirements and responsibilities. " * 8)}
+                for i in range(9)]
+        employer.annotate(rows)
+        self.assertEqual(rows[0]["employer_type"], "marketplace")
+        few = rows[:5]
+        employer.annotate(few)
+        self.assertEqual(few[0]["employer_type"], "unknown", "below MASS copies the title alone says nothing")
+
+    def test_recruiting_firm_on_its_own_board_is_staffing(self):
+        self.assertEqual(self.c("Clark Davis Associates", id="smartrecruiters:1", trust="consistent"), "staffing")
+        self.assertEqual(self.c("Hire Resolve.com", id="workable:AB1", trust="consistent"), "staffing")
+
+    def test_native_board_needs_ownership_evidence(self):
+        self.assertEqual(self.c("Acme", id="greenhouse:1", trust="unverified"), "unknown")
+        self.assertEqual(self.c("Acme", id="greenhouse:1", trust="suspicious"), "unknown")
+        self.assertEqual(self.c("Acme", id="greenhouse:1", trust="consistent"), "direct")
 
 
 class Priority(unittest.TestCase):
@@ -217,7 +241,8 @@ class Priority(unittest.TestCase):
 class Confirm(unittest.TestCase):
     def test_states(self):
         t = "2026-11-14"
-        self.assertEqual(freshness.confirm({"last_seen": t}, t), "current")
+        self.assertEqual(freshness.confirm({"last_seen": t}, t), "recent", "same-day carryover is not proof of a current-run observation")
+        self.assertEqual(freshness.confirm({"last_seen": t, "_confirm": "current"}, t), "current")
         self.assertEqual(freshness.confirm({"id": "workday:1", "last_seen": "2026-11-12", "_confirm": "not_due"}, t), "not_due")
         self.assertEqual(freshness.confirm({"id": "in-1", "last_seen": "2026-11-12", "date_posted": "2026-11-05"}, t), "window")
         self.assertEqual(freshness.confirm({"id": "greenhouse:1", "last_seen": "2026-11-13"}, t), "recent")
@@ -372,7 +397,10 @@ class PayFromText(unittest.TestCase):
     def test_stated_ranges(self):
         self.assertEqual(self.p("The base salary range for this role is $100,000 to $125,000 USD."), ("100000", "125000"))
         self.assertEqual(self.p("Expected base salary: $175k-$225k."), ("175000", "225000"))
-        self.assertEqual(self.p("Compensation: $28 - $35 per hour."), ("58200", "72800"))
+        self.assertEqual(self.p("Compensation: $28 - $35 per hour."), ("58240", "72800"))
+        self.assertEqual(self.p("Salary range: $74,999.99 - $74,999.99."), ("74999", "74999"))
+        self.assertEqual(self.p("Salary range: $100 - $150."), ("", ""), "ambiguous small amounts are not assumed hourly")
+        self.assertEqual(self.p("Compensation: $100 - $150 per hour."), ("208000", "312000"))
 
     def test_new_york_range_wins_and_ambiguity_gives_none(self):
         t = "Pay range: Colorado $80,000 - $95,000. New York City pay range: $110,000 - $130,000."
@@ -384,6 +412,23 @@ class PayFromText(unittest.TestCase):
         self.assertEqual(self.p("You will manage a budget of $100,000 - $500,000 per project."), ("", ""))
         self.assertEqual(self.p("Deals of $10,000,000 to $50,000,000 in revenue."), ("", ""))
         self.assertEqual(self.p("No pay stated."), ("", ""))
+
+    def test_structured_small_pay_needs_an_interval(self):
+        import reqs
+        self.assertEqual(reqs.annual_pay({"min_amount": "100", "max_amount": "150", "interval": ""}), ("", ""))
+        self.assertEqual(reqs.annual_pay({"min_amount": "100", "max_amount": "150", "interval": "hourly"}),
+                         ("208000", "312000"))
+
+
+class EmptySources(unittest.TestCase):
+    def test_known_results_are_not_misreported_as_empty(self):
+        status = [
+            {"site": "indeed", "returned": 12, "usable": 12, "new": 0, "error": ""},
+            {"site": "linkedin", "returned": 0, "usable": 0, "new": 0, "error": ""},
+            {"site": "glassdoor", "returned": 0, "usable": 0, "new": 0, "error": "blocked"},
+            {"site": "broken", "returned": 5, "usable": 0, "new": 0, "error": ""},
+        ]
+        self.assertEqual(scrape.empty_sources(status), ["broken", "linkedin"])
 
 
 class OneRowPerId(unittest.TestCase):
@@ -429,6 +474,7 @@ class RescuedRows(unittest.TestCase):
         self.assertEqual((r["pay_low"], r["pay_high"]), ("110000", "130000"))
         self.assertTrue(r.get("years_min"))
         self.assertTrue(r.get("seniority"))
+        self.assertEqual(r.get("confirm"), "current")
         self.assertIn("pay up to $130,000", r["priority_why"])
 
 
@@ -512,6 +558,39 @@ class ClauseOf(unittest.TestCase):
         for _ in range(20):
             reqs.requirements("Financial Analyst", d)
         self.assertLess(time.time() - t, 2.0)
+
+
+class NotScheduledIsNotClosed(unittest.TestCase):
+    """Nov 14 review of the deep-audit PRs: #3 asked due() about each board after the sweep, when every board read that run
+    already says ok=today, so Workday and Oracle boards looked "not due" and none of their jobs was ever checked for closing
+    (tests/test_v5 Closure failed). #5 takes the not-due set before any read (discover.NOT_DUE); this pins the other half:
+    a board not due this run keeps its jobs as not_due and doesn't check their pages."""
+
+    def test_board_read_earlier_today_keeps_its_jobs_as_not_due(self):
+        import shutil
+        import tempfile
+        import ats
+        import scrape
+        d = tempfile.mkdtemp()
+        try:
+            with open(os.path.join(d, "boards.json"), "w") as f:
+                json.dump({"boards": {"workday:t|wd1|Ext": {"company": "T", "src": "seed", "ok": "2026-11-01"}}}, f)
+            prev = [{c: "" for c in scrape.COLS} | {"id": "workday:R1", "site": "workday", "title": "FP&A Analyst", "company": "T",
+                    "location": "New York, NY", "job_url": "https://t.wd1.myworkdayjobs.com/Ext/job/NY/FPA_R1",
+                    "last_seen": "2026-11-01", "first_seen": "2026-10-20"}]
+            calls = []
+
+            def api(url, data=None, **k):
+                calls.append(url)
+                raise ats.HttpError(404, url)
+            out, held, stats, closed = scrape.direct_step([], prev, "2026-11-01", os.path.join(d, "boards.json"), api, lambda u: u,
+                                                          lambda u: (_ for _ in ()).throw(OSError("offline")))
+            self.assertEqual(closed, [], "a board not due this run closes nothing")
+            self.assertEqual([r["id"] for r in out], ["workday:R1"])
+            self.assertEqual(out[0].get("confirm") or freshness.confirm(out[0], "2026-11-01"), "not_due")
+            self.assertFalse([u for u in calls if "FPA_R1" in u], "its job page is not checked either")
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
 
 
 if __name__ == "__main__":
