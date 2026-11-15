@@ -34,7 +34,7 @@ DB_PATH = "boards.json"
 SEEDS = "seeds.txt"
 PROBE_BUDGET = 30          # company names tried per run
 CC_VERIFY = 80             # Common Crawl candidates checked per run (Workday ones count three times: heavier)
-SWEEP_SECONDS = 12 * 60    # time for reading boards
+SWEEP_SECONDS = 15 * 60    # time for reading boards (12 until Nov 14: collect ran 30.5 of its 50 min with Workday back)
 DESC_CAP = 6000
 
 # ---- the same rules the tracker's finder uses (engine CFG), so the feed carries what the finder would keep ----
@@ -279,11 +279,38 @@ def due(info, board, today):
     return True
 
 
-def priority(info, today):
-    """Read order: recent matches, then many matches, then many local jobs (an out-of-time sweep skips the tail)."""
+def priority(info, today, rate=None):
+    """Read order: recent matches, then many matches, then many local jobs (an out-of-time sweep skips the tail).
+    v10: boards that never matched (the tail) are ordered by local jobs x their system's matches per request (rate, from
+    db["adapters"][system]["rate"], smoothed so no system reaches zero), because time is the budget and a SmartRecruiters
+    board costs about five requests where a Greenhouse board costs one. Boards with a match keep their place: nothing a
+    reader could already be relying on moves back."""
     d = date.fromisoformat(today)
     recent = (d - date.fromisoformat(info["last_hit"])).days if info.get("last_hit") else 999
+    if recent == 999 and rate is not None:
+        return (recent, 0, -(info.get("nyc", 0) + 1) * rate)
     return (recent, -info.get("hits", 0), -info.get("nyc", 0))
+
+
+RATE_PRIOR = (1, 100)     # (matches, requests) added to every system's count: an unproven system starts at 1 per 100 requests
+RATE_KEEP = 0.7           # weight of the earlier estimate each run (a slowly moving average)
+
+
+def system_rates(db):
+    """{system: smoothed new fitting jobs per request}, from what adapter_health stored last runs."""
+    return {k: v["rate"] for k, v in (db.get("adapters") or {}).items() if isinstance(v, dict) and v.get("rate")}
+
+
+def learn_rates(db, by_system):
+    """Updates db["adapters"][system]["rate"] from this run's footprint report (requests and new fitting jobs per system)."""
+    mem = db.setdefault("adapters", {})
+    for prov, v in (by_system or {}).items():
+        req = int(v.get("requests") or 0)
+        if not req:
+            continue
+        now = (int(v.get("new_fitting") or 0) + RATE_PRIOR[0]) / (req + RATE_PRIOR[1])
+        m = mem.setdefault(prov, {})
+        m["rate"] = round(RATE_KEEP * m["rate"] + (1 - RATE_KEEP) * now, 5) if m.get("rate") else round(now, 5)
 
 
 DROP_SHARE = 0.4      # a complete read below 40% of the board's usual count (usual >= 10), or empty when the board had any
@@ -345,8 +372,8 @@ def adapter_health(db, today, per):
             why.append(f"{h['drops']} of {h['read']} boards suddenly shrank")
         if h["due"] >= 4 and h["failed"] >= 0.5 * h["due"]:
             why.append(f"{h['failed']} of {h['due']} boards failed")
-        if h.get("late", 0) >= 5 and h["late"] >= 0.2 * (h["late"] + h["read"]):
-            why.append(f"{h['late']} boards due ran out of time ({h['read']} read)")
+        if h.get("late", 0) >= 5 and h["read"] == 0:   # starved outright (Workday Nov 10-14); a partly read system is the
+            why.append(f"{h['late']} boards due ran out of time, none read")   # sweep budget, reported once (watchdog)
         if h["kept"] >= 5 and h["no_desc"] >= 0.5 * h["kept"]:
             why.append(f"{h['no_desc']} of {h['kept']} kept jobs had no description")
         if h["kept"] >= 5 and h["no_loc"] >= 0.5 * h["kept"]:
@@ -384,7 +411,8 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
         else:
             SKIPPED.add(b)
             _h(per, b)["skipped"] += 1
-    boards.sort(key=lambda b: priority(db["boards"][b], today))
+    rates = system_rates(db)
+    boards.sort(key=lambda b: priority(db["boards"][b], today, rates.get(b.split(":")[0], RATE_PRIOR[0] / RATE_PRIOR[1]) if rates else None))
     rows, borderline, ok_boards, failed = [], [], {}, []
 
     def one(b):
@@ -463,6 +491,8 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
                  boards_hot=sum(1 for i in db["boards"].values() if i.get("last_hit") and (date.fromisoformat(today) - date.fromisoformat(i["last_hit"])).days <= 14),
                  drops=len(drops), drops_sample=drops[:8], adapter_health=health, adapters_degraded=degraded,
                  footprint=footprint.report(per, len(SKIPPED), run))
+    learn_rates(db, stats["footprint"].get("by_system"))
+    stats["system_rates"] = system_rates(db)
     return rows, ok_boards, borderline
 
 

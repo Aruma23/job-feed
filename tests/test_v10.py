@@ -303,7 +303,7 @@ class SweepFairness(unittest.TestCase):
         h = stats["adapter_health"]
         self.assertEqual(h["workday"]["read"], 2, "Workday no longer waits behind the fast group")
         self.assertGreater(h["greenhouse"]["late"], 0, "running out of time is counted, not silent")
-        self.assertIn("ran out of time", h["greenhouse"]["why"])
+        self.assertEqual(h["greenhouse"]["state"], "ok", "partly read is the budget (one watchdog finding), not a broken system")
 
 
 class DescriptionFit(unittest.TestCase):
@@ -410,6 +410,22 @@ class RescuedRows(unittest.TestCase):
         self.assertTrue(r.get("years_min"))
         self.assertTrue(r.get("seniority"))
         self.assertIn("pay up to $130,000", r["priority_why"])
+
+
+class SweepOrder(unittest.TestCase):
+    def test_tail_by_yield_per_request_hot_boards_first(self):
+        import discover as D
+        db = {"adapters": {}}
+        D.learn_rates(db, {"greenhouse": {"requests": 800, "new_fitting": 60}, "smartrecruiters": {"requests": 800, "new_fitting": 6}})
+        rates = D.system_rates(db)
+        boards = {"smartrecruiters:Hot": {"last_hit": "2026-11-12", "hits": 3, "nyc": 2},
+                  "smartrecruiters:Big": {"nyc": 30}, "greenhouse:small": {"nyc": 10}, "greenhouse:none": {"nyc": 0}}
+        order = sorted(boards, key=lambda b: D.priority(boards[b], "2026-11-14", rates.get(b.split(":")[0])))
+        self.assertEqual(order[0], "smartrecruiters:Hot", "a board with a recent match is never pushed back")
+        self.assertLess(order.index("greenhouse:small"), order.index("smartrecruiters:Big"), "10 local jobs x 10x the yield")
+        self.assertGreater(rates["smartrecruiters"], 0, "smoothed: no system reaches zero")
+        D.learn_rates(db, {"smartrecruiters": {"requests": 800, "new_fitting": 6}})
+        self.assertAlmostEqual(D.system_rates(db)["smartrecruiters"], rates["smartrecruiters"], places=5)
 
 
 class Shadow(unittest.TestCase):

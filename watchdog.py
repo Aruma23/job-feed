@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 
 WORKFLOW = "scrape.yml"
 COLLECT_TIMEOUT_MIN = 50          # scrape.yml collect timeout-minutes
-SWEEP_SECONDS = 12 * 60           # discover.SWEEP_SECONDS
+SWEEP_SECONDS = 15 * 60           # discover.SWEEP_SECONDS
 STALE_HOURS = 8                   # four runs a day, ~6 h apart: 8 h without a publish means one was missed
 LABEL = "feed-health"
 API = "https://api.github.com"
@@ -104,8 +104,10 @@ def check(status, runs, now, failure=None, collect_minutes=None):
     due, ok = d.get("boards_due"), d.get("boards_ok")
     if due and ok is not None and due >= 20 and ok < 0.5 * due:
         out.append(_f("amber", "boards-read", f"Read {ok} of {due} boards due.", "See direct.adapter_health and failed_sample."))
-    if d.get("sweep_seconds") and d["sweep_seconds"] > 0.98 * SWEEP_SECONDS:
-        out.append(_f("amber", "sweep-budget", f"The board sweep used its whole budget ({d['sweep_seconds']:.0f} s): boards are being left unread.",
+    late = sum(int(h.get("late") or 0) for h in (d.get("adapter_health") or {}).values())
+    if (d.get("sweep_seconds") and d["sweep_seconds"] > 0.98 * SWEEP_SECONDS) or late >= 20:
+        out.append(_f("amber", "sweep-budget", f"The board sweep ran out of time ({d.get('sweep_seconds', 0):.0f} s, {late} boards due left unread);"
+                      " the least promising go last.",
                       "Raise SWEEP_SECONDS if collect has room, or read fewer low-yield boards (footprint.py)."))
     if d.get("error"):
         out.append(_f("red", "direct-error", f"The company-board step failed: {d['error']}", "The feed fell back to the last board jobs."))
