@@ -292,7 +292,7 @@ def collect(scrape, searches=None, pause=(4, 9), sleep=time.sleep, previous=None
         known.add(p)
     run_idx, found, url_slot = identity.Index(), [], {}   # this run's openings; found[slot]: which searches returned it
     for site, term, n in searches:
-        entry = {"site": site, "search": term, "results": n, "returned": 0, "new": 0, "qualified": 0, "qnew": 0, "excl": 0, "error": ""}
+        entry = {"site": site, "search": term, "results": n, "returned": 0, "usable": 0, "new": 0, "qualified": 0, "qnew": 0, "excl": 0, "error": ""}
         k = f"{site}|{term}"
         try:
             records = run_search(scrape, site, term, n)
@@ -304,6 +304,7 @@ def collect(scrape, searches=None, pause=(4, 9), sleep=time.sleep, previous=None
             url = rec.get("job_url")
             if not url or not rec.get("title"):
                 continue
+            entry["usable"] += 1
             if url in url_slot:
                 slot = url_slot[url]
             else:                                  # a new link this run: kept for merge(), which folds copies of one job
@@ -599,9 +600,11 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     failed = [s for s in status if s["error"]]
     by_site = {}
     for s in status:
-        d = by_site.setdefault(s["site"], {"searches": 0, "failed": 0, "new": 0, "qualified_new": 0})
+        d = by_site.setdefault(s["site"], {"searches": 0, "failed": 0, "returned": 0, "usable": 0, "new": 0, "qualified_new": 0})
         d["searches"] += 1
         d["failed"] += 1 if s["error"] else 0
+        d["returned"] += s["returned"]
+        d["usable"] += s["usable"]
         d["new"] += s["new"]
         d["qualified_new"] += s["qnew"]
     # JobSpy logs most blocks and returns nothing instead of raising. A source returning only
@@ -708,14 +711,14 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
 
 
 def empty_sources(status):
-    """Sources with no returned records. Duplicate/previously-known results are still a healthy response."""
+    """Sources with no usable listings. Previously-known results count as healthy; malformed rows do not."""
     by_site = {}
     for entry in status:
-        d = by_site.setdefault(entry["site"], {"searches": 0, "failed": 0, "returned": 0})
+        d = by_site.setdefault(entry["site"], {"searches": 0, "failed": 0, "usable": 0})
         d["searches"] += 1
         d["failed"] += bool(entry.get("error"))
-        d["returned"] += int(entry.get("returned") or 0)
-    return sorted(site for site, d in by_site.items() if d["returned"] == 0 and d["failed"] < d["searches"])
+        d["usable"] += int(entry.get("usable", entry.get("returned")) or 0)
+    return sorted(site for site, d in by_site.items() if d["usable"] == 0 and d["failed"] < d["searches"])
 
 
 def unique_ids(rows):
