@@ -250,10 +250,21 @@ def review(batch, token, model, post=http_post, usage=None):
     text = re.sub(r"^```(?:json)?|```$", "", text).strip()
     if not text.startswith("{"):
         raise ValueError(f"no JSON in the reply: {json.dumps(data)[:200]}")
+    try:
+        items = json.loads(text).get("jobs") or []
+    except ValueError:                                  # a malformed reply (Nov 14: "Expecting ':' delimiter"): keep every job
+        items = []                                      # object that parses on its own; the rest are retried next run
+        for m in re.finditer(r'\{[^{}]*"id"\s*:\s*"[^"]*"[^{}]*\}', text):
+            try:
+                items.append(json.loads(m.group(0)))
+            except ValueError:
+                continue
+        if not items:
+            raise
     out = {}
     ids = {b[0] for b in batch}
     texts = {b[0]: excerpt(b[3], 4000) + " " + str(b[1] or "") for b in batch}
-    for j in (json.loads(text).get("jobs") or []):
+    for j in items:
         jid = str(j.get("id") or "")
         cat = _norm_cat(j.get("category"))
         try:

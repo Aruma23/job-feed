@@ -270,6 +270,14 @@ class Evidence(unittest.TestCase):
         self.assertEqual(out["j1"]["score"], 80, "the check changes the words, never the score")
         self.assertEqual(out["j1"]["pv"], R.PROMPT_VERSION)
 
+    def test_malformed_reply_keeps_what_parses(self):
+        bad = ('{"jobs": [{"id": "j1", "score": 80, "category": "' + R.FPA + '", "strengths": ["variance analysis"], "gap": ""},'
+               ' {"id": "j2", "score" 70, "category": "x"}]}')
+        def post(url, body, token):
+            return {"candidates": [{"content": {"parts": [{"text": bad}]}}]}
+        out = R.review([("j1", "FP&A Analyst", "Acme", DUTIES), ("j2", "FP&A Analyst", "Acme", DUTIES)], "k", "m", post)
+        self.assertEqual(list(out), ["j1"], "j1 kept; j2 (broken) is retried next run")
+
     def test_stale_versions(self):
         self.assertFalse(R.stale({"by": "model"}) if R.PROMPT_VERSION == 1 else False)
         keep = R.PROMPT_VERSION

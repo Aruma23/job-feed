@@ -74,6 +74,13 @@ class Findings(unittest.TestCase):
         keys = {x["key"] for x in W.check(st, [RUN_OK], NOW)}
         self.assertEqual(keys, {"duplicate-ids", "quality"})
 
+    def test_no_false_alarms_from_tonight(self):
+        st = dict(OK_STATUS, classifier={"error": "JSONDecodeError: Expecting ':' delimiter: line 59"},
+                  direct=dict(OK_STATUS["direct"], adapter_health={"breezy": {"due": 0, "read": 0, "late": 3, "state": "ok", "since": "x"}}))
+        keys = [x["key"] for x in W.check(st, [RUN_OK], NOW)]
+        self.assertIn("classifier", keys, "'delimiter' contains 'limit': the error used to be skipped")
+        self.assertNotIn("system-zero-breezy", keys, "3 tail boards of a tiny system are not an outage")
+
     def test_render_carries_keys(self):
         body = W.render(W.check(OK_STATUS, [RUN_BAD], NOW, W.failure_of(JOBS_CHECK, LOG_DUP)), OK_STATUS, [RUN_BAD])
         self.assertIn("watchdog keys: run-failed", body)

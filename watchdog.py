@@ -33,6 +33,7 @@ COLLECT_TIMEOUT_MIN = 50          # scrape.yml collect timeout-minutes
 SWEEP_SECONDS = 15 * 60           # discover.SWEEP_SECONDS
 STALE_HOURS = 8                   # four runs a day, ~6 h apart: 8 h without a publish means one was missed
 LABEL = "feed-health"
+BIG_SYSTEMS = {"workday", "oracle", "greenhouse", "lever", "ashby", "smartrecruiters"}   # idle = something broke, not a quiet day
 API = "https://api.github.com"
 
 TRANSIENT = re.compile(r"timed? ?out|operation was canceled|connection reset|ECONNRESET|temporary failure|could not resolve host|"
@@ -93,10 +94,12 @@ def check(status, runs, now, failure=None, collect_minutes=None):
     for prov, h in sorted((d.get("adapter_health") or {}).items()):
         due, read, late = int(h.get("due") or 0), int(h.get("read") or 0), int(h.get("late") or 0)
         skipped = int(h.get("skipped") or 0)
-        if due + late + read + skipped == 0 and h.get("since"):
+        if due + late + read + skipped == 0 and h.get("since") and prov in BIG_SYSTEMS:
             out.append(_f("red", f"system-idle-{prov}", f"{prov}: no board read, skipped or even scheduled this run.",
                           "Its boards are never reached: look at the sweep order and budget (Workday, Nov 10-14)."))
-        elif due + late >= 3 and read == 0:
+        elif due + late + read + skipped == 0 and h.get("since"):
+            continue                                     # a tiny system with nothing due this run
+        elif due + late >= 20 and read == 0:
             out.append(_f("red", f"system-zero-{prov}", f"{prov}: 0 boards read ({due} due, {late} out of time).",
                           "A whole application system is silent: format change, block, or starved by the sweep budget."))
         elif h.get("state") == "degraded":
@@ -112,7 +115,7 @@ def check(status, runs, now, failure=None, collect_minutes=None):
     if d.get("error"):
         out.append(_f("red", "direct-error", f"The company-board step failed: {d['error']}", "The feed fell back to the last board jobs."))
     c = status.get("classifier") or {}
-    if c.get("error") and "no GEMINI_API_KEY" not in c["error"] and "limit" not in c["error"]:
+    if c.get("error") and "no GEMINI_API_KEY" not in c["error"] and not re.search(r"\blimit\b|HTTP 429", c["error"]):
         out.append(_f("amber", "classifier", f"Review step: {c['error'][:200]}", "Rules verdicts stand meanwhile."))
     fn = (c.get("false_negatives") or {}).get("flag")
     if fn:
