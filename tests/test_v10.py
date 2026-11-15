@@ -191,9 +191,17 @@ class EmployerType(unittest.TestCase):
 
     def test_board_and_mass(self):
         self.assertEqual(self.c("Acme", id="greenhouse:1", trust="verified"), "direct")
-        rows = [{"company": "BigPost", "title": "Remote Advisor", "id": f"in-{i}"} for i in range(9)]
+        desc = "A repeated marketplace posting description with substantive duties and requirements. " * 5
+        rows = [{"company": "BigPost", "title": "Remote Advisor", "id": f"in-{i}", "description": desc} for i in range(9)]
         employer.annotate(rows)
         self.assertEqual(rows[0]["employer_type"], "marketplace")
+
+    def test_same_title_with_distinct_descriptions_is_not_marketplace(self):
+        rows = [{"company": "BigPost", "title": "Financial Analyst", "id": f"in-{i}",
+                 "description": f"Distinct role {i}. " + ("Substantive requirements and responsibilities. " * 8)}
+                for i in range(9)]
+        employer.annotate(rows)
+        self.assertEqual(rows[0]["employer_type"], "unknown")
 
     def test_native_board_needs_ownership_evidence(self):
         self.assertEqual(self.c("Acme", id="greenhouse:1", trust="unverified"), "unknown")
