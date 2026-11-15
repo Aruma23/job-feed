@@ -191,9 +191,22 @@ class EmployerType(unittest.TestCase):
 
     def test_board_and_mass(self):
         self.assertEqual(self.c("Acme", id="greenhouse:1", trust="verified"), "direct")
-        rows = [{"company": "BigPost", "title": "Remote Advisor", "id": f"in-{i}"} for i in range(9)]
+        desc = "A repeated marketplace posting description with substantive duties and requirements. " * 5
+        rows = [{"company": "BigPost", "title": "Remote Advisor", "id": f"in-{i}", "description": desc} for i in range(9)]
         employer.annotate(rows)
         self.assertEqual(rows[0]["employer_type"], "marketplace")
+
+    def test_same_title_with_distinct_descriptions_is_not_marketplace(self):
+        rows = [{"company": "BigPost", "title": "Financial Analyst", "id": f"in-{i}",
+                 "description": f"Distinct role {i}. " + ("Substantive requirements and responsibilities. " * 8)}
+                for i in range(9)]
+        employer.annotate(rows)
+        self.assertEqual(rows[0]["employer_type"], "unknown")
+
+    def test_native_board_needs_ownership_evidence(self):
+        self.assertEqual(self.c("Acme", id="greenhouse:1", trust="unverified"), "unknown")
+        self.assertEqual(self.c("Acme", id="greenhouse:1", trust="suspicious"), "unknown")
+        self.assertEqual(self.c("Acme", id="greenhouse:1", trust="consistent"), "direct")
 
 
 class Priority(unittest.TestCase):
@@ -217,7 +230,8 @@ class Priority(unittest.TestCase):
 class Confirm(unittest.TestCase):
     def test_states(self):
         t = "2026-11-14"
-        self.assertEqual(freshness.confirm({"last_seen": t}, t), "current")
+        self.assertEqual(freshness.confirm({"last_seen": t}, t), "recent", "same-day carryover is not proof of a current-run observation")
+        self.assertEqual(freshness.confirm({"last_seen": t, "_confirm": "current"}, t), "current")
         self.assertEqual(freshness.confirm({"id": "workday:1", "last_seen": "2026-11-12", "_confirm": "not_due"}, t), "not_due")
         self.assertEqual(freshness.confirm({"id": "in-1", "last_seen": "2026-11-12", "date_posted": "2026-11-05"}, t), "window")
         self.assertEqual(freshness.confirm({"id": "greenhouse:1", "last_seen": "2026-11-13"}, t), "recent")
@@ -372,7 +386,10 @@ class PayFromText(unittest.TestCase):
     def test_stated_ranges(self):
         self.assertEqual(self.p("The base salary range for this role is $100,000 to $125,000 USD."), ("100000", "125000"))
         self.assertEqual(self.p("Expected base salary: $175k-$225k."), ("175000", "225000"))
-        self.assertEqual(self.p("Compensation: $28 - $35 per hour."), ("58200", "72800"))
+        self.assertEqual(self.p("Compensation: $28 - $35 per hour."), ("58240", "72800"))
+        self.assertEqual(self.p("Salary range: $74,999.99 - $74,999.99."), ("74999", "74999"))
+        self.assertEqual(self.p("Salary range: $100 - $150."), ("", ""), "ambiguous small amounts are not assumed hourly")
+        self.assertEqual(self.p("Compensation: $100 - $150 per hour."), ("208000", "312000"))
 
     def test_new_york_range_wins_and_ambiguity_gives_none(self):
         t = "Pay range: Colorado $80,000 - $95,000. New York City pay range: $110,000 - $130,000."
@@ -384,6 +401,17 @@ class PayFromText(unittest.TestCase):
         self.assertEqual(self.p("You will manage a budget of $100,000 - $500,000 per project."), ("", ""))
         self.assertEqual(self.p("Deals of $10,000,000 to $50,000,000 in revenue."), ("", ""))
         self.assertEqual(self.p("No pay stated."), ("", ""))
+
+
+class EmptySources(unittest.TestCase):
+    def test_known_results_are_not_misreported_as_empty(self):
+        status = [
+            {"site": "indeed", "returned": 12, "usable": 12, "new": 0, "error": ""},
+            {"site": "linkedin", "returned": 0, "usable": 0, "new": 0, "error": ""},
+            {"site": "glassdoor", "returned": 0, "usable": 0, "new": 0, "error": "blocked"},
+            {"site": "broken", "returned": 5, "usable": 0, "new": 0, "error": ""},
+        ]
+        self.assertEqual(scrape.empty_sources(status), ["broken", "linkedin"])
 
 
 class OneRowPerId(unittest.TestCase):
@@ -417,6 +445,7 @@ class RescuedRows(unittest.TestCase):
         self.assertEqual((r["pay_low"], r["pay_high"]), ("110000", "130000"))
         self.assertTrue(r.get("years_min"))
         self.assertTrue(r.get("seniority"))
+        self.assertEqual(r.get("confirm"), "current")
         self.assertIn("pay up to $130,000", r["priority_why"])
 
 
