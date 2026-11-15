@@ -317,6 +317,7 @@ DROP_SHARE = 0.4      # a complete read below 40% of the board's usual count (us
 DROP_ACCEPT = 3       # jobs lately, is suspect, not a mass closing ... until it repeats on 3 reads in a row: then it really shrank
 PRESENT = {}          # board -> requisition keys a trusted complete read exposed this run (freshness.route_gone)
 SKIPPED = set()       # boards due by schedule but skipped this run as unchanged (footprint.py); their jobs are kept
+NOT_DUE = set()        # boards not due by the normal schedule this run
 REJECTED = []         # (board, job) the rules turned away on their description this run (backlog.py samples them)
 
 
@@ -400,10 +401,12 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
     t0 = time.time()
     PRESENT.clear()
     SKIPPED.clear()
+    NOT_DUE.clear()
     del REJECTED[:]
     run = db["run"] = db.get("run", 0) + 1
     per, drops = {}, []
     scheduled = [b for b, info in db["boards"].items() if due(info, b, today)]
+    NOT_DUE.update(set(db["boards"]) - set(scheduled))
     boards = []
     for b in scheduled:
         if footprint.due(db["boards"][b], run, today):
