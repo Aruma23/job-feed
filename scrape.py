@@ -439,8 +439,8 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
         if k in rows or k in held:
             continue
         b = ats.board_of(r.get("job_url"))
-        if b in D.SKIPPED or (r.get("_board") and r["_board"] in D.SKIPPED) or (
-                b in db.get("boards", {}) and not D.due(db["boards"][b], b, today)):
+        if b in D.SKIPPED or b in D.NOT_DUE or (r.get("_board") and (
+                r["_board"] in D.SKIPPED or r["_board"] in D.NOT_DUE)):
             rows[k] = dict(r, _confirm="not_due")   # board was deliberately not scheduled/read this run
             kept_skipped += 1
             continue
