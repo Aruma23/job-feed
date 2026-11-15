@@ -568,7 +568,8 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
         if b in sample and v:
             if is_fit(v):
                 audit_fits.append({"title": b.get("title", ""), "company": b.get("company", ""), "score": v["score"], "rule": b.get("_drop", "")})
-        if is_fit(v):
+        if is_fit(v) and b.get("id") not in by_id:     # never a second row under an id (sample and border can overlap)
+            by_id[b.get("id")] = b
             apply(b, v)
             b["location"] = geo.finder_location(b.get("location") or "", geo.resolve(b.get("location"), b.get("is_remote") == "True", b.get("description") or ""))
             b["source_ids"] = b.get("source_ids") or b["id"]

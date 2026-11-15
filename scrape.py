@@ -217,7 +217,12 @@ def merge(previous, fresh, today, index_out=None):
             continue
         idx.add(p)
     for f in fresh:
-        slot = idx.find(f)
+        # v10: the same site posting key is the same posting, whatever else changed. find() can call two copies different
+        # openings when their employer links differ (a listing whose apply link moved to another ATS URL); it then added a
+        # second row under the same id, and the run's output check threw the whole run away (Nov 14, 12:13 am and 7:14 am).
+        slot = next((s for s in idx.by.get("id:" + f["id"], []) if f["id"] in identity.source_ids(idx.rows[s])), None)
+        if slot is None:
+            slot = idx.find(f)
         if slot is None:
             f = dict(f, first_seen=today, last_seen=today, also_on="", source_ids=f["id"])
             f.pop("_new", None)
@@ -682,6 +687,11 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
         summary["note"] = "Nothing came back this run; earlier jobs kept."
     with open(status_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=1)
+    rows, dup = unique_ids(rows)
+    if dup:
+        summary["duplicate_ids_merged"] = dup
+        with open(status_path, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=1)
     with open(out, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=COLS, extrasaction="ignore")
         w.writeheader()
@@ -693,6 +703,23 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
                    "audit": [dict({c: a.get(c, "") for c in COLS}, _drop=a.get("_drop", "")) for a in audit_rows]}, f)
     print(f"Saved {len(rows)} jobs ({len(fresh)} from this run; {len(failed)} of {len(status)} searches failed; {len(queue) + len(waiting)} queued for review)")
     return summary
+
+
+def unique_ids(rows):
+    """Last line of defence for CONTRACT invariant 1 (one row per id): a second row under an id already written is folded
+    into the first (its source ids kept) instead of failing the run's output check, which throws the whole run away.
+    Returns (rows, {"count", "ids"}) so a cause upstream still shows in feed_status."""
+    seen, out, ids = {}, [], []
+    for r in rows:
+        k = r.get("id")
+        if k in seen:
+            first = seen[k]
+            first["source_ids"] = ";".join(dict.fromkeys(identity.source_ids(first) + identity.source_ids(r)))
+            ids.append(k)
+            continue
+        seen[k] = r
+        out.append(r)
+    return out, ({"count": len(ids), "ids": ids[:10]} if ids else {})
 
 
 def annotate_v6(rows, hist, here, today):

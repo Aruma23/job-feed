@@ -372,6 +372,23 @@ class PayFromText(unittest.TestCase):
         self.assertEqual(self.p("No pay stated."), ("", ""))
 
 
+class OneRowPerId(unittest.TestCase):
+    def test_same_posting_with_a_new_apply_link_stays_one_row(self):
+        old = dict(rec(1), job_url_direct="https://boards.greenhouse.io/acme/jobs/111", first_seen="2026-11-12",
+                   last_seen="2026-11-13", source_ids="in-1")
+        old = {c: scrape.clean(old.get(c, "")) for c in scrape.COLS}
+        new = {c: scrape.clean(v) for c, v in dict(rec(1), job_url_direct="https://boards.greenhouse.io/acme/jobs/999").items()}
+        out = scrape.merge([old], [new], "2026-11-14")
+        self.assertEqual([r["id"] for r in out], ["in-1"], "it used to add a second in-1 row and the run's check failed")
+        self.assertEqual(out[0]["last_seen"], "2026-11-14")
+
+    def test_safety_net(self):
+        rows, dup = scrape.unique_ids([{"id": "a", "source_ids": "a"}, {"id": "b"}, {"id": "a", "source_ids": "a;x"}])
+        self.assertEqual([r["id"] for r in rows], ["a", "b"])
+        self.assertEqual(rows[0]["source_ids"], "a;x")
+        self.assertEqual(dup["count"], 1)
+
+
 class Shadow(unittest.TestCase):
     def test_records_without_raising(self):
         import shadow
