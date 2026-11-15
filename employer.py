@@ -64,7 +64,7 @@ _TEXT = [
     (re.compile(r"\b(?:contract[- ]to[- ]hire|temp[- ]to[- ]perm|w2 contract|c2c|corp[- ]to[- ]corp)\b", re.I), "contract-to-hire terms"),
     (re.compile(r"\b(?:direct hire|permanent placement) (?:opportunity|role|position) with\b", re.I), "a placement with another company"),
 ]
-_NATIVE = re.compile(r"^(greenhouse|lever|ashby|workday|smartrecruiters|workable|breezy|recruitee|teamtailor|pinpoint|rippling|personio):")
+_NATIVE = re.compile(r"^(greenhouse|lever|ashby|workday|smartrecruiters|workable|breezy|recruitee|teamtailor|pinpoint|rippling|personio|oracle):")
 
 
 def _name(company):

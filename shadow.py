@@ -5,7 +5,8 @@ candidate adapters for a few employers the coverage report names, records what c
 (HTTP status, whether the reply parsed, how many jobs, sample titles, whether a description could be read), and adds nothing
 to jobs.csv. An adapter is switched on (moved into ats.FETCH) only after its shadow record shows it parsing real boards.
 
-Candidates:
+Candidates (oracle and contacthr proved out in run #82 on Nov 14 and moved into ats.py / discover.py; their checks stay here
+for the record and keep running on hosts not yet boards):
   oracle     Oracle Recruiting Cloud Candidate Experience: the public JSON API behind
              {host}/hcmUI/CandidateExperience/en/sites/{site}/... (JPMorgan Chase and other banks): recruitingCEJobRequisitions
              with finder=findReqs, and recruitingCEJobRequisitionDetails for one job's text.

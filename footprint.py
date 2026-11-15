@@ -31,7 +31,8 @@ ENDPOINT = {
     "workday": "https://{0}.{1}.myworkdayjobs.com/wday/cxs/{0}/{2}/jobs", "workable": "https://apply.workable.com/api/v1/widget/accounts/{0}",
     "breezy": "https://{0}.breezy.hr/json", "recruitee": "https://{0}.recruitee.com/api/offers/", "teamtailor": "https://{0}.teamtailor.com/jobs.json",
     "pinpoint": "https://{0}.pinpointhq.com/postings.json", "rippling": "https://ats.rippling.com/api/v2/board/{0}/jobs",
-    "personio": "https://{0}.jobs.personio.de/search.json"}
+    "personio": "https://{0}.jobs.personio.de/search.json",
+    "oracle": "https://{0}/hcmRestApi/resources/latest/recruitingCEJobRequisitions?finder=findReqs;siteNumber={1}"}
 
 
 def endpoint(board):
@@ -89,7 +90,7 @@ def after_failure(info, err, run):
     info["next"] = run + info["every"]
 
 
-HOST = {"ashby": "ashbyhq", "workday": "myworkdayjobs", "pinpoint": "pinpointhq"}
+HOST = {"ashby": "ashbyhq", "workday": "myworkdayjobs", "pinpoint": "pinpointhq", "oracle": "oraclecloud"}
 
 
 def report(per, skipped, run):

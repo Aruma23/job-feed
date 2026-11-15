@@ -272,7 +272,7 @@ def due(info, board, today):
     if info.get("fails", 0) >= 5 or (info.get("polls", 0) >= 3 and info.get("quiet", 0) >= 3):
         return d.weekday() == spread and info.get("ok") != today
     hot = bool(info.get("last_hit")) and (d - date.fromisoformat(info["last_hit"])).days <= 14
-    if board.startswith("workday:"):
+    if board.startswith(("workday:", "oracle:")):              # search-based and heavier: once a day
         return info.get("ok") != today
     if not hot and info.get("polls", 0) >= 12 and not info.get("hits"):
         return info.get("ok") != today
@@ -423,8 +423,8 @@ def sweep(db, today, stats, get=ats.http, seconds=SWEEP_SECONDS):
         except Exception as e:
             return b, None, f"{type(e).__name__}: {str(e)[:100]}"
 
-    fast = [b for b in boards if not b.startswith("workday:")]
-    slow = [b for b in boards if b.startswith("workday:")]
+    fast = [b for b in boards if not b.startswith(("workday:", "oracle:"))]
+    slow = [b for b in boards if b.startswith(("workday:", "oracle:"))]
     results = []
     # v10 (Nov 14): both groups run at the same time, each most-promising first. They used to run one after the other, and
     # once the registry grew the fast group used the whole budget: from about Nov 10 no Workday board was read at all, and

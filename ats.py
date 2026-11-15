@@ -41,8 +41,8 @@ class HttpError(Exception):
 LIMITS = [("boards-api.greenhouse.io", 8), ("api.eu.lever.co", 2), ("api.lever.co", 2), ("api.ashbyhq.com", 4),
           ("api.smartrecruiters.com", 4), ("myworkdayjobs.com", 2), ("breezy.hr", 2), ("recruitee.com", 3), ("teamtailor.com", 2),
           ("workable.com", 1), ("pinpointhq.com", 2), ("rippling.com", 2), ("personio.de", 2), ("personio.com", 2),
-          ("data.commoncrawl.org", 15), ("index.commoncrawl.org", 0.5)]
-PER_HOST = ("myworkdayjobs.com",)
+          ("data.commoncrawl.org", 15), ("index.commoncrawl.org", 0.5), ("oraclecloud.com", 2)]
+PER_HOST = ("myworkdayjobs.com", "oraclecloud.com")
 DEFAULT_RPS = 4
 STATS = {}                 # provider -> {"requests", "retries", "throttled", "failed"} for feed_status.json
 _LOCK = threading.Lock()
@@ -205,6 +205,9 @@ def board_of(url):
     m = re.search(r"https?://([a-z0-9-]+)\.(wd\d+)\.myworkdayjobs\.com/(?:[a-z]{2}-[A-Za-z]{2}/)?([A-Za-z0-9_-]+)", u)
     if m and m.group(3).lower() not in ("wday", "job", "robots", "login", "sitemap") and len(m.group(3)) > 2 and m.group(1) not in ("www", "api"):
         return f"workday:{m.group(1)}|{m.group(2)}|{m.group(3)}"
+    m = ORACLE_SITE.search(u)
+    if m:
+        return f"oracle:{m.group(1).lower()}|{m.group(2)}"
     m = re.search(r"apply\.workable\.com/([A-Za-z0-9_-]+)", u)
     if m and m.group(1).lower() not in ("api", "j", "careers", "static", "assets"):
         return "workable:" + m.group(1).lower()
@@ -226,7 +229,7 @@ SUBDOMAIN_RESERVED = {"www", "app", "api", "help", "support", "blog", "status", 
                       "auth", "admin", "sandbox", "staging", "test", "academy", "community", "updates", "changelog", "security"}
 
 
-REDIRECTS = re.compile(r"^https?://(grnh\.se|click\.appcast\.io|jsv3\.recruitics\.com|[a-z0-9.-]*jobs?\.?redirect)", re.I)
+REDIRECTS = re.compile(r"^https?://(grnh\.se|click\.appcast\.io|jsv3\.recruitics\.com|[a-z0-9.-]*jobs?\.?redirect|[a-z0-9-]+\.contacthr\.com)", re.I)
 
 
 def unwrap(url, resolve=None):
@@ -545,9 +548,76 @@ def personio(slug, want, get=http):
     return out
 
 
+# ---- Oracle Recruiting Cloud (Candidate Experience), Nov 14 2026: format proven by shadow.py in run #82 on 6 tenants ----
+ORACLE_SITE = re.compile(r"https?://([a-z0-9.-]+\.oraclecloud\.com)/hcmUI/CandidateExperience/[a-z]{2}(?:-[A-Z]{2})?/sites/([A-Za-z0-9_]+)", re.I)
+ORACLE_PAGE = 25
+ORACLE_PAGES = 3
+
+
+def oracle_list_url(host, site, keyword, limit=ORACLE_PAGE, offset=0):
+    finder = (f"findReqs;siteNumber={site},facetsList=LOCATIONS;WORK_LOCATIONS;TITLES;CATEGORIES;POSTING_DATES,"
+              f"limit={limit},offset={offset},keyword=\"{keyword}\",sortBy=POSTING_DATES_DESC")
+    return (f"https://{host}/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true"
+            f"&expand=requisitionList.secondaryLocations&finder=" + urllib.parse.quote(finder, safe="=;,\""))
+
+
+def oracle_detail_url(host, site, jid):
+    finder = f"ById;Id=\"{jid}\",siteNumber={site}"
+    return (f"https://{host}/hcmRestApi/resources/latest/recruitingCEJobRequisitionDetails?expand=all&onlyData=true&finder="
+            + urllib.parse.quote(finder, safe="=;,\""))
+
+
+def _oracle_text(d):
+    return text_of(" ".join(str(d.get(k) or "") for k in ("ExternalDescriptionStr", "ExternalResponsibilitiesStr",
+                                                          "ExternalQualificationsStr")))
+
+
+def oracle(spec, want, get=http):
+    """Searches, like Workday (big employers list thousands of jobs worldwide): the same finance searches, newest first, 25 a
+    page, up to ORACLE_PAGES pages; the description only for jobs `want` keeps. complete is False, so a job missing from the
+    searches is checked on its own page or kept, never closed by absence."""
+    host, site = spec.split("|")
+    tenant = host.split(".")[0]
+    base = f"https://{host}/hcmUI/CandidateExperience/en/sites/{site}"
+    seen, out = set(), Jobs()
+    out.complete = False
+    for q in WORKDAY_SEARCHES:
+        for page in range(ORACLE_PAGES):
+            try:
+                data = get(oracle_list_url(host, site, q, offset=ORACLE_PAGE * page))
+            except HttpError as e:
+                if e.code in (404, 400, 401, 403) and not out and page == 0 and q == WORKDAY_SEARCHES[0]:
+                    raise
+                break
+            item = (data.get("items") or [{}])[0]
+            reqs = item.get("requisitionList") or []
+            total = int(item.get("TotalJobsCount") or 0)
+            fresh = 0
+            for j in reqs:
+                jid = str(j.get("Id") or "")
+                if not jid or jid in seen:
+                    continue
+                seen.add(jid)
+                fresh += 1
+                extra = [x.get("Name") for x in (j.get("secondaryLocations") or []) if isinstance(x, dict) and x.get("Name")]
+                loc = "; ".join([str(j.get("PrimaryLocation") or "")] + extra).strip("; ")
+                job = {"id": f"oracle:{tenant}:{jid}", "title": j.get("Title") or "", "company": tenant, "location": loc,
+                       "remote": bool(re.search(r"remote", loc + " " + str(j.get("WorkplaceType") or ""), re.I)),
+                       "url": f"{base}/job/{jid}", "posted": str(j.get("PostedDate") or "")[:10], "description": ""}
+                if want(job):
+                    try:
+                        job["description"] = _oracle_text((get(oracle_detail_url(host, site, jid)).get("items") or [{}])[0])
+                    except Exception:
+                        pass
+                out.append(job)
+            if not fresh or ORACLE_PAGE * (page + 1) >= total:
+                break
+    return out
+
+
 FETCH = {"greenhouse": greenhouse, "lever": lever, "ashby": ashby, "smartrecruiters": smartrecruiters, "workday": workday,
          "workable": workable, "breezy": breezy, "recruitee": recruitee, "teamtailor": teamtailor, "pinpoint": pinpoint,
-         "rippling": rippling, "personio": personio}
+         "rippling": rippling, "personio": personio, "oracle": oracle}
 KINDS = tuple(FETCH)
 
 
@@ -589,6 +659,10 @@ def still_open(job_url, get=http):
         if m:
             get(f"https://api.smartrecruiters.com/v1/companies/{m.group(1)}/postings/{m.group(2)}", tries=2)
             return True
+        m = re.match(r"(https://([a-z0-9.-]+\.oraclecloud\.com))/hcmUI/CandidateExperience/[a-z]{2}(?:-[A-Z]{2})?/sites/([A-Za-z0-9_]+)/job/(\d+)", u, re.I)
+        if m:                                          # found = open; an empty answer can't be told from a format change
+            items = get(oracle_detail_url(m.group(2), m.group(3), m.group(4)), tries=2).get("items") or []
+            return True if items and items[0].get("Id") else None
         m = re.match(r"https://ats\.rippling\.com/([^/]+)/jobs/([0-9a-f-]+)", u)
         if m:
             get(f"https://ats.rippling.com/api/v2/board/{m.group(1)}/jobs/{m.group(2)}", tries=2)

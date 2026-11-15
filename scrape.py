@@ -343,7 +343,7 @@ def collect(scrape, searches=None, pause=(4, 9), sleep=time.sleep, previous=None
     return fresh, status
 
 
-NATIVE = re.compile(r"^(greenhouse|lever|ashby|workday|smartrecruiters|workable|breezy|recruitee|teamtailor|pinpoint|rippling|personio):")
+NATIVE = re.compile(r"^(greenhouse|lever|ashby|workday|smartrecruiters|workable|breezy|recruitee|teamtailor|pinpoint|rippling|personio|oracle):")
 STILL_OPEN_CHECKS = 40       # jobs missing from a partial board read, checked on their own page each run
 DIRECT_CAP = 1500
 

@@ -299,6 +299,8 @@ def _markers(board):
     if kind == "workday":
         t, wd, _site = rest.split("|")
         return re.compile(re.escape(f"{t}.{wd}.myworkdayjobs.com"), re.I)
+    if kind == "oracle":
+        return re.compile(re.escape(rest.split("|")[0]), re.I)
     return re.compile({"greenhouse": r"greenhouse\.io/(?:embed/job_board(?:/js)?\?for=)?" + slug + r"\b|[?&]for=" + slug + r"\b",
                        "lever": r"lever\.co/" + slug + r"\b", "ashby": r"ashbyhq\.com/" + slug + r"\b",
                        "smartrecruiters": r"smartrecruiters\.com/" + slug + r"\b", "workable": r"workable\.com/" + slug + r"\b",

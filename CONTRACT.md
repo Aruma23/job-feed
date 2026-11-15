@@ -15,7 +15,8 @@ column in `scrape.py` is missing here or a value falls outside its list.
 ## Identity
 
 - `id` is the canonical ID. A job keeps the `id` it was first published under for life; a closed job that comes back keeps it too (`status` = reappeared), so the tracker sees the same lead, with its decision.
-- Company-board jobs use the board's own key (`greenhouse:123`, `workday:R12345`, `workable:AB12`...). Aggregator jobs use the site's posting key (`in-…`, `li-…`).
+- Company-board jobs use the board's own key (`greenhouse:123`, `workday:R12345`, `workable:AB12`, and from v8
+  `oracle:<tenant>:<requisition>` for Oracle Recruiting Cloud, e.g. `oracle:jpmc:210807776`). Aggregator jobs use the site's posting key (`in-…`, `li-…`).
 - `source_ids` lists every ID merged into the row (the same opening seen on several sites). The tracker must treat a lead whose key is any of these as the same job.
 - `req_id` is the employer's requisition number when one is known.
 - Two openings with the same title at one company stay two rows unless a requisition ID, the employer's link, or company + title + place says they are one.
@@ -101,6 +102,6 @@ the saved queue carried, closed or dropped, and `direct.held_oldest_days` the lo
 
 ## Still to do in the tracker (engine)
 
-Key leads by `id` for all twelve board systems and match on `source_ids`; carry decisions across `repost_of`; read `freshness`,
+Key leads by `id` for all thirteen board systems (v8 adds `oracle:`) and match on `source_ids`; carry decisions across `repost_of`; read `freshness`,
 `trust`, `priority` into Leads; keep "suspicious" and "gone" jobs out of auto-queue; show `feed_status.json` → `direct.adapter_health`
 and `coverage` in the Hub.
