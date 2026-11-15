@@ -361,7 +361,7 @@ def smartrecruiters(company, want, get=http):
 
 
 WORKDAY_SEARCHES = ["financial planning", "FP&A", "financial analyst", "strategic finance", "workforce planning", "business planning"]
-WORKDAY_PAGES = 3          # 20 a page; a page that adds nothing new ends the search (Workday can repeat results across pages)
+WORKDAY_PAGES = 3          # 20 a page; an empty or identical page ends the search (duplicates across different queries do not)
 
 
 def workday(spec, want, get=http):
@@ -372,6 +372,7 @@ def workday(spec, want, get=http):
     out.complete = False                      # searches, not the whole board: a missing job is checked on its own page
     for q in WORKDAY_SEARCHES:
         total = None
+        seen_pages = set()
         for page in range(WORKDAY_PAGES):
             try:
                 data = get(f"{api}/jobs", data={"appliedFacets": {}, "limit": 20, "offset": 20 * page, "searchText": q})
@@ -381,13 +382,16 @@ def workday(spec, want, get=http):
                 break
             if total is None:
                 total = int(data.get("total") or 0)        # only the first page carries the real total
-            fresh = 0
-            for j in data.get("jobPostings") or []:
+            postings = data.get("jobPostings") or []
+            page_ids = tuple(str(j.get("externalPath") or "") for j in postings)
+            if not page_ids or page_ids in seen_pages:
+                break                                      # empty page or API ignored the offset; duplicates across queries do not stop paging
+            seen_pages.add(page_ids)
+            for j in postings:
                 path = j.get("externalPath")
                 if not path or path in seen:
                     continue
                 seen.add(path)
-                fresh += 1
                 job = {"id": f"workday:{path.split('_')[-1]}", "title": j.get("title", ""), "company": tenant, "location": j.get("locationsText", ""),
                        "remote": "remote" in str(j.get("locationsText", "")).lower(), "url": f"{base}/{site}{path}", "posted": wd_posted(j.get("postedOn")), "description": ""}
                 if want(job):
@@ -401,7 +405,7 @@ def workday(spec, want, get=http):
                     except Exception:
                         pass
                 out.append(job)
-            if not fresh or 20 * (page + 1) >= (total or 0):
+            if 20 * (page + 1) >= (total or 0):
                 break
     return out
 
@@ -582,6 +586,7 @@ def oracle(spec, want, get=http):
     seen, out = set(), Jobs()
     out.complete = False
     for q in WORKDAY_SEARCHES:
+        seen_pages = set()
         for page in range(ORACLE_PAGES):
             try:
                 data = get(oracle_list_url(host, site, q, offset=ORACLE_PAGE * page))
@@ -592,13 +597,15 @@ def oracle(spec, want, get=http):
             item = (data.get("items") or [{}])[0]
             reqs = item.get("requisitionList") or []
             total = int(item.get("TotalJobsCount") or 0)
-            fresh = 0
+            page_ids = tuple(str(j.get("Id") or "") for j in reqs)
+            if not page_ids or page_ids in seen_pages:
+                break                                      # empty page or API ignored the offset; duplicates across queries do not stop paging
+            seen_pages.add(page_ids)
             for j in reqs:
                 jid = str(j.get("Id") or "")
                 if not jid or jid in seen:
                     continue
                 seen.add(jid)
-                fresh += 1
                 extra = [x.get("Name") for x in (j.get("secondaryLocations") or []) if isinstance(x, dict) and x.get("Name")]
                 loc = "; ".join([str(j.get("PrimaryLocation") or "")] + extra).strip("; ")
                 job = {"id": f"oracle:{tenant}:{jid}", "title": j.get("Title") or "", "company": tenant, "location": loc,
@@ -610,7 +617,7 @@ def oracle(spec, want, get=http):
                     except Exception:
                         pass
                 out.append(job)
-            if not fresh or ORACLE_PAGE * (page + 1) >= total:
+            if ORACLE_PAGE * (page + 1) >= total:
                 break
     return out
 
