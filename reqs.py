@@ -160,7 +160,7 @@ def annual_pay(row):
     lo, hi = (lo or hi) * mult, (hi or lo) * mult
     if mult == 1 and hi < 1000:                 # an hourly figure without its interval
         lo, hi = lo * 2080, hi * 2080
-    return str(int(round(lo))), str(int(round(hi)))
+    return str(int(lo)), str(int(hi))
 
 
 # ---------------- v10: pay stated only in the text (NY pay-transparency ranges) ----------------
@@ -215,4 +215,4 @@ def pay_from_text(description):
         if len({(f[0], f[1]) for f in found}) > 1 and (len(plain) != 1 or any(f[3] for f in found)):
             return "", ""                       # several places or several ranges, none marked New York: don't guess
         lo, hi = found[0][0], found[0][1]
-    return str(int(round(lo))), str(int(round(hi)))
+    return str(int(lo)), str(int(hi))
