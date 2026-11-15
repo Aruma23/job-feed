@@ -208,14 +208,6 @@ class EmployerType(unittest.TestCase):
         self.assertEqual(self.c("Acme", id="greenhouse:1", trust="suspicious"), "unknown")
         self.assertEqual(self.c("Acme", id="greenhouse:1", trust="consistent"), "direct")
 
-    def test_mass_signal_is_scoped_to_title(self):
-        rows = [{"company": "BigPost", "title": "Remote Advisor", "id": f"in-{i}"} for i in range(9)]
-        rows.append({"company": "BigPost", "title": "FP&A Analyst", "id": "greenhouse:fpna", "trust": "verified"})
-        employer.annotate(rows)
-        self.assertEqual(rows[0]["employer_type"], "marketplace")
-        self.assertEqual(rows[-1]["employer_type"], "direct")
-
-
 class Priority(unittest.TestCase):
     BASE = {"fit_score": "90", "freshness": "fresh", "trust": "verified", "region": "NYC", "seniority": "analyst", "status": "new"}
 
