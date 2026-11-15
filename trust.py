@@ -238,7 +238,7 @@ def assess(row, db, good, bad, today, index=None):
                 emp_tokens(info.get("company", ""))[0] == compact and name_match(slug, compact, words, short_names(info.get("company")))):
             status = "consistent"
             why.append(f"board '{slug}' matches the employer's name")
-        elif info.get("src") == "feed-link":
+        elif info.get("src") == "feed-link" or info.get("named_by") == "feed-link":
             status = "consistent"
             why.append("an aggregator listing for this employer applies through this board")
         elif info.get("company") and emp_tokens(info.get("company"))[0] != compact and not name_match(info.get("company"), compact, words):

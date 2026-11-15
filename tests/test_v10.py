@@ -506,6 +506,34 @@ class SeedBoards(unittest.TestCase):
         self.assertFalse(scrape.same_tenant("workday:pnc|wd5|External", "workday:pru|wd5|Careers"), "two employers: two jobs")
 
 
+class BoardNames(unittest.TestCase):
+    def db(self, company):
+        return {"boards": {"workday:ghr|wd1|Lateral-US": {"company": company, "src": "registry"}}}
+
+    def test_account_named_board_takes_the_listing_employer_name(self):
+        import discover as D
+        for start in ("ghr", "ghr|wd1|Lateral-US", ""):
+            db, st = self.db(start), {"boards_new": 0}
+            rows = [{"id": "in-1", "company": "Bank of America",
+                     "job_url_direct": "https://ghr.wd1.myworkdayjobs.com/Lateral-US/job/New-York/Analyst_25012345"}]
+            D.from_rows(db, rows, "2026-11-15", st, resolve=lambda u: u)
+            info = db["boards"]["workday:ghr|wd1|Lateral-US"]
+            self.assertEqual((info["company"], info.get("named_by")), ("Bank of America", "feed-link"), start)
+
+    def test_real_names_and_agencies_are_kept_out(self):
+        import discover as D
+        db, st = self.db("Bank of America"), {"boards_new": 0}
+        D.name_board(db, "workday:ghr|wd1|Lateral-US", "Merrill", st)
+        self.assertEqual(db["boards"]["workday:ghr|wd1|Lateral-US"]["company"], "Bank of America", "a real name stays")
+        db = self.db("ghr")
+        D.name_board(db, "workday:ghr|wd1|Lateral-US", "Robert Half", st)
+        self.assertEqual(db["boards"]["workday:ghr|wd1|Lateral-US"]["company"], "ghr", "an agency's listing never renames a board")
+
+    def test_oracle_account(self):
+        import discover as D
+        self.assertEqual(D._account("oracle:jpmc.fa.oraclecloud.com|CX_1001"), "jpmc")
+
+
 class Shadow(unittest.TestCase):
     def test_records_without_raising(self):
         import shadow

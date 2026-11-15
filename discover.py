@@ -224,9 +224,36 @@ def from_rows(db, rows, today, stats, resolve=ats.resolve_redirect, budget=40):
         if b:
             if real != u:
                 better[r.get("id")] = real
-            add_board(db, b, r.get("company"), "feed-link", today, stats)
+            if not add_board(db, b, r.get("company"), "feed-link", today, stats):
+                name_board(db, b, r.get("company"), stats)
     stats["links_opened"] = opened
     return better
+
+
+def _account(board):
+    """The account part of a board key: "ghr" for workday:ghr|wd1|Lateral-US, "jpmc" for an Oracle host, the slug otherwise."""
+    rest = board.split(":", 1)[1].split("|")[0]
+    return rest.split(".")[0].lower() if board.startswith("oracle:") else rest.lower()
+
+
+def name_board(db, board, company, stats):
+    """A board known only by its account name (registry boards: Workday "ghr" is Bank of America, "ms" Morgan Stanley) takes
+    the employer name of a job-site listing that applies through it (Nov 15: 204 Workday/Oracle boards were named by account).
+    The link is also evidence that this employer uses the board (named_by), which trust.py counts like a board found that way.
+    A board that already has a real name keeps it."""
+    import employer
+    info = db["boards"].get(board)
+    company = str(company or "").strip()
+    if not info or not company or company.lower() == _account(board):
+        return False
+    if str(info.get("company") or "").strip().lower() not in ("", _account(board), board.split(":", 1)[1].lower()):
+        return False
+    if employer.classify({"company": company})[0] in employer.INTERMEDIARY:
+        return False                                   # an agency's listing must not rename the employer's own board
+    info["company"] = company
+    info["named_by"] = "feed-link"
+    stats["boards_named"] = stats.get("boards_named", 0) + 1
+    return True
 
 
 def probe_names(db, names, today, stats, get=ats.http, budget=PROBE_BUDGET):
