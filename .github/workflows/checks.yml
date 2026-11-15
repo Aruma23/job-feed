@@ -6,8 +6,10 @@ name: Checks
 # the jobs already published (impact.py), so a rule that passes its own tests but moves real jobs shows before merging.
 on:
   pull_request:
+    paths: ["*.py", "tests/**", "requirements.txt", ".github/workflows/**"]   # code changes only (PR #5's filter)
   push:
     branches-ignore: [main]
+    paths: ["*.py", "tests/**", "requirements.txt", ".github/workflows/**"]
   workflow_dispatch:
 
 permissions: {}                       # nothing by default
