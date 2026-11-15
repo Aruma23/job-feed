@@ -397,11 +397,12 @@ class PayFromText(unittest.TestCase):
 class EmptySources(unittest.TestCase):
     def test_known_results_are_not_misreported_as_empty(self):
         status = [
-            {"site": "indeed", "returned": 12, "new": 0, "error": ""},
-            {"site": "linkedin", "returned": 0, "new": 0, "error": ""},
-            {"site": "glassdoor", "returned": 0, "new": 0, "error": "blocked"},
+            {"site": "indeed", "returned": 12, "usable": 12, "new": 0, "error": ""},
+            {"site": "linkedin", "returned": 0, "usable": 0, "new": 0, "error": ""},
+            {"site": "glassdoor", "returned": 0, "usable": 0, "new": 0, "error": "blocked"},
+            {"site": "broken", "returned": 5, "usable": 0, "new": 0, "error": ""},
         ]
-        self.assertEqual(scrape.empty_sources(status), ["linkedin"])
+        self.assertEqual(scrape.empty_sources(status), ["broken", "linkedin"])
 
 
 class OneRowPerId(unittest.TestCase):
