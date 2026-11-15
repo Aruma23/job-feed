@@ -1,0 +1,35 @@
+name: Watchdog
+
+on:
+  workflow_run:                       # after every feed run, whatever its result (a crashed run can't report itself)
+    workflows: ["Scrape jobs"]
+    types: [completed]
+  schedule:
+    - cron: "17 */6 * * *"            # and every 6 hours, so a run that never started is noticed too
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: watchdog
+  cancel-in-progress: false
+
+jobs:
+  watch:                              # our own code only, stdlib only; reads the API and the published feed_status.json
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write                  # read run logs; re-run a transient failure once
+      issues: write                   # the feed-health issue
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+        with:
+          ref: main                   # the feed as published now
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0   # v7.1.0
+        with:
+          python-version: "3.12"
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -I watchdog.py
