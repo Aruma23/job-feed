@@ -197,6 +197,12 @@ def load_previous(path):
     return rows
 
 
+def _tracking(url):
+    """A link that only redirects to the posting (ContactHR, appcast, recruitics...): ats.REDIRECTS or an rx_url wrapper."""
+    import ats
+    return bool(ats.REDIRECTS.match(url) or "rx_url=" in url)
+
+
 def merge(previous, fresh, today, index_out=None):
     """Combine this run's jobs with recent ones from earlier runs.
 
@@ -239,6 +245,10 @@ def merge(previous, fresh, today, index_out=None):
         merged = dict(best)
         if again:
             merged.update({c: f[c] for c in UPDATABLE if f.get(c)})
+            od = old.get("job_url_direct") or ""
+            if od and not _tracking(od) and _tracking(f.get("job_url_direct") or ""):
+                merged["job_url_direct"] = od       # v10: the employer link resolved from an earlier copy beats the site's
+                                                   # tracking link (ContactHR re-sent every run undid JPMorgan's fold-in)
         merged.update(id=old["id"], site=old["site"], first_seen=old["first_seen"], last_seen=today, _confirm="current",
                       also_on=";".join(sorted(sites - {old["site"]})),
                       source_ids=";".join(dict.fromkeys(identity.source_ids(old) + [f["id"]])))
