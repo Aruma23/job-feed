@@ -489,3 +489,28 @@ class Shadow(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ClauseOf(unittest.TestCase):
+    """reqs.clause_of replaced a back-tracking search (Nov 14): same clause, linear time."""
+
+    def test_same_clause_as_the_old_search(self):
+        import re
+        import reqs
+        texts = ["Bachelor's degree in Finance required; MBA preferred. CPA a plus",
+                 "Requirements\n- 3+ years\n- BA/BS in Accounting or related field\n- CFA Level I candidates welcome",
+                 "No degree mentioned here at all", "Master's degree", "We prefer a master's; a bachelor's is required.",
+                 "x" * 800 + " bachelor " + "y" * 800, "Series 7 and 63 licenses required within 90 days of hire"]
+        for d in texts:
+            for rx in (reqs.DEGREE_ANY, reqs.DEGREE_HIGH, reqs.CERT_HARD):
+                m = re.search(r"[^.;\n]*(" + rx.pattern + r")[^.;\n]*", d, re.I)
+                self.assertEqual(reqs.clause_of(rx, d), m.group(0) if m else None, (d[:40], rx.pattern[:20]))
+
+    def test_long_posting_is_fast(self):
+        import time
+        import reqs
+        d = ("Responsibilities include building models and partnering with teams " * 200).strip()
+        t = time.time()
+        for _ in range(20):
+            reqs.requirements("Financial Analyst", d)
+        self.assertLess(time.time() - t, 2.0)

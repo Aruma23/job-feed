@@ -1,0 +1,44 @@
+name: Checks
+
+# Every proposed change is tested before it can reach the feed the tracker reads (Nov 14 2026). The scheduled run already
+# refuses to publish when tests fail, but that only catches a broken change after it is merged, and costs a run. A pull
+# request (from a Claude session, an outside audit or by hand) now gets the full test suite and a report of what it does to
+# the jobs already published (impact.py), so a rule that passes its own tests but moves real jobs shows before merging.
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+permissions: {}                       # nothing by default
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:                               # our own code only, stdlib only: no third-party packages, no secrets, read-only token
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1   # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0   # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Unit tests
+        run: python -m unittest discover -s tests
+      - name: The code before this change
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          base="${BASE_SHA:-}"
+          if [ -z "$base" ]; then git fetch --no-tags --depth=1 https://github.com/${{ github.repository }} main && base=FETCH_HEAD; else
+            git fetch --no-tags --depth=1 https://github.com/${{ github.repository }} "$base"; fi
+          git worktree add --detach ../base "$base"
+      - name: What this change does to the published jobs
+        if: always()
+        run: python -I impact.py ../base . jobs.csv | tee -a "$GITHUB_STEP_SUMMARY"

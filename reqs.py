@@ -125,6 +125,22 @@ def years_preferred(text):
     return _most([m for m in _years(text) if m[2]])
 
 
+_CLAUSE_END = re.compile(r"[.;\n]")
+
+
+def clause_of(rx, d):
+    """The clause (between . ; or line breaks) holding rx's first match, or None. Same text as
+    re.search(r"[^.;\n]*(" + rx.pattern + r")[^.;\n]*", d), which this replaces (Nov 14): that form re-scans every clause from
+    each starting position, about 2 ms a posting per pattern and 97% of requirements()' time (3,000 postings x 3 patterns: ~5
+    minutes of every run). Equal as long as rx can't match across . ; or a line break, which none of its callers' patterns can."""
+    m = rx.search(d)
+    if not m:
+        return None
+    start = max(d.rfind(".", 0, m.start()), d.rfind(";", 0, m.start()), d.rfind("\n", 0, m.start())) + 1
+    end = _CLAUSE_END.search(d, m.end())
+    return d[start:end.start() if end else len(d)]
+
+
 def requirements(title, description):
     d = str(description or "").replace("\\n", "\n")
     t = str(title or "")
@@ -132,10 +148,10 @@ def requirements(title, description):
     lo, hi = years_asked(d[:12000])
     edu = []
     for label, rx in (("degree", DEGREE_ANY), ("graduate degree", DEGREE_HIGH), ("license/cert", CERT_HARD)):
-        m = re.search(r"[^.;\n]*(" + rx.pattern + r")[^.;\n]*", d, re.I)
-        if m:
-            what = CERT_HARD.search(m.group(0)).group(0).upper() if label == "license/cert" else label
-            edu.append(what + (" (preferred)" if re.search(r"prefer|plus|nice to have|a bonus|desired|or equivalent", m.group(0), re.I) else ""))
+        clause = clause_of(rx, d)
+        if clause is not None:
+            what = CERT_HARD.search(clause).group(0).upper() if label == "license/cert" else label
+            edu.append(what + (" (preferred)" if re.search(r"prefer|plus|nice to have|a bonus|desired|or equivalent", clause, re.I) else ""))
     level = next((name for name, rx in _SENIOR if re.search(rx, t, re.I)), "")
     if not level and LEAD.search(t) and MANAGES.search(d):
         level = "manager"
