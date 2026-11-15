@@ -396,6 +396,18 @@ class OneRowPerId(unittest.TestCase):
         self.assertEqual([r["id"] for r in out], ["in-1"], "it used to add a second in-1 row and the run's check failed")
         self.assertEqual(out[0]["last_seen"], "2026-11-14")
 
+    def test_resolved_employer_link_survives_the_tracking_link(self):
+        oracle = "https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/210807776"
+        old = {c: scrape.clean(v) for c, v in dict(rec(7), job_url_direct=oracle, first_seen="2026-11-14", last_seen="2026-11-14",
+                                                   source_ids="in-7").items()}
+        old = {c: old.get(c, "") for c in scrape.COLS}
+        new = {c: scrape.clean(v) for c, v in dict(rec(7), job_url_direct="https://JPMorganChase.contacthr.com/154185228").items()}
+        out = scrape.merge([old], [new], "2026-11-15")
+        self.assertEqual(out[0]["job_url_direct"], oracle)
+        newer = {c: scrape.clean(v) for c, v in dict(rec(7), job_url_direct="https://boards.greenhouse.io/acme/jobs/5").items()}
+        self.assertEqual(scrape.merge([old], [newer], "2026-11-15")[0]["job_url_direct"], newer["job_url_direct"],
+                         "a real new employer link still replaces the old one")
+
     def test_safety_net(self):
         rows, dup = scrape.unique_ids([{"id": "a", "source_ids": "a"}, {"id": "b"}, {"id": "a", "source_ids": "a;x"}])
         self.assertEqual([r["id"] for r in rows], ["a", "b"])
