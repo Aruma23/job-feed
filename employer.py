@@ -15,6 +15,7 @@ Signals: the company name (known firms, "Staffing", "Recruiting", "Executive Sea
 ("our client is seeking", "on behalf of our client", "confidential client", "we are a staffing firm"), and the intel cluster
 (MASS copies of one title). Nothing is hidden here: priority.py caps intermediaries at C and the tracker decides. Public data only.
 """
+import hashlib
 import re
 
 TYPES = ("direct", "staffing", "search_firm", "marketplace", "undisclosed", "unknown")
@@ -104,11 +105,25 @@ def classify(row, mass=False):
     trust = row.get("trust")
     if native and trust in ("verified", "consistent"):
         return "direct", f"high: on its own board ({trust})"
+    if native and trust == "suspicious":
+        return "unknown", "high: the application route is marked suspicious"
     if native:
-        return "direct", "medium: on a company board under this name"
+        return "unknown", "medium: company-board ownership is not independently linked to the named employer"
     if trust == "verified":
         return "direct", "medium: applies on the employer's verified site"
     return "unknown", ""
+
+
+def _mass_key(row):
+    """Only call a repeated posting a marketplace when its substantive description is also repeated."""
+    import identity
+    description = re.sub(r"[^a-z0-9]+", " ", str(row.get("description") or "").lower()).strip()
+    if len(description) < 200:
+        return None
+    digest = hashlib.sha1(description[:6000].encode()).hexdigest()[:12]
+    employer_key = identity.emp_key(row.get("company"))
+    title_key = identity.title_ident(row.get("title"))
+    return (employer_key, title_key, digest) if employer_key and title_key else None
 
 
 def annotate(rows, mass_keys=None):
@@ -119,13 +134,15 @@ def annotate(rows, mass_keys=None):
     if mass_keys is None:
         fam = {}
         for r in rows:
-            k = (identity.emp_key(r.get("company")), identity.title_ident(r.get("title")))
-            fam[k] = fam.get(k, 0) + 1
-        mass_keys = {e for (e, _), n in fam.items() if e and n >= intel.MASS}
+            k = _mass_key(r)
+            if k:
+                fam[k] = fam.get(k, 0) + 1
+        mass_keys = {k for k, n in fam.items() if n >= intel.MASS}
     out = {}
     for r in rows:
         try:
-            t, why = classify(r, identity.emp_key(r.get("company")) in mass_keys)
+            mass_key = _mass_key(r)
+            t, why = classify(r, mass_key in mass_keys if mass_key else False)
         except Exception:
             t, why = "unknown", ""
         r["employer_type"], r["employer_type_why"] = t, why
