@@ -106,7 +106,8 @@ class Parsing(unittest.TestCase):
         self.assertTrue(D._Excluded(phrases=["acme cable"]).search("Acme  Cable, Inc."), "matched on words, any spacing or case")
         self.assertFalse(D._Excluded(phrases=["acme cable"]).search("Acme Cabletown"))
         self.assertTrue(D._Excluded(phrases=[], extra="zz co").search("ZZ Co"), "FEED_EXCLUDE adds a regex")
-        self.assertEqual(len(D.NEVER.h), 19, "the real list is loaded")
+        self.assertEqual(len(D.NEVER.h), 0, "the public repository carries no list of its own")
+        self.assertFalse(D.NEVER.search("Acme Cable Inc"), "with no list and no FEED_EXCLUDE nothing is left out")
 
 
 class Boards(unittest.TestCase):

@@ -25,7 +25,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-UA = "Mozilla/5.0 (compatible; job-feed/3; +https://github.com/Aruma23/job-feed)"
+UA = "Mozilla/5.0 (compatible; job-feed/3)"
 TIMEOUT = 20
 
 

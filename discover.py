@@ -56,16 +56,11 @@ AMBIG = re.compile(r"\b(strategy|strategic|operations|ops|planning|insights|anal
 CORE = re.compile(r"forecast|budget|variance analysis|financial model|fp&a|p&l|planning (and|&) analysis|headcount plan|long[- ]range plan|annual plan|scenario (planning|analysis)", re.I)
 ACCT = re.compile(r"journal entr|general ledger|\bgl\b|reconcil|month[- ]end|accruals?|accounts (payable|receivable)|invoice|audit|gaap", re.I)
 class _Excluded:
-    """Employers the feed never lists, ranks or probes (the owner's own employer group). Kept as salted hashes of 1-3 word
-    phrases so this public repository names no one; the tracker and the Mac runner keep their own full lists. An optional
-    repository secret FEED_EXCLUDE (a regex) adds more without a commit. search(text) is truthy on a match, like re.search."""
+    """Employers a copy of the feed leaves out. This public repository carries no list: the feed is generic, and every
+    consumer applies its own rules to what it reads. An optional environment variable FEED_EXCLUDE (a regex) leaves some
+    out without a commit; phrases= is for tests. search(text) is truthy on a match, like re.search."""
     SALT = b"jf-x1:"
-    HASHES = frozenset({
-    "1b945ae8f437a6fc4cad", "1c5d28985165d4ebfc95", "1edabff7040c60e225f7", "49d526c0b03256ecd88c",
-    "542bd6c99af68db50290", "629221a84b6b0ccfdc19", "83dd4ae732b1c0963ae4", "96d751153d23fd4ac031",
-    "98f7ce24e46c2b2f1111", "9935b0432004eb4003c6", "9b455f6b4e268d81ebcd", "a12db573e5eaf6693edd",
-    "aa6d4b8c866eb563a892", "bb27a399db7c78ddd879", "c9928608e205dafc283a", "cef3acb3941ad215790c",
-    "d9e568a9ca3b7b9f444f", "ef375990609f07012840", "f06c03ae73c52618ab69"})
+    HASHES = frozenset()
 
     def __init__(self, phrases=None, extra=None):
         self.h = self.HASHES if phrases is None else frozenset(self.hash(p) for p in phrases)
