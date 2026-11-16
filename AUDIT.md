@@ -1,22 +1,32 @@
 # Feed audit
 
-2026-11-15T20:15+00:00 · **OK** · All checks passed.
+2026-11-16T00:26+00:00 · **WARN** · Published, with warnings.
 
-## INFO: 879 jobs are shown from earlier runs (690 job-site listings past the 3-day search window, 91 missed by this run only, 62 not shown by their source for 2+ days, 36 on unchanged boards not due for a read); the oldest was last confirmed 2026-11-11.
+## WARN: 7 job ids now belong to a different employer than last run.
+
+- What the feed did: Kept the new value.
+- What to do: An id must stay with one opening; check the source.
+  - workday:JOBREQ00117037: now CHANEL
+  - workday:JOBREQ00117524-1: now CHANEL
+  - workday:R339601: now Cushman & Wakefield
+  - workday:JOBREQ00116431: now CHANEL
+  - workday:JOBREQ00118750: now CHANEL
+
+## INFO: 1440 jobs are shown from earlier runs (761 job-site listings past the 3-day search window, 481 on unchanged boards not due for a read, 123 missed by this run only, 75 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-12.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
-  - PwC: Finance Function Strategy Consulting Senior Associate (last 2026-11-13)
-  - NASDAQ: Senior Director, Financial Planning & Analysis – Digital Liquidity Networks (last 2026-11-13)
-  - Moody's: Director-Relationship Manager-Strategic Accounts-Technology (last 2026-11-12)
-  - Seville Nomad: Director of Revenue Management (last 2026-11-12)
-  - BlackRock: Vice President, Private Funds Legal Counsel (last 2026-11-12)
+  - PwC: Deals - Financial Due Diligence - Manager (last 2026-11-13)
+  - PwC: Strategy& PEVC Operational Due Diligence - Manager, TMT (last 2026-11-13)
+  - PwC: Deals - FS Financial Due Diligence, Manager (last 2026-11-13)
+  - PwC: FP&A Tech, Anaplan Director (last 2026-11-13)
+  - RBC: Analyst, Global Investment Banking, Leveraged Capital Markets (last 2026-11-13)
 
-## INFO: 31 sets of rows share employer, title, place and description.
+## INFO: 49 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
-  - li-4487973541 / li-4489196018 (Soni: Financial Reporting Analyst)
   - in-97e33995a998149c / in-a407b3dfb429e85f (Bank of China: Executive Office - Planning & Risk Control Associate/Assistant Vice President)
   - in-077ac1188a9b43f7 / in-43e9fc1734b024f2 (Bank of China: Chief Information Security Office-Strategy, Programs & GRC Associate)
-  - in-8a85a34a698d5fdc / in-f3e427591680c2ef (Arrow Search Partners: Reporting Associate)
   - li-4487416748 / li-4488929983 (Northbound Executive Search: Human Resources Business Partner, Technology)
+  - li-4368267742 / ashby:c49be5af-6c52-4676-8435-2966e5943961 (Riveron: Financial Planning and Analysis (FP&A) - Senior Associate)
+  - li-4445614049 / li-4491063782 / li-4491240461 (Steve Madden: Sr. Finance Manager, NYC)
