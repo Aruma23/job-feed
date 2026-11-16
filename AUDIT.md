@@ -1,18 +1,8 @@
 # Feed audit
 
-2026-11-16T00:26+00:00 · **WARN** · Published, with warnings.
+2026-11-16T14:06+00:00 · **OK** · All checks passed.
 
-## WARN: 7 job ids now belong to a different employer than last run.
-
-- What the feed did: Kept the new value.
-- What to do: An id must stay with one opening; check the source.
-  - workday:JOBREQ00117037: now CHANEL
-  - workday:JOBREQ00117524-1: now CHANEL
-  - workday:R339601: now Cushman & Wakefield
-  - workday:JOBREQ00116431: now CHANEL
-  - workday:JOBREQ00118750: now CHANEL
-
-## INFO: 1440 jobs are shown from earlier runs (761 job-site listings past the 3-day search window, 481 on unchanged boards not due for a read, 123 missed by this run only, 75 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-12.
+## INFO: 896 jobs are shown from earlier runs (761 job-site listings past the 3-day search window, 61 not shown by their source for 2+ days, 42 on unchanged boards not due for a read, 32 missed by this run only); the oldest was last confirmed 2026-11-12.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
   - PwC: Deals - Financial Due Diligence - Manager (last 2026-11-13)
@@ -21,7 +11,7 @@
   - PwC: FP&A Tech, Anaplan Director (last 2026-11-13)
   - RBC: Analyst, Global Investment Banking, Leveraged Capital Markets (last 2026-11-13)
 
-## INFO: 49 sets of rows share employer, title, place and description.
+## INFO: 37 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
