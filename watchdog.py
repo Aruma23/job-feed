@@ -15,7 +15,7 @@ What it does
      not a check is re-run once. A failed check or failed tests is never re-run: the same code would fail the same way.
   4. Tells: one issue labelled feed-health holds the current findings (GitHub emails the repo owner on new issues and
      comments). A new red finding adds a comment; when everything is clear the issue is closed with a note. Findings carry
-     what to do, so the next Claude session (or Gabriel) starts from the cause, not the symptom.
+     what to do, so whoever reads it next starts from the cause, not the symptom.
 Nothing personal is read or written: the repo is public and so is the issue.
 
 Run: python -I watchdog.py  (env GITHUB_TOKEN, GITHUB_REPOSITORY; reads ./feed_status.json from the checkout)
@@ -155,7 +155,7 @@ def render(findings, status, runs, healed=""):
 def issue_title(findings):
     """The issue title is also the subject of GitHub's notification mail, so a Gmail filter can route by it: "Feed health: RED"
     only when something is red (keep in the inbox, star), "Feed health: amber" otherwise (archive), "all clear" on closing.
-    Gabriel's filter F4 archives all job-feed GitHub mail; it should exclude subject:"Feed health: RED"."""
+    A filter that archives the repo's notification mail should leave out subject:"Feed health: RED"."""
     reds = [f for f in findings if f["level"] == "red"]
     if reds:
         return f"Feed health: RED ({len(reds)}) - {reds[0]['title'][:90]}"
