@@ -207,6 +207,8 @@ DAILY_MAX = int(os.environ.get("CLASSIFY_DAILY_MAX", "300"))      # never more, 
 RUN_SECONDS = int(os.environ.get("CLASSIFY_RUN_SECONDS", "600"))  # the classify job has 15 minutes
 RUN_HOURS_UTC = (11, 15, 19, 23)                                 # scrape.yml's schedule (minute 41)
 AUDIT_REQUESTS = 2                                               # false-negative sample, reviewed first each run
+SERVER_RETRIES = 3                                               # a 5xx from the model is resent, at most this often a run
+SERVER_WAIT = 20                                                 # seconds, times the retry number
 SYSTEM = (
     "You screen job postings for one candidate. He wants analyst, senior analyst or associate roles in FP&A (forecasting, "
     "budgeting, variance analysis, planning), corporate or strategic finance, commercial finance and business partnering, or "
@@ -387,6 +389,13 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
                 if kind == "day":
                     usage["requests_at_limit"] = usage.get("requests", 0)
                 break
+            if e.code in (500, 502, 503, 504) and stats.get("server_retries", 0) < SERVER_RETRIES:
+                # Nov 18: one 503 ("model overloaded") ended the run's reviews with 329 queued. Wait and resend the same batch,
+                # a few times a run; the run's time limit still applies.
+                stats["server_retries"] = stats.get("server_retries", 0) + 1
+                stats["error"] = f"HTTP {e.code} (retried)"
+                (sleep or time.sleep)(SERVER_WAIT * stats["server_retries"])
+                continue
             stats["error"] = f"HTTP {e.code}" + (f" ({model} not found: set CLASSIFY_MODEL)" if e.code == 404 else "")
             break
         except Exception as e:

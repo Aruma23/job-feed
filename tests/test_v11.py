@@ -261,5 +261,33 @@ class ManyOpeningsIsNotAMarketplace(unittest.TestCase):
         self.assertEqual(rows[0]["employer_type"], "marketplace")
 
 
+class ModelOverloaded(unittest.TestCase):
+    def test_a_503_is_retried_instead_of_ending_the_runs_reviews(self):
+        import urllib.error
+        calls, waits = [], []
+
+        def post(url, body, token):
+            calls.append(1)
+            if len(calls) == 1:
+                raise urllib.error.HTTPError(url, 503, "overloaded", {}, None)
+            ids = re.findall(r'<job id="([^"]+)"', body["contents"][0]["parts"][0]["text"])
+            return {"candidates": [{"content": {"parts": [{"text": json.dumps({"jobs": [
+                {"id": i, "score": 80, "category": R.FPA, "strengths": ["monthly forecast", "variance analysis"]} for i in ids]})}]}}]}
+        items = [{"id": f"j{i}", "title": "FP&A Analyst", "company": "Acme", "description": DUTIES} for i in range(3)]
+        cache = {"jobs": {}}
+        st = R.run_reviews(items, cache, "k", post, max_calls=5, today="2026-11-18", sleep=waits.append, per_request=8)
+        self.assertEqual(st["reviewed"], 3, "was 0: the first 503 stopped the run")
+        self.assertEqual(st["server_retries"], 1)
+
+    def test_a_service_that_stays_down_still_stops(self):
+        import urllib.error
+
+        def post(url, body, token):
+            raise urllib.error.HTTPError(url, 503, "overloaded", {}, None)
+        items = [{"id": "j", "title": "FP&A Analyst", "company": "Acme", "description": DUTIES}]
+        st = R.run_reviews(items, {"jobs": {}}, "k", post, max_calls=10, today="2026-11-18", sleep=lambda s: None)
+        self.assertEqual((st["reviewed"], st["server_retries"], st["error"]), (0, R.SERVER_RETRIES, "HTTP 503"))
+
+
 if __name__ == "__main__":
     unittest.main()
