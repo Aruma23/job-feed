@@ -171,6 +171,11 @@ def consistency(rows, items):
     if acct:
         _item(items, "warn", "fit-contradiction", f"{len(acct)} accounting-heavy jobs ranked A or B.", "Left as published.",
               "priority.py should hold these at C (v10); a row here means a path skipped priority.assess.", [f"{r.get('company')}: {r.get('title')}" for r in acct])
+    bare = [r for r in rows if r.get("priority") in ("A", "B") and r.get("fit_evidence") in ("title_only", "unsupported")]
+    if bare:
+        _item(items, "warn", "evidence-contradiction", f"{len(bare)} jobs ranked A or B on a fit the posting doesn't back.",
+              "Left as published.", "priority.py holds title_only and unsupported fits at C (v11); a row here means a path "
+              "skipped priority.assess.", [f"{r.get('company')}: {r.get('title')} ({r.get('fit_evidence')})" for r in bare])
     return len(off)
 
 

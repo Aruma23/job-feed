@@ -1,6 +1,6 @@
 # Job record contract
 
-Contract version: 8 (Nov 14, 2026; v7 Nov 1). `feed_status.json` → `contract.version` says which version a run wrote. Every component (this
+Contract version: 9 (Nov 18, 2026: `fit_evidence`; v8 Nov 14, v7 Nov 1). `feed_status.json` → `contract.version` says which version a run wrote. Every component (this
 feed, the tracker's finder and gate, the Hub, the Mac runner) reads and writes jobs by these rules. `tests/test_v6.py` fails if a
 column in `scrape.py` is missing here or a value falls outside its list.
 
@@ -35,6 +35,10 @@ completely without it or its own page answers 404/410; closed jobs leave the fee
 "refreshed" event in history.json, not a change.
 
 Fit and requirements (relevance.py, reqs.py): `fit_score` (0-100), `fit_category`, `fit_why`, `fit_by` (rules | model),
+`fit_evidence` (v9: grounded | partial | unsupported | title_only | rules — how much of the posting backs the fit: grounded = 2+
+of the review's cited duties are in the posting and at least half; partial = one, or under half; unsupported = none, or none
+cited; title_only = no description to read; rules = scored by the duty words the rules found. priority.py holds title_only and
+unsupported at C and partial at B),
 `skills`, `years_min`, `education`, `seniority`, `pay_low`, `pay_high` (yearly dollars; v8: when the pay fields are empty, the
 range the posting states in its text, read strictly: next to pay words, a New York range when several places are listed,
 nothing when it is ambiguous).

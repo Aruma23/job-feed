@@ -165,6 +165,36 @@ def apply(row, verdict):
     row["fit_category"] = verdict["category"]
     row["fit_why"] = verdict["why"]
     row["fit_by"] = verdict.get("by", "rules")
+    row["fit_evidence"] = evidence_of(verdict)
+
+
+# ---------------- how much of the posting backs the fit (contract v9: fit_evidence) ----------------
+GROUNDED, PARTIAL, UNSUPPORTED, TITLE_ONLY, RULES = "grounded", "partial", "unsupported", "title_only", "rules"
+EVIDENCE = (GROUNDED, PARTIAL, UNSUPPORTED, TITLE_ONLY, RULES)
+
+
+def grade(cited, found):
+    """A model verdict's evidence: grounded = 2+ cited duties found in the posting and at least half of those cited;
+    partial = 1 found, or fewer than half; unsupported = none found (an empty list included)."""
+    if found <= 0:
+        return UNSUPPORTED
+    return GROUNDED if found >= 2 and 2 * found >= cited else PARTIAL
+
+
+def evidence_of(v):
+    """fit_evidence for any verdict: rules (the score is the duty words found in the text), title_only (no description to read),
+    or the model's grade. Verdicts cached before Nov 18 carry no grade: their kept strengths are all grounded, so the count
+    of what is left decides (the dropped ones aren't known)."""
+    why = str(v.get("why") or "")
+    if v.get("by", "rules") != "model":
+        return TITLE_ONLY if why.startswith("Title match only") else RULES
+    if v.get("ev") in EVIDENCE:
+        return v["ev"]
+    if "evidence not found" in why:
+        return UNSUPPORTED
+    m = re.match(r"(?:Strong|Some) match: (.*?)\.(?: Gap:| \(|$)", why)
+    kept = [x for x in (m.group(1).split(", ") if m else []) if x.strip()]
+    return grade(len(kept), len(kept))
 
 
 # ---------------- stage 2: a small model (Gemini free tier) ----------------
@@ -277,15 +307,16 @@ def review(batch, token, model, post=http_post, usage=None):
             continue
         strengths = [str(s).strip()[:60] for s in (j.get("strengths") or []) if str(s).strip()][:4]
         said = [s for s in strengths if grounded(s, texts.get(jid, ""))]
-        unchecked = bool(strengths) and not said
+        ev = grade(len(strengths), len(said))
+        unchecked = ev == UNSUPPORTED            # Nov 18 (2nd review): no strengths at all counts too, not only all-failed
         strengths = said
         gap = str(j.get("gap") or "").strip()[:100]
         why = ("Strong match: " if score >= 70 else "Some match: " if strengths else "") + ", ".join(strengths) + ("." if strengths else "")
         why = (why + (" Gap: " + gap.rstrip(".") + "." if gap else "")).strip() or "Reviewed: little planning or finance work."
-        if unchecked:                                   # Nov 18: a score whose every cited duty is missing from the posting
-            score = min(score, UNGROUNDED_CAP)          # can't rescue a job or reach A/B on its own; the rules still apply
+        if unchecked and score > UNGROUNDED_CAP:        # no cited duty is in the posting: can't rescue a job; priority holds it at C
+            score = UNGROUNDED_CAP
             why += " (Model's evidence not found in the posting; score held at %d.)" % UNGROUNDED_CAP
-        out[jid] = {"score": score, "category": cat, "why": why, "by": "model", "pv": PROMPT_VERSION}
+        out[jid] = {"score": score, "category": cat, "why": why, "by": "model", "pv": PROMPT_VERSION, "ev": ev}
     return out
 
 

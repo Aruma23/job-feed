@@ -50,10 +50,17 @@ def _load(tree):
 def _refit(M, r, text):
     """Nov 18: the rules' fit for a row the rules scored (fit_by = rules). A model verdict needs the network, so it stands;
     but the rules decide every row the model never saw, which is most of the feed."""
-    if r.get("fit_by", "rules") != "rules" or "relevance" not in M or "discover" not in M:
+    if "relevance" not in M or "discover" not in M:
+        return
+    ev = getattr(M["relevance"], "evidence_of", None)
+    if r.get("fit_by", "rules") != "rules":
+        if ev and not r.get("fit_evidence"):           # a feed published before v9: grade the model verdict as this tree would
+            r["fit_evidence"] = ev({"by": "model", "why": r.get("fit_why")})
         return
     v = M["relevance"].rules(r.get("title"), text, M["discover"].title_kind(r.get("title")))
     r["fit_score"], r["fit_category"], r["fit_why"] = str(v["score"]), v["category"], v["why"]
+    if ev:
+        r["fit_evidence"] = ev(v)
 
 
 def _same(base, head, names):

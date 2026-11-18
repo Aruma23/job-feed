@@ -135,8 +135,9 @@ COLS = ["id", "site", "title", "company", "location", "is_remote", "date_posted"
         "region", "req_id", "source_ids", "fit_score", "fit_category", "fit_why", "fit_by",
         "status", "changes", "last_change", "age_days", "skills", "years_min", "education", "seniority", "pay_low", "pay_high",
         "freshness", "ghost_risk", "freshness_why", "reposts", "repost_of", "trust", "trust_why", "priority", "priority_score",
-        "priority_why", "employer_signal", "related_ids", "employer_type", "employer_type_why", "confirm"]
-CONTRACT_VERSION = 8
+        "priority_why", "employer_signal", "related_ids", "employer_type", "employer_type_why", "confirm",
+        "fit_evidence"]   # v9: appended, so no existing column moves
+CONTRACT_VERSION = 9
 # Posting facts a re-read of the same copy may change (merge): what the employer edits. Identity and lifecycle columns never.
 UPDATABLE = ("title", "company", "location", "is_remote", "date_posted", "job_url", "job_url_direct", "min_amount", "max_amount",
              "interval", "description")

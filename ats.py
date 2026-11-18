@@ -22,6 +22,7 @@ import threading
 import time
 import urllib.error
 import urllib.parse
+import http.client as _hc
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -109,7 +110,7 @@ def http(url, data=None, method=None, tries=3, timeout=TIMEOUT, want_json=True, 
                                      headers=dict({"User-Agent": UA, "Accept": "application/json" if want_json else "*/*",
                                                    **({"Content-Type": "application/json"} if body else {})}, **(headers or {})))
         try:
-            with (opener or urllib.request.urlopen)(req, timeout=timeout) as r:
+            with (opener or SAFE_OPENER.open)(req, timeout=timeout) as r:
                 payload = r.read()
                 if raw:
                     return payload
@@ -130,6 +131,8 @@ def http(url, data=None, method=None, tries=3, timeout=TIMEOUT, want_json=True, 
                 _hold(key, wait)
             else:
                 wait = _backoff(i)
+        except UnsafeURL:                       # a refused destination: no retries
+            raise
         except Exception as e:  # timeouts, resets
             last = e
             wait = _backoff(i)
@@ -251,36 +254,92 @@ class UnsafeURL(ValueError):
     pass
 
 
-def public_url(u):
-    """u when it is an http(s) link to a public host; UnsafeURL otherwise. Links in job postings are written by strangers: a
-    redirect to a loopback, private, link-local or cloud-metadata address (or a non-web scheme) is never followed."""
+def _bad_ip(a):
     import ipaddress
-    import socket
+    ip = ipaddress.ip_address(str(a).split("%")[0])
+    return not ip.is_global or ip.is_multicast
+
+
+def _refuse_name(u):
+    """Scheme and host checks that need no DNS: a non-web scheme, localhost-style names, a literal private address."""
+    import ipaddress
     p = urllib.parse.urlsplit(str(u or ""))
     host = (p.hostname or "").strip(".").lower()
     if p.scheme not in ("http", "https") or not host or host == "localhost" or host.endswith((".localhost", ".internal", ".local")):
         raise UnsafeURL(f"not a public web link: {str(u)[:80]}")
     try:
-        addrs = {ipaddress.ip_address(host)}
+        literal = ipaddress.ip_address(host)
     except ValueError:
-        try:
-            addrs = {ipaddress.ip_address(a[4][0].split("%")[0]) for a in socket.getaddrinfo(host, None)}
-        except (OSError, UnicodeError):
-            return u                                  # doesn't resolve: the request itself will fail normally
-    if any(not a.is_global or a.is_multicast for a in addrs):
+        return host
+    if _bad_ip(literal):
+        raise UnsafeURL(f"{host} is not a public address")
+    return host
+
+
+def public_url(u):
+    """u when it is an http(s) link to a public host; UnsafeURL otherwise. Links in job postings are written by strangers: a
+    loopback, private, link-local or cloud-metadata address, or a non-web scheme, is never requested. This is the early
+    refusal; what binds is the connected socket's own address (_PeerChecked), so a DNS answer that changes between this
+    lookup and the connection (rebinding) is caught there."""
+    import socket
+    host = _refuse_name(u)
+    try:
+        addrs = {a[4][0] for a in socket.getaddrinfo(host, None)}
+    except (OSError, UnicodeError):
+        raise UnsafeURL(f"{host} doesn't resolve")    # Nov 18 (2nd review): fail closed; the request couldn't work anyway
+    if any(_bad_ip(a) for a in addrs):
         raise UnsafeURL(f"{host} points inside a private network")
     return u
+
+
+class _PeerChecked:
+    """Refuses a connection whose socket landed on a non-public address: every request, every redirect hop, after DNS."""
+    def connect(self):
+        super().connect()
+        if _PROXIED():                                  # a configured proxy is the peer; it does its own egress control
+            return
+        try:
+            peer = self.sock.getpeername()[0]
+        except OSError:
+            return
+        if _bad_ip(peer):
+            self.sock.close()
+            raise UnsafeURL(f"{self.host} connected to non-public address {peer}")
+
+
+def _PROXIED():
+    return bool(urllib.request.getproxies())
+
+
+class _SafeHTTPConnection(_PeerChecked, _hc.HTTPConnection):
+    pass
+
+
+class _SafeHTTPSConnection(_PeerChecked, _hc.HTTPSConnection):
+    pass
+
+
+class _SafeHTTP(urllib.request.HTTPHandler):
+    def http_open(self, req):
+        return self.do_open(_SafeHTTPConnection, req)
+
+
+class _SafeHTTPS(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        return self.do_open(_SafeHTTPSConnection, req, context=self._context)
 
 
 class _SafeRedirect(urllib.request.HTTPRedirectHandler):
     max_redirections = 8
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        public_url(urllib.parse.urljoin(req.full_url, newurl))   # every hop is checked, not only the first link
+        _refuse_name(urllib.parse.urljoin(req.full_url, newurl))   # the connect-time check covers what DNS answers
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
-SAFE_OPENER = urllib.request.build_opener(_SafeRedirect)
+# Nov 18 (2nd review): the default for every request ats.http makes, not only redirect resolution and employer checks. The
+# peer check costs one getpeername() per connection; scheme limits apply to each redirect.
+SAFE_OPENER = urllib.request.build_opener(_SafeHTTP, _SafeHTTPS, _SafeRedirect)
 
 
 def resolve_redirect(u, opener=None):
@@ -573,7 +632,8 @@ def rippling(slug, want, get=http, pages=10):
                     # Nov 18: the detail API answers 404 for every job (probe run 44368737011), so every kept Rippling job came
                     # without a description. The public job page carries the same posting in its Next.js data.
                     try:
-                        d = rippling_page(get(j.get("url") or f"https://ats.rippling.com/{slug}/jobs/{j.get('id')}", want_json=False))
+                        jid = re.sub(r"[^A-Za-z0-9-]", "", str(j.get("id") or ""))   # built here, never the reply's own url
+                        d = rippling_page(get(f"https://ats.rippling.com/{slug}/jobs/{jid}", want_json=False))
                     except Exception:
                         d = {}
                 desc = d.get("description") or d.get("descriptions") or d.get("content") or ""

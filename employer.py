@@ -76,7 +76,7 @@ def _name(company):
 
 
 def classify(row, mass=False):
-    """(employer_type, why). mass: intel.py found MASS+ copies of one title at this employer."""
+    """(employer_type, why). mass: MASS+ copies of one title at this employer; "identical" when every copy is the same ad."""
     raw = str(row.get("company") or "").strip()
     name = _name(raw)
     if not raw or _UNNAMED.match(raw):
@@ -99,8 +99,16 @@ def classify(row, mass=False):
         return "staffing", "medium: the posting says " + said[0]
     native = bool(_NATIVE.match(str(row.get("id") or "")))
     trust = row.get("trust")
-    if mass and not (native and trust == "verified"):   # the employer's own website links this board: its copies are its own
+    # Second review, Nov 18: many openings is not the same as being a marketplace. On the employer's own board (its site links
+    # the board, or the board's name is the employer's), one ad repeated word for word is one role hired in many places
+    # (CGS Federal: 10 copies of one Business Analyst ad on its Lever board). One title carrying different ads is the
+    # agency pattern (Clark Davis: 47 ads, a different client in each), so it still counts, unless the employer's own site
+    # links the board.
+    own = native and (trust == "verified" or (trust == "consistent" and mass == "identical"))
+    if mass and not own:
         return "marketplace", "medium: many copies of one ad under this name"
+    if mass and native and trust == "consistent":
+        return "direct", "medium: on its own board (consistent); one ad posted many times (hiring in several places)"
     other = re.search(r"applies through (.{1,60})'s board \(a recruiter or parent company\?\)", str(row.get("trust_why") or ""))
     if other:                                        # trust.py: the board belongs to another company. Parent or recruiter can't
         return "unknown", f"medium: applies through {other.group(1)}'s board (parent company or recruiter)"   # be told apart
@@ -139,6 +147,12 @@ def annotate(rows, mass_keys=None):
     marketplace counts; exempt it on evidence."""
     import identity
     import intel
+    texts = {}                                   # (employer, title) -> the distinct ads under it
+    for r in rows:
+        e, t = identity.emp_key(r.get("company")), identity.title_ident(r.get("title"))
+        if e and t:
+            k = _mass_key(r)
+            texts.setdefault((e, t), set()).add(k[2] if k else "short:" + str(r.get("id")))
     if mass_keys is None:
         titles, ads = {}, {}
         for r in rows:
@@ -158,6 +172,8 @@ def annotate(rows, mass_keys=None):
         try:
             e, t = identity.emp_key(r.get("company")), identity.title_ident(r.get("title"))
             mass = (e, t) in mass_keys or e in mass_keys or (_mass_key(r) or ()) in mass_keys   # e: an employer-level key given by a caller
+            if mass and len(texts.get((e, t), ())) == 1:
+                mass = "identical"                      # every copy is the same ad: one role, many places
             t, why = classify(r, mass)
         except Exception:
             t, why = "unknown", ""

@@ -5,9 +5,21 @@ name: Checks
 # request (from a Claude session, an outside audit or by hand) now gets the full test suite and a report of what it does to
 # the jobs already published (impact.py), so a rule that passes its own tests but moves real jobs shows before merging.
 on:
-  pull_request:                       # every pull request (Nov 18: no path filter; tests read CONTRACT.md, seeds and docs too,
-  push:                               # and a change that skipped the checks reaches main untested)
-    branches-ignore: [main]
+  pull_request:                       # every pull request (Nov 18: no path filter; tests read CONTRACT.md, seeds and docs too)
+  push:                               # every push, main included (2nd review Nov 18: code reaches main directly, and the
+    paths-ignore:                     # scheduled run is up to 4 h later); the feed's own data commits are skipped
+      - jobs.csv
+      - feed_status.json
+      - boards.json
+      - search_stats.json
+      - classify_cache.json
+      - history.json
+      - harvest_state.json
+      - registry.tsv
+      - employers.json
+      - audit_log.json
+      - AUDIT.md
+      - sources.json
   workflow_dispatch:
 
 permissions: {}                       # nothing by default
@@ -33,9 +45,10 @@ jobs:
         run: python -m unittest discover -s tests
       - name: The code before this change
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           base="${BASE_SHA:-}"
+          case "$base" in 0000000000000000000000000000000000000000) base="";; esac   # a new branch has no "before"
           if [ -z "$base" ]; then git fetch --no-tags --depth=1 https://github.com/${{ github.repository }} main && base=FETCH_HEAD; else
             git fetch --no-tags --depth=1 https://github.com/${{ github.repository }} "$base"; fi
           git worktree add --detach ../base "$base"

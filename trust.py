@@ -336,15 +336,14 @@ def verify_employers(db, rows, today, stats, get, budget=VERIFY_BUDGET, qualifie
         domain = (e.get("domains") or [compact + ".com"])[0]
         pages, found = [], set()
         try:
-            safe = ats.SAFE_OPENER.open          # the domain and its redirects come from postings: public hosts only, every hop
-            home = get(ats.public_url(f"https://{domain}/"), want_json=False, tries=1, timeout=12, opener=safe) or ""
+            # the domain and its redirects come from postings: ats.http's default opener refuses non-public peers at every hop
+            home = get(f"https://{domain}/", want_json=False, tries=1, timeout=12) or ""
             pages.append(home)
             hrefs = CAREERS_HREF.findall(home)
             found |= {ats.board_of(h) for h in hrefs} - {""}
             own = next((h for h in hrefs if not ats.board_of(h) and (not h.startswith("http") or host_of(h).endswith(domain))), "")
             if own:
-                pages.append(get(ats.public_url(urllib.parse.urljoin(f"https://{domain}/", own)), want_json=False, tries=1, timeout=12,
-                                 opener=safe) or "")
+                pages.append(get(urllib.parse.urljoin(f"https://{domain}/", own), want_json=False, tries=1, timeout=12) or "")
         except Exception as ex:
             e.update(checked=today, domain=domain, result=f"unreachable ({type(ex).__name__})", tried=sorted(bset))
             continue

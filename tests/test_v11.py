@@ -147,5 +147,119 @@ class RipplingPage(unittest.TestCase):
         self.assertEqual(jobs[0]["posted"], "2026-11-12")
 
 
+class EvidenceGate(unittest.TestCase):
+    """Second review (Nov 18): the three ways an unbacked model fit could still reach A/B."""
+    LISTING = {"freshness": "fresh", "trust": "verified", "region": "New York", "status": "new", "seniority": "analyst",
+               "employer_type": "direct"}
+
+    def verdicts(self, strengths):
+        def post(url, body, token):
+            return {"candidates": [{"content": {"parts": [{"text": json.dumps({"jobs": [
+                {"id": "j", "score": 88, "category": R.FPA, "strengths": strengths, "gap": ""}]})}]}}]}
+        return R.review([("j", "Analyst", "Acme", DUTIES)], "k", "m", post)["j"]
+
+    def tier(self, v):
+        row = dict(self.LISTING)
+        R.apply(row, v)
+        return row["fit_evidence"], priority.score(row)[1]
+
+    def test_no_strengths_at_all_is_unsupported(self):
+        v = self.verdicts([])
+        self.assertEqual(v["score"], R.UNGROUNDED_CAP, "was 88: an empty list skipped the check")
+        self.assertEqual(self.tier(v), ("unsupported", "C"))
+
+    def test_one_grounded_among_several_is_partial_and_not_a(self):
+        v = self.verdicts(["variance analysis", "capital markets syndication", "fund formation", "derivatives pricing"])
+        self.assertEqual(v["ev"], "partial")
+        self.assertEqual(self.tier(v), ("partial", "B"), "was A: one matching phrase let four count")
+
+    def test_held_score_plus_listing_bonuses_does_not_make_an_a(self):
+        v = self.verdicts(["capital markets syndication"])
+        row = dict(self.LISTING)
+        R.apply(row, v)
+        total, tier, _ = priority.score(row)
+        self.assertGreaterEqual(total, 85, "the bonuses alone would make it an A")
+        self.assertEqual(tier, "C")
+
+    def test_well_backed_verdict_is_untouched(self):
+        v = self.verdicts(["monthly forecast", "variance analysis", "annual budget"])
+        self.assertEqual((v["score"], v["ev"]), (88, "grounded"))
+        self.assertEqual(self.tier(v)[1], "A")
+
+    def test_verdicts_cached_before_the_grade_existed(self):
+        g = lambda why: R.evidence_of({"by": "model", "why": why})
+        self.assertEqual(g("Strong match: forecasting, budgeting, variance analysis."), "grounded")
+        self.assertEqual(g("Strong match: forecasting. Gap: mostly close."), "partial")
+        self.assertEqual(g("Reviewed: little planning or finance work."), "unsupported")
+        self.assertEqual(g("Strong match: . (Model's evidence not found in the posting.)"), "unsupported")
+        self.assertEqual(R.evidence_of(R.rules("FP&A Analyst", "", "strong")), "title_only")
+        self.assertEqual(R.evidence_of(R.rules("FP&A Analyst", DUTIES, "strong")), "rules")
+
+
+class ConnectTimeCheck(unittest.TestCase):
+    def test_a_request_that_lands_on_a_local_address_is_refused_after_dns(self):
+        # ats.http itself does no name check: only the connected socket's address can refuse this. That is what makes a DNS
+        # answer that changes after an earlier lookup (rebinding) harmless.
+        import http.server
+        import threading
+        srv = http.server.HTTPServer(("127.0.0.1", 0), http.server.SimpleHTTPRequestHandler)
+        threading.Thread(target=srv.handle_request, daemon=True).start()
+        op = urllib.request.build_opener(urllib.request.ProxyHandler({}), ats._SafeHTTP, ats._SafeHTTPS, ats._SafeRedirect)
+        old = ats._PROXIED
+        ats._PROXIED = lambda: False
+        try:
+            with self.assertRaises(ats.UnsafeURL):
+                ats.http(f"http://127.0.0.1:{srv.server_port}/", tries=1, want_json=False, opener=op.open)
+        finally:
+            ats._PROXIED = old
+            srv.server_close()
+
+    def test_every_request_uses_the_checked_opener_by_default(self):
+        names = {type(h).__name__ for h in ats.SAFE_OPENER.handlers}
+        self.assertTrue({"_SafeHTTP", "_SafeHTTPS", "_SafeRedirect"} <= names)
+        self.assertNotIn("HTTPHandler", names, "the unchecked default handler must not also be installed")
+
+    def test_dns_failure_fails_closed(self):
+        with self.assertRaises(ats.UnsafeURL):
+            ats.public_url("https://no-such-host.invalid/")
+
+    def test_rippling_page_url_is_built_not_taken_from_the_reply(self):
+        seen = []
+        lst = {"items": [{"id": "77", "name": "FP&A Manager", "url": "http://169.254.169.254/latest/",
+                          "locations": [{"city": "New York", "stateCode": "NY"}]}], "totalPages": 1}
+
+        def get(url, **k):
+            seen.append(url)
+            if "pageSize" in url:
+                return lst
+            raise ats.HttpError(404, url)
+        ats.rippling("acme", lambda j: True, get)
+        self.assertEqual(seen[-1], "https://ats.rippling.com/acme/jobs/77")
+
+
+class ManyOpeningsIsNotAMarketplace(unittest.TestCase):
+    def copies(self, same_ad, trust="consistent", ids="lever:x"):
+        base = "Gather requirements from program stakeholders and document business processes for a federal client. " * 4
+        return [{"company": "CGS Federal", "title": "Business Analyst", "id": f"{ids}{i}", "trust": trust,
+                 "description": base if same_ad else base + f" Client {i}: a different engagement with its own duties."}
+                for i in range(10)]
+
+    def test_one_ad_repeated_on_its_own_board_is_the_employer(self):
+        rows = self.copies(True)
+        employer.annotate(rows)
+        self.assertEqual(rows[0]["employer_type"], "direct", "was marketplace: ten cities of one opening")
+        self.assertIn("one ad posted many times", rows[0]["employer_type_why"])
+
+    def test_one_title_with_different_ads_is_still_the_agency_pattern(self):
+        rows = self.copies(False)
+        employer.annotate(rows)
+        self.assertEqual(rows[0]["employer_type"], "marketplace")
+
+    def test_copies_on_job_sites_still_count(self):
+        rows = self.copies(True, trust="unverified", ids="in-")
+        employer.annotate(rows)
+        self.assertEqual(rows[0]["employer_type"], "marketplace")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -19,8 +19,10 @@ ranked A/B on the model's 50-60 scores), a listing by an intermediary or an unna
 has not confirmed for 2+ days (confirm = unconfirmed). confirm also moves the score a little: a board left unread because it
 had not changed loses nothing; a job missed by this run or past the aggregators' 3-day search window loses 2 points.
 
-v11 (Nov 18): a fourth cap at C: a job whose fit came from its title alone (relevance.rules found no description to check,
-fit_why "Title match only"). It stays in the feed; it can't rank A/B until there are duties to judge.
+v11 (Nov 18): caps by fit_evidence (contract v9): title_only (no description to check) and unsupported (none of the model's
+cited duties is in the posting, or it cited none) are held at C, partial (one, or under half) at B. The bonuses below are about
+the listing, not the role, so they never lift a fit the posting doesn't back: a held 64 + fresh + verified + NYC + new used
+to add up to an A.
 """
 import re
 
@@ -122,15 +124,20 @@ def score(row):
     if gate or t == "suspicious" or f == "gone":
         tier = "D"
     acct = str(row.get("fit_category") or "").startswith("Accounting")
-    no_desc = str(row.get("fit_why") or "").startswith("Title match only")   # relevance.rules saw no duties: the title is the evidence
+    ev = row.get("fit_evidence") or ("title_only" if str(row.get("fit_why") or "").startswith("Title match only") else "")
     capped = fit < 50 or row.get("ghost_risk") == "high" or yrs >= 5 or acct or et in ("staffing", "search_firm", "marketplace",
-             "undisclosed") or cf == "unconfirmed" or no_desc
+             "undisclosed") or cf == "unconfirmed" or ev in ("title_only", "unsupported")
     if capped and tier in ("A", "B"):
         tier = "C"
         if acct:
             pts.append((-1, "accounting-heavy work (held at C)"))
-        if no_desc:
+        if ev == "title_only":
             pts.append((-1, "no description to check the duties (held at C)"))
+        if ev == "unsupported":
+            pts.append((-1, "the review's evidence isn't in the posting (held at C)"))
+    elif ev == "partial" and tier == "A":          # one duty of several checks out: worth a look, not the top of the list
+        tier = "B"
+        pts.append((-1, "only part of the review's evidence is in the posting (held at B)"))
     reasons = [(-100, g) for g in gate] + sorted(pts, key=lambda x: -abs(x[0]))
     return total, tier, reasons
 
