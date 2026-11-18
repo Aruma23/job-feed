@@ -121,6 +121,15 @@ def check(status, runs, now, failure=None, collect_minutes=None):
                       "The sweep's tail isn't being reached: raise SWEEP_SECONDS or poll quiet boards less (footprint.py)."))
     if d.get("error"):
         out.append(_f("red", "direct-error", f"The company-board step failed: {d['error']}", "The feed fell back to the last board jobs."))
+    tg = status.get("target") or {}
+    if tg.get("violations"):
+        out.append(_f("red", "off-target", f"{tg['violations']} published jobs are outside the target profile (e.g. "
+                      f"{'; '.join(tg.get('examples', [])[:2])}).", "Code cause: a path publishes rows without target.off (scrape.level_gate)."))
+    gate = tg.get("gate") or {}
+    if gate.get("share_of_collected", 0) > 0.5 and gate.get("left_out", 0) >= 200:
+        out.append(_f("amber", "off-target-collection", f"{gate['left_out']} of the jobs collected ({gate['share_of_collected']:.0%}) were "
+                      f"outside the target profile ({gate.get('by_reason')}): the searches and boards are aimed at the wrong jobs.",
+                      "Read target.gate.by_site; retire or reword the searches that bring them (scheduler.POOL, scrape.SEARCHES)."))
     c = status.get("classifier") or {}
     if c.get("status") == "failed":
         out.append(_f("red", "classifier-crash", f"The review step crashed: {c.get('error', '')[:200]}",

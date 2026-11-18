@@ -446,17 +446,17 @@ class LevelGate(unittest.TestCase):
     """Nov 18: the candidate wants analyst to senior analyst only. Manager level and up is not published, read or searched."""
 
     def test_levels(self):
-        import reqs
+        import target
         up = ["FP&A Manager", "Senior Manager, Strategic Finance", "Director of FP&A", "AVP, Financial Planning",
               "Assistant Vice President - FP&A", "FP&A Supervisor", "Business Execution Finance - C14 - NEW YORK",
               "Head of Finance", "VP, Corporate Development"]
         ok = ["Senior Financial Analyst", "FP&A Analyst II", "Associate, FP&A", "Lead Financial Analyst - FP&A",
               "Business Execution Finance - C12 - NEW YORK", "Financial Analyst"]
         for t in up:
-            self.assertTrue(reqs.out_of_level({"title": t, "description": DUTIES}), t)
+            self.assertTrue(target.off({"title": t, "description": DUTIES}), t)
         for t in ok:
-            self.assertFalse(reqs.out_of_level({"title": t, "description": DUTIES}), t)
-        self.assertTrue(reqs.out_of_level({"title": "Strategic Finance Lead", "description": DUTIES + " Manage a team of 3 analysts."}),
+            self.assertFalse(target.off({"title": t, "description": DUTIES}), t)
+        self.assertTrue(target.off({"title": "Strategic Finance Lead", "description": DUTIES + " Manage a team of 3 analysts."}),
                         "a Lead with people to manage")
 
     def test_boards_never_fetch_manager_titles(self):
@@ -498,7 +498,8 @@ class LevelGate(unittest.TestCase):
             self.assertEqual(titles, ["FP&A Analyst", "Senior Financial Analyst"])
             status = json.load(open(st))
             self.assertNotEqual(status["audit"]["level"], "block", "30 indeed rows left on purpose are not 'lost'")
-            self.assertEqual(status["level_gate"]["left_out"], 31)
+            self.assertEqual(status["target"]["gate"]["left_out"], 31)
+            self.assertEqual(status["target"]["violations"], 0)
         finally:
             shutil.rmtree(d)
 

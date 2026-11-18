@@ -92,6 +92,7 @@ import priority
 import relevance
 import reqs
 import scheduler
+import target
 import textfit
 import trust
 
@@ -591,19 +592,24 @@ def annotate(agg_rows, direct_rows):
 
 
 def _above_safe(row, fresh=False):
-    try:
-        return reqs.out_of_level(row, fresh)
-    except Exception:
-        return False
+    return bool(target.off_safe(row, fresh))
 
 
 def level_gate(rows):
-    """(kept, left out): rows above senior analyst leave the feed (reqs.out_of_level). Counted in feed_status level_gate."""
-    kept, out = [], []
+    """(kept, left out): rows outside the target profile (target.off: level, or more required years than the profile reaches)
+    leave the feed. Counted in feed_status "target" -> gate."""
+    kept, out, why = [], [], {}
     for r in rows:
-        (out if _above_safe(r) else kept).append(r)
-    LEVEL_GATE.update(left_out=len(out), by_level=_count(r.get("seniority", "") for r in out),
-                      by_site=_count(audit._site(r) for r in out))
+        w = target.off_safe(r)
+        if w:
+            out.append(r)
+            why[w.split(":")[0]] = why.get(w.split(":")[0], 0) + 1
+        else:
+            kept.append(r)
+    LEVEL_GATE.clear()
+    LEVEL_GATE.update(left_out=len(out), by_reason=why, by_level=_count(r.get("seniority", "") for r in out),
+                      by_site=_count(audit._site(r) for r in out),
+                      share_of_collected=round(len(out) / max(1, len(rows)), 3))
     return kept, out
 
 
@@ -692,7 +698,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
                and relevance.cached(cache, h)["category"] != relevance.ACCT]
     held_ids = {h["id"] for h in rescued}
     direct_rows = direct_rows + rescued
-    waiting = [h for h in held if h["id"] not in held_ids and not relevance.cached(cache, h)]
+    waiting = [h for h in held if h["id"] not in held_ids and not relevance.cached(cache, h) and not target.off_safe(h, fresh=True)]
     import discover as D
     waiting.sort(key=lambda h: (-backlog.value(h, today, relevance.rules(h.get("title"), h.get("description"), D.title_kind(h.get("title")))["core"]),
                                 h["id"]))                               # most promising first; waiting time keeps adding
@@ -705,7 +711,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     dstats["rescued_by_review"] = len(rescued)
     rows = rows + direct_rows
     queue = finish(rows, cache)
-    rows, above = level_gate(rows)                  # Nov 18: manager level and up is never published
+    rows, above = level_gate(rows)                  # Nov 18: outside the target profile (target.py) is never published
     gone = {r["id"] for r in above}
     queue = [q for q in queue if (q.get("id") if isinstance(q, dict) else q) not in gone]
     hist = history.load(os.path.join(here, "history.json"))
@@ -752,7 +758,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
                "history": hstats, "seniority": _count(r["seniority"] for r in rows),
                "scheduler": dict(scheduler.report(sched, today), decisions=decisions, settled=settled),
                "contract": contract, "coverage": coverage(rows), "intel": intel_summary, "audit": report,
-               "level_gate": dict(LEVEL_GATE),
+               "target": dict(target.check(rows), gate=dict(LEVEL_GATE)),
                # Third review, Nov 18: "partial" is about lost data; these say which stage finished. The classify job sets
                # "classifier" (None until it runs).
                "complete": {"board_sweep": not (dstats.get("boards_due", 0) or 0) > (dstats.get("boards_ok", 0) or 0) + (dstats.get("boards_failed", 0) or 0),

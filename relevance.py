@@ -45,6 +45,8 @@ import urllib.error
 import urllib.request
 from datetime import date, datetime, timedelta, timezone
 
+import target
+
 CATS = ["FP&A / forecasting / budgeting", "Corporate / strategic finance", "Commercial finance / business partnering",
         "Workforce & capacity planning", "Treasury / investment / adjacent finance", "Accounting-heavy / unsuitable"]
 FPA, CORP, COMM, WFP, ADJ, ACCT = CATS
@@ -217,7 +219,7 @@ AB_CHECK_REQUESTS = 1                                            # rules-scored 
 SERVER_RETRIES = 8                                               # a 5xx from the model is resent, at most this often a job
 SERVER_WAIT = 20                                                 # seconds, times the retry number, at most 90
 SYSTEM = (
-    "You screen job postings for one candidate. He wants analyst, senior analyst or associate roles in FP&A (forecasting, "
+    "You screen job postings for one candidate. He wants " + target.PROMPT_LEVEL + " in FP&A (forecasting, "
     "budgeting, variance analysis, planning), corporate or strategic finance, commercial finance and business partnering, or "
     "workforce and capacity planning (he does workforce and capacity planning for a large contact center today). Treasury, "
     "investment and valuation work is a partial fit. Accounting operations (close, journal entries, reconciliations, AP/AR, "
@@ -688,8 +690,8 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
             added.append(rows[-1])
             rescued += 1
     scrape.after_review(rows, added, feed_dir, today)
-    import reqs                                          # a rescued job above senior analyst is left out like any other (Nov 18)
-    above = {id(r) for r in added if reqs.out_of_level(r)}
+    import target                                        # a rescued job outside the target profile is left out like any other
+    above = {id(r) for r in added if target.off_safe(r)}
     if above:
         rows[:] = [r for r in rows if id(r) not in above]
         rescued -= len(above)
@@ -729,6 +731,8 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
         st = json.load(open(st_path, encoding="utf-8"))
         st["classifier"] = stats
         st.setdefault("complete", {})["classifier"] = stats["status"] in ("complete", "skipped")
+        if isinstance(st.get("target"), dict):           # the rows changed (rescues, new verdicts): count again
+            st["target"].update(target.check(rows))
         st["rows_written"] = len(rows)
         json.dump(st, open(st_path, "w", encoding="utf-8"), indent=1)
     except (FileNotFoundError, ValueError):

@@ -19,6 +19,8 @@ v10 (Nov 14):
 """
 import json
 import re
+
+import target
 import os
 from datetime import date, timedelta
 
@@ -109,9 +111,9 @@ def _state_of(entry, today):
     return "active"
 
 
-# Nov 18: the candidate wants analyst to senior analyst roles. A phrase that searches for manager level or above is retired
-# (its history kept, its slot freed); the feed leaves such jobs out anyway (reqs.above_level), so they only cost searches.
-ABOVE_LEVEL = re.compile(r"\b(manager|director|head of|vice president|vp|avp|supervisor|lead)\b", re.I)
+# Nov 18: a phrase that searches for a level outside the target profile (target.SEARCH_OUT) is retired: its history kept, its
+# slot freed. The feed leaves such jobs out anyway (target.off), so they only cost searches.
+ABOVE_LEVEL = target.SEARCH_OUT
 
 
 def plan(state, base, pool, today):

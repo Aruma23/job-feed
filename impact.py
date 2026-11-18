@@ -28,7 +28,7 @@ import sys
 MODULES = ("employer", "reqs", "priority", "relevance", "discover")
 OPTIONAL = ("relevance", "discover")        # older trees are still compared on the rest
 OWN = ("employer", "identity", "intel", "reqs", "priority", "freshness", "trust", "geo", "relevance", "textfit", "discover", "ats",
-       "footprint", "harvest", "ccindex", "backlog", "history")
+       "footprint", "harvest", "ccindex", "backlog", "history", "target", "scheduler")
 
 
 def _load(tree):

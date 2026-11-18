@@ -162,18 +162,6 @@ def requirements(title, description):
             "seniority": level}
 
 
-# Nov 18: the candidate wants analyst to senior analyst roles only ("I'm fine with senior analyst"; no manager stretch). A job at
-# manager level or above is not published: Citi's C13 (AVP) and C14 (VP) grades, AVP, supervisor, Lead with people to manage.
-# Internships aren't either (the board path already drops them; Indeed and LinkedIn rows had no title filter).
-LEVEL_OUT = ("manager", "director+", "intern")
-
-
-def out_of_level(row, fresh=False):
-    """True when the job is outside analyst to senior analyst (manager, director+ or intern), from the title and description."""
-    lvl = (not fresh and row.get("seniority")) or requirements(row.get("title"), row.get("description"))["seniority"]
-    return lvl in LEVEL_OUT     # fresh: ignore a stored label (last run's rows were labelled by older patterns)
-
-
 def annual_pay(row):
     """(low, high) a year in dollars from the row's pay fields, or ('', '')."""
     def num(x):

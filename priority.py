@@ -26,6 +26,8 @@ to add up to an A.
 """
 import re
 
+import target
+
 FLOOR = 75000
 ASK = 100000
 TIERS = ((85, "A"), (70, "B"), (55, "C"))
@@ -103,9 +105,10 @@ def score(row):
     elif GRAD_REQ.search(edu):
         add(-10, "asks for a graduate degree")
     lvl = row.get("seniority")
-    if lvl in ("director+", "intern"):
-        gate.append({"director+": "director level or above", "intern": "an internship"}[lvl])
-    add({"manager": -6, "senior": -3, "entry": 2, "analyst": 2}.get(lvl, 0), f"{lvl} level")
+    if lvl in target.LEVEL_OUT:                      # outside the target profile: never ranked (the feed doesn't publish them)
+        gate.append({"director+": "director level or above", "intern": "an internship",
+                     "manager": "manager level"}.get(lvl, f"{lvl} level"))
+    add({"senior": -3, "entry": 2, "analyst": 2}.get(lvl, 0), f"{lvl} level")
     et = row.get("employer_type")
     if et in ("staffing", "search_firm", "marketplace", "undisclosed"):
         add(-8, {"staffing": "listed by a staffing agency", "search_firm": "listed by a search firm", "marketplace":
