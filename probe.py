@@ -100,6 +100,20 @@ def rippling_detail(slugs=("clarity-clinic", "advisor360-llc", "vouch-inc")):
                     d = ats.http(u, tries=1, want_json=u.startswith("https://ats.rippling.com/api"))
                     print("  detail", u[:110], "->", json.dumps(shape(d))[:700] if not isinstance(d, str) else f"html {len(d)} chars; "
                           + ("has __NEXT_DATA__" if "__NEXT_DATA__" in d else "no __NEXT_DATA__"))
+                    if isinstance(d, str) and "__NEXT_DATA__" in d:
+                        import re
+                        m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', d, re.S)
+                        nd = json.loads(m.group(1))
+                        def walk(x, path):
+                            if isinstance(x, dict):
+                                for k, v in x.items():
+                                    if any(w in k.lower() for w in ("descr", "content", "role", "pay", "salary", "comp", "posted", "created", "workplace")):
+                                        print("    ", path + "." + k, "=", json.dumps(shape(v))[:240])
+                                    walk(v, path + "." + k)
+                            elif isinstance(x, list):
+                                for i, v in enumerate(x[:2]):
+                                    walk(v, f"{path}[{i}]")
+                        walk(nd, "")
                 except Exception as e:
                     print("  detail", u[:110], "->", type(e).__name__, str(e)[:160])
         except Exception as e:
