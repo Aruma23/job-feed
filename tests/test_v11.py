@@ -289,5 +289,157 @@ class ModelOverloaded(unittest.TestCase):
         self.assertEqual((st["reviewed"], st["server_retries"], st["error"]), (0, R.SERVER_RETRIES, "HTTP 503"))
 
 
+class ThirdReview(unittest.TestCase):
+    """Third outside review (Nov 18): grounding, the classify job's failure and retry reporting, the A/B check, identity."""
+
+    def test_the_title_is_not_evidence_of_the_duties(self):
+        def post(url, body, token):
+            return {"candidates": [{"content": {"parts": [{"text": json.dumps({"jobs": [
+                {"id": "j", "score": 85, "category": R.FPA, "strengths": ["financial analysis"], "gap": ""}]})}]}}]}
+        out = R.review([("j", "Financial Analyst", "Acme", "Run the night shift schedule and receive deliveries. " * 5)],
+                       "k", "m", post)
+        self.assertEqual(out["j"]["ev"], "unsupported", "was grounded: 'financial analysis' matched the title")
+
+    def test_sixty_percent_means_rounded_up(self):
+        text = "prepare monthly reports for the team"
+        self.assertFalse(R.grounded("prepare quarterly board decks", text), "1 of 3 content words: below 60%")
+        self.assertFalse(R.grounded("monthly forecast", text), "1 of 2 is 50%: round() let it pass")
+        self.assertTrue(R.grounded("monthly reports", text))
+        self.assertFalse(R.grounded("the and with", text), "a phrase of filler words proves nothing")
+
+    def test_rephrasings_of_one_duty_count_once(self):
+        self.assertEqual(R.distinct(["variance analysis", "analysis of variances", "monthly forecast"]),
+                         ["variance analysis", "monthly forecast"])
+
+    def test_cached_grades_are_rechecked_against_the_posting_and_only_go_down(self):
+        v = {"by": "model", "why": "Strong match: own the forecast, variance analysis.", "ev": "grounded"}
+        self.assertEqual(R.evidence_of(v, "Prepare variance analysis and own the forecast each month."), "grounded")
+        self.assertEqual(R.evidence_of(v, "Prepare variance analysis for the team."), "partial", "the posting changed")
+        self.assertEqual(R.evidence_of(dict(v, ev="partial"), DUTIES + " own the forecast"), "partial", "never up")
+
+    def test_a_crash_is_recorded_and_the_watchdog_shows_it_red(self):
+        import shutil
+        import tempfile
+        import watchdog
+        d = tempfile.mkdtemp()
+        try:
+            json.dump({"ran_at": "2026-11-18T20:00:00+00:00"}, open(os.path.join(d, "feed_status.json"), "w"))
+            try:
+                raise KeyError("fit_score")
+            except KeyError as e:
+                self.assertTrue(R.record_failure(d, e))
+            st = json.load(open(os.path.join(d, "feed_status.json")))
+            self.assertEqual(st["classifier"]["status"], "failed")
+            self.assertFalse(st["complete"]["classifier"])
+            self.assertIn("crashed: KeyError", st["classifier"]["error"])
+            src = open(os.path.join(ROOT, "watchdog.py"), encoding="utf-8").read()
+            self.assertIn('"classifier-crash"', src)
+            red = [f for f in watchdog.check(dict(st, direct={}), [], datetime_now()) if f["key"] == "classifier-crash"]
+            self.assertEqual(red[0]["level"], "red")
+        finally:
+            shutil.rmtree(d)
+
+    def test_one_retry_budget_for_both_stages_and_recovery_clears_the_error(self):
+        import csv
+        import shutil
+        import tempfile
+        import scrape
+        import test_v81 as T
+        d = tempfile.mkdtemp()
+        try:
+            with open(os.path.join(d, "jobs.csv"), "w", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=scrape.COLS, extrasaction="ignore")
+                w.writeheader()
+                w.writerows([T.row("indeed:1", title="Financial Analyst")])
+            sample = [dict(T.row("greenhouse:50", title="Revenue Operations Manager"), _drop="few planning duties")]
+            held = [dict(T.row("greenhouse:1"), held_since="2026-11-17")]
+            json.dump({"review_ids": [], "borderline": held, "audit": sample}, open(os.path.join(d, "review.json"), "w"))
+            json.dump({"ran_at": "x"}, open(os.path.join(d, "feed_status.json"), "w"))
+            cpath = os.path.join(d, "c.json")
+            json.dump({"v": 1, "jobs": {}}, open(cpath, "w"))
+            calls, ok = [], T.fake_post({}, [])
+            import urllib.error
+
+            def post(url, body, token, timeout=60):
+                calls.append(1)
+                if len(calls) in (1, 3):                  # a 503 in the sample stage, another in the main stage
+                    raise urllib.error.HTTPError(url, 503, "overloaded", {}, None)
+                return ok(url, body, token)
+            R.time.sleep = lambda s: None
+            st = R.main(d, cpath, post, token="tok", today="2026-11-18",
+                        now=__import__("datetime").datetime(2026, 11, 18, 20, 0, tzinfo=__import__("datetime").timezone.utc))
+            self.assertEqual(st["server_retries"], 2, "both stages' retries, from one budget")
+            self.assertEqual(st["recovered"], 2)
+            self.assertEqual(st["error"], "", "recovered: the 503 is not the run's state")
+            self.assertEqual(st["status"], "complete")
+            saved = json.load(open(os.path.join(d, "classify_cache.json")))
+            self.assertNotIn("server_retries", saved.get("usage", {}), "the per-job counter is never saved")
+            self.assertTrue(json.load(open(os.path.join(d, "feed_status.json")))["complete"]["classifier"])
+        finally:
+            shutil.rmtree(d)
+
+    def test_rules_ranked_a_b_jobs_are_read_by_the_model(self):
+        import csv
+        import shutil
+        import tempfile
+        import scrape
+        import test_v81 as T
+        d = tempfile.mkdtemp()
+        try:
+            rows = [dict(T.row(f"greenhouse:{i}", title="FP&A Analyst"), priority="A", priority_score=str(90 - i), fit_by="rules",
+                         fit_score="80") for i in range(3)]
+            with open(os.path.join(d, "jobs.csv"), "w", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=scrape.COLS, extrasaction="ignore")
+                w.writeheader()
+                w.writerows(rows)
+            json.dump({"review_ids": [], "borderline": [], "audit": []}, open(os.path.join(d, "review.json"), "w"))
+            json.dump({"ran_at": "x"}, open(os.path.join(d, "feed_status.json"), "w"))
+            cpath = os.path.join(d, "c.json")
+            json.dump({"v": 1, "jobs": {}}, open(cpath, "w"))
+            calls = []
+            R.time.sleep = lambda s: None
+            st = R.main(d, cpath, T.fake_post({"greenhouse:0": T.verdict(90)}, calls), token="tok", today="2026-11-18",
+                        now=__import__("datetime").datetime(2026, 11, 18, 20, 0, tzinfo=__import__("datetime").timezone.utc))
+            ab = st["ab_check"]
+            self.assertEqual((ab["sampled"], ab["reviewed"]), (3, 3))
+            self.assertEqual(ab["left_ab"], 2, "the two the model scored 30 (accounting) leave A/B")
+            out = {r["id"]: r for r in csv.DictReader(open(os.path.join(d, "jobs.csv")))}
+            self.assertEqual(out["greenhouse:1"]["fit_by"], "model")
+        finally:
+            shutil.rmtree(d)
+
+    def test_a_board_slug_becoming_the_employers_name_is_not_a_reused_id(self):
+        import audit
+        prev = [{"id": "rippling:85e2", "company": "pronghorn-careers", "title": "Regional FP&A Analyst",
+                 "job_url": "https://ats.rippling.com/pronghorn-careers/jobs/85e2"}]
+        now = [dict(prev[0], company="Pronghorn Initiative Holdings LLC")]
+        items = []
+        audit.identity_checks(prev, now, items)
+        self.assertFalse([i for i in items if "different employer" in i.get("title", "")])
+        items = []
+        audit.identity_checks(prev, [dict(prev[0], company="Northwind Traders")], items)
+        self.assertTrue([i for i in items if "different employer" in i.get("title", "")], "a real change is still flagged")
+
+    def test_a_match_long_ago_no_longer_outranks_unproven_boards(self):
+        import discover as D
+        old = {"last_hit": "2026-09-01", "hits": 4, "nyc": 3}
+        fresh = {"hits": 0, "nyc": 40}
+        self.assertLess(D.priority(fresh, "2026-11-18", 0.02), D.priority(old, "2026-11-18", 0.02))
+        recent = {"last_hit": "2026-11-10", "hits": 1, "nyc": 1}
+        self.assertLess(D.priority(recent, "2026-11-18", 0.02), D.priority(fresh, "2026-11-18", 0.02))
+
+    def test_read_age_reports_stale_relevant_boards(self):
+        import discover as D
+        db = {"boards": {"ashby:a": {"nyc": 3, "ok": "2026-11-10"}, "ashby:b": {"nyc": 1, "ok": "2026-11-18"},
+                         "ashby:c": {"nyc": 0, "ok": "2026-10-01"}}}
+        r = D.read_age(db, "2026-11-18")["ashby"]
+        self.assertEqual((r["boards"], r["max"], r["over_4_days"], r["oldest"]), (2, 8, 1, "ashby:a"))
+
+
+def datetime_now():
+    from datetime import datetime, timezone
+    return datetime(2026, 11, 18, 21, 0, tzinfo=timezone.utc)
+
+
 if __name__ == "__main__":
     unittest.main()

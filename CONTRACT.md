@@ -36,8 +36,9 @@ completely without it or its own page answers 404/410; closed jobs leave the fee
 
 Fit and requirements (relevance.py, reqs.py): `fit_score` (0-100), `fit_category`, `fit_why`, `fit_by` (rules | model),
 `fit_evidence` (v9: grounded | partial | unsupported | title_only | rules — how much of the posting backs the fit: grounded = 2+
-of the review's cited duties are in the posting and at least half; partial = one, or under half; unsupported = none, or none
-cited; title_only = no description to read; rules = scored by the duty words the rules found. priority.py holds title_only and
+distinct cited duties are in the description (60% of each phrase's content words, rounded up; the title never counts;
+rephrasings of one duty count once) and at least half of those cited; partial = one, or under half; unsupported = none, or
+none cited; a cached grade is rechecked against the current description each run and can only go down; title_only = no description to read; rules = scored by the duty words the rules found. priority.py holds title_only and
 unsupported at C and partial at B),
 `skills`, `years_min`, `education`, `seniority`, `pay_low`, `pay_high` (yearly dollars; v8: when the pay fields are empty, the
 range the posting states in its text, read strictly: next to pay words, a New York range when several places are listed,

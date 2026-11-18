@@ -54,8 +54,12 @@ def _refit(M, r, text):
         return
     ev = getattr(M["relevance"], "evidence_of", None)
     if r.get("fit_by", "rules") != "rules":
-        if ev and not r.get("fit_evidence"):           # a feed published before v9: grade the model verdict as this tree would
-            r["fit_evidence"] = ev({"by": "model", "why": r.get("fit_why")})
+        if ev:                                         # the model verdict graded as this tree would (with the posting, if it can)
+            v = {"by": "model", "why": r.get("fit_why"), "ev": r.get("fit_evidence") or None}
+            try:
+                r["fit_evidence"] = ev(v, text)
+            except TypeError:
+                r["fit_evidence"] = ev(v)
         return
     v = M["relevance"].rules(r.get("title"), text, M["discover"].title_kind(r.get("title")))
     r["fit_score"], r["fit_category"], r["fit_why"] = str(v["score"]), v["category"], v["why"]

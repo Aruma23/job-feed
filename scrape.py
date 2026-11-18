@@ -517,6 +517,10 @@ def direct_step(agg_rows, prev_direct, today, db_path, get=None, resolve=None, c
         stats["verify_error"] = f"{type(e).__name__}: {str(e)[:120]}"
     if held_ok:                                     # on an error the saved queue is left as it was
         stats["held_saved"] = backlog.store(db, held, lambda r: bool(cache and relevance.cached(cache, r)), today, COLS)
+    try:
+        stats["read_age"] = D.read_age(db, today)
+    except Exception as e:
+        stats["read_age"] = {"error": f"{type(e).__name__}: {e}"}
     D.save_db(db, db_path)
     return out, list(held.values()), stats, closed
 
@@ -723,7 +727,11 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
                "regions": _count(r["region"] for r in rows), "description_fit": dict(textfit.STATS),
                "history": hstats, "seniority": _count(r["seniority"] for r in rows),
                "scheduler": dict(scheduler.report(sched, today), decisions=decisions, settled=settled),
-               "contract": contract, "coverage": coverage(rows), "intel": intel_summary, "audit": report}
+               "contract": contract, "coverage": coverage(rows), "intel": intel_summary, "audit": report,
+               # Third review, Nov 18: "partial" is about lost data; these say which stage finished. The classify job sets
+               # "classifier" (None until it runs).
+               "complete": {"board_sweep": not (dstats.get("boards_due", 0) or 0) > (dstats.get("boards_ok", 0) or 0) + (dstats.get("boards_failed", 0) or 0),
+                            "aggregator": not (failed or empty_sites), "classifier": None}}
     if not fresh:
         summary["note"] = "Nothing came back this run; earlier jobs kept."
     with open(status_path, "w", encoding="utf-8") as f:
@@ -809,6 +817,8 @@ def annotate_v6(rows, hist, here, today):
                       "a_b_intermediary": sum(1 for r in ab if employer.is_intermediary(r)),
                       "a_b_accounting": sum(1 for r in ab if str(r.get("fit_category") or "").startswith("Accounting")),
                       "a_b_confirmed_current": sum(1 for r in ab if r.get("confirm") in ("current", "not_due")),
+                      "a_b_by_seniority": _count(r.get("seniority", "") for r in ab),        # third review: the level that ranks
+                      "a_b_by_evidence": _count(r.get("fit_evidence", "") for r in ab),
                       "share_direct_employer": round(sum(1 for r in rows if r.get("employer_type") == "direct") / max(1, len(rows)), 3)}
     out["reposted"] = sum(1 for r in rows if r.get("repost_of"))
     out["tier_A_fresh_verified"] = sum(1 for r in rows if r.get("priority") == "A" and r.get("trust") == "verified")

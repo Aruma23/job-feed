@@ -114,6 +114,19 @@ def _dhash(r):
     return hashlib.sha1(s.encode()).hexdigest()[:12] if len(s) > 200 else ""
 
 
+def _slug_named(old, row):
+    """Third review, Nov 18: the old name was the board's own URL slug ("pronghorn-careers") and the board now gives the
+    employer's name ("Pronghorn Initiative Holdings LLC"): a naming fix for the same opening, not a reused id. Rippling rows
+    were named by slug until the job-page fallback."""
+    import identity
+    old = old.strip()                                  # as written: a slug is lowercase already ("Acme" is a name)
+    if not (re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", old) and f"/{old}/" in str(row.get("job_url") or "").lower()):
+        return False
+    words = [w for w in old.split("-") if w not in ("careers", "jobs", "job", "inc", "llc", "hq", "co", "team", "hiring", "the")]
+    new = identity.emp_key(row.get("company"))
+    return bool(words) and len(words[0]) >= 3 and words[0] in new   # and the name is that slug's ("pronghorn" in it)
+
+
 def identity_checks(prev, rows, items):
     import identity
     merged_two = []
@@ -129,9 +142,11 @@ def identity_checks(prev, rows, items):
               "Left as they are.", "Identity rules may be merging separate openings; each should be its own row.",
               [f"{r.get('company')}: {r.get('title')} ({r.get('source_ids')})" for r in merged_two])
     prev_co = {p.get("id"): identity.emp_key(p.get("company")) for p in prev}
+    prev_raw = {p.get("id"): str(p.get("company") or "") for p in prev}
     moved = [r for r in rows if r.get("id") in prev_co and prev_co[r["id"]] and identity.emp_key(r.get("company")) and
              prev_co[r["id"]] != identity.emp_key(r.get("company")) and not (prev_co[r["id"]] in identity.emp_key(r.get("company"))
-                                                                              or identity.emp_key(r.get("company")) in prev_co[r["id"]])]
+                                                                              or identity.emp_key(r.get("company")) in prev_co[r["id"]])
+             and not _slug_named(prev_raw[r["id"]], r)]
     if moved:
         _item(items, "warn", "id-employer", f"{len(moved)} job ids now belong to a different employer than last run.",
               "Kept the new value.", "An id must stay with one opening; check the source.",

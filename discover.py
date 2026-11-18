@@ -309,9 +309,35 @@ def priority(info, today, rate=None):
     reader could already be relying on moves back."""
     d = date.fromisoformat(today)
     recent = (d - date.fromisoformat(info["last_hit"])).days if info.get("last_hit") else 999
+    if recent > HIT_MEMORY_DAYS:            # Third review, Nov 18: a match long ago no longer outranks every unproven board
+        recent = 999
     if recent == 999 and rate is not None:
         return (recent, 0, -(info.get("nyc", 0) + 1) * rate)
     return (recent, -info.get("hits", 0), -info.get("nyc", 0))
+
+
+HIT_MEMORY_DAYS = 30      # a board whose last match is older than this is ordered with the boards that never matched
+
+
+def read_age(db, today):
+    """How stale the boards that list NYC-area jobs are, by system: days since the last complete read (p50, p90, max), how
+    many are 4+ days old (past the 2-day forced read plus a run's slack), and the oldest. A falling 'boards left unread'
+    count can just mean fewer boards came due; this says whether the relevant ones are actually being reached."""
+    d = date.fromisoformat(today)
+    per = {}
+    for name, info in (db.get("boards") or {}).items():
+        if not info.get("nyc"):
+            continue
+        ok = str(info.get("ok") or "")[:10]
+        age = (d - date.fromisoformat(ok)).days if ok else 99
+        per.setdefault(name.split(":")[0], []).append((age, name))
+    out = {}
+    for prov, xs in sorted(per.items()):
+        xs.sort()
+        a = [x for x, _ in xs]
+        out[prov] = {"boards": len(a), "p50": a[len(a) // 2], "p90": a[min(len(a) - 1, int(len(a) * 0.9))], "max": a[-1],
+                     "over_4_days": sum(1 for x in a if x >= 4), "oldest": xs[-1][1]}
+    return out
 
 
 RATE_PRIOR = (1, 100)     # (matches, requests) added to every system's count: an unproven system starts at 1 per 100 requests

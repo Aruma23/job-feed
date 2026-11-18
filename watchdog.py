@@ -112,11 +112,26 @@ def check(status, runs, now, failure=None, collect_minutes=None):
         out.append(_f("amber", "sweep-budget", f"The board sweep ran out of time ({d.get('sweep_seconds', 0):.0f} s, {late} boards due left unread);"
                       " the least promising go last.",
                       "Raise SWEEP_SECONDS if collect has room, or read fewer low-yield boards (footprint.py)."))
+    stale = sorted(((k, v) for k, v in (d.get("read_age") or {}).items() if isinstance(v, dict) and v.get("over_4_days")),
+                   key=lambda kv: -kv[1]["over_4_days"])
+    n_stale = sum(v["over_4_days"] for _, v in stale)
+    if n_stale >= 50:
+        out.append(_f("amber", "stale-boards", f"{n_stale} boards that list NYC-area jobs were last read 4+ days ago ("
+                      + ", ".join(f"{k} {v['over_4_days']}, oldest {v['max']} d" for k, v in stale[:3]) + ").",
+                      "The sweep's tail isn't being reached: raise SWEEP_SECONDS or poll quiet boards less (footprint.py)."))
     if d.get("error"):
         out.append(_f("red", "direct-error", f"The company-board step failed: {d['error']}", "The feed fell back to the last board jobs."))
     c = status.get("classifier") or {}
-    if c.get("error") and "no GEMINI_API_KEY" not in c["error"] and not re.search(r"\blimit\b|HTTP 429", c["error"]):
+    if c.get("status") == "failed":
+        out.append(_f("red", "classifier-crash", f"The review step crashed: {c.get('error', '')[:200]}",
+                      "Code cause: fix relevance.py. The feed went out on rules verdicts only."))
+    elif c.get("error") and "no GEMINI_API_KEY" not in c["error"] and not re.search(r"\blimit\b|HTTP 429", c["error"]):
         out.append(_f("amber", "classifier", f"Review step: {c['error'][:200]}", "Rules verdicts stand meanwhile."))
+    ab = c.get("ab_check") or {}
+    if ab.get("week_reviewed", 0) >= 16 and ab.get("week_held", 0) * 4 < 3 * ab["week_reviewed"]:
+        out.append(_f("amber", "ab-precision", f"The model kept only {ab['week_held']} of {ab['week_reviewed']} rules-ranked A/B jobs it "
+                      "read in 7 days: the rules rank jobs higher than their duties support.",
+                      "Read ab_check.examples_left; tighten the rule that scored them (relevance.rules)."))
     fn = (c.get("false_negatives") or {}).get("flag")
     if fn:
         out.append(_f("amber", "false-negatives", fn, "Read the sampled fits and loosen the rule that dropped them."))

@@ -36,6 +36,7 @@ Run as the classify job: python -I relevance.py <feed dir> <cache path>
 """
 import hashlib
 import json
+import math
 import os
 import re
 import sys
@@ -165,7 +166,7 @@ def apply(row, verdict):
     row["fit_category"] = verdict["category"]
     row["fit_why"] = verdict["why"]
     row["fit_by"] = verdict.get("by", "rules")
-    row["fit_evidence"] = evidence_of(verdict)
+    row["fit_evidence"] = evidence_of(verdict, row.get("description"))
 
 
 # ---------------- how much of the posting backs the fit (contract v9: fit_evidence) ----------------
@@ -181,20 +182,25 @@ def grade(cited, found):
     return GROUNDED if found >= 2 and 2 * found >= cited else PARTIAL
 
 
-def evidence_of(v):
+def evidence_of(v, text=None):
     """fit_evidence for any verdict: rules (the score is the duty words found in the text), title_only (no description to read),
-    or the model's grade. Verdicts cached before Nov 18 carry no grade: their kept strengths are all grounded, so the count
-    of what is left decides (the dropped ones aren't known)."""
+    or the model's grade. With the description (text), a model verdict's kept strengths are checked again under today's rule,
+    so verdicts graded by an older, looser check (or cached before grades existed) can only go down, never up."""
     why = str(v.get("why") or "")
     if v.get("by", "rules") != "model":
         return TITLE_ONLY if why.startswith("Title match only") else RULES
-    if v.get("ev") in EVIDENCE:
-        return v["ev"]
     if "evidence not found" in why:
         return UNSUPPORTED
     m = re.match(r"(?:Strong|Some) match: (.*?)\.(?: Gap:| \(|$)", why)
-    kept = [x for x in (m.group(1).split(", ") if m else []) if x.strip()]
-    return grade(len(kept), len(kept))
+    kept = distinct([x for x in (m.group(1).split(", ") if m else []) if x.strip()])
+    cited = len(kept)
+    if text is not None and str(text).strip():
+        kept = [k for k in kept if grounded(k, excerpt(text, 4000))]
+    now = grade(cited, len(kept))
+    if v.get("ev") in EVIDENCE:                         # the grade at review time also counted what was dropped then
+        order = (GROUNDED, PARTIAL, UNSUPPORTED)
+        return max(v["ev"], now, key=lambda e: order.index(e) if e in order else -1)
+    return now
 
 
 # ---------------- stage 2: a small model (Gemini free tier) ----------------
@@ -207,8 +213,9 @@ DAILY_MAX = int(os.environ.get("CLASSIFY_DAILY_MAX", "300"))      # never more, 
 RUN_SECONDS = int(os.environ.get("CLASSIFY_RUN_SECONDS", "600"))  # the classify job has 15 minutes
 RUN_HOURS_UTC = (11, 15, 19, 23)                                 # scrape.yml's schedule (minute 41)
 AUDIT_REQUESTS = 2                                               # false-negative sample, reviewed first each run
-SERVER_RETRIES = 3                                               # a 5xx from the model is resent, at most this often a run
-SERVER_WAIT = 20                                                 # seconds, times the retry number
+AB_CHECK_REQUESTS = 1                                            # rules-scored A/B jobs the model reads each run (precision check)
+SERVER_RETRIES = 8                                               # a 5xx from the model is resent, at most this often a job
+SERVER_WAIT = 20                                                 # seconds, times the retry number, at most 90
 SYSTEM = (
     "You screen job postings for one candidate. He wants analyst, senior analyst or associate roles in FP&A (forecasting, "
     "budgeting, variance analysis, planning), corporate or strategic finance, commercial finance and business partnering, or "
@@ -297,7 +304,7 @@ def review(batch, token, model, post=http_post, usage=None):
             raise
     out = {}
     ids = {b[0] for b in batch}
-    texts = {b[0]: excerpt(b[3], 4000) + " " + str(b[1] or "") for b in batch}
+    texts = {b[0]: excerpt(b[3], 4000) for b in batch}          # the duties the model was shown; never the title
     for j in items:
         jid = str(j.get("id") or "")
         cat = _norm_cat(j.get("category"))
@@ -308,6 +315,7 @@ def review(batch, token, model, post=http_post, usage=None):
         if jid not in ids or not cat:
             continue
         strengths = [str(s).strip()[:60] for s in (j.get("strengths") or []) if str(s).strip()][:4]
+        strengths = distinct(strengths)                 # rephrasings of one duty count once
         said = [s for s in strengths if grounded(s, texts.get(jid, ""))]
         ev = grade(len(strengths), len(said))
         unchecked = ev == UNSUPPORTED            # Nov 18 (2nd review): no strengths at all counts too, not only all-failed
@@ -330,14 +338,34 @@ def _stem(w):
     return re.sub(r"(ing|ings|ed|es|s|al|ly)$", "", w)[:6]
 
 
+def _content(phrase):
+    return [w for w in re.findall(r"[a-z0-9&]+", str(phrase).lower()) if w not in _STOP and len(w) > 2]
+
+
 def grounded(phrase, text):
-    """True when most of the phrase's content words (by stem) appear in the posting text. Model phrases are paraphrases
-    ("monthly forecasting" for "forecast each month"), so stems, not exact strings."""
-    words = [w for w in re.findall(r"[a-z0-9&]+", str(phrase).lower()) if w not in _STOP and len(w) > 2]
+    """True when at least 60% (rounded up) of the phrase's content words, by stem, appear in the text. Model phrases are
+    paraphrases ("monthly forecasting" for "forecast each month"), so stems, not exact strings. The text is the description
+    only: the title proves nothing about the duties ("financial analysis" matched "Financial Analyst"). A phrase with no
+    content words proves nothing either. (Third review, Nov 18: was title + description, round() so 2 of 4 words or 1 of 2
+    passed, and an all-filler phrase passed.)"""
+    words = _content(phrase)
     if not words:
-        return True
+        return False
     have = {_stem(w) for w in re.findall(r"[a-z0-9&]+", str(text).lower())}
-    return sum(1 for w in words if _stem(w) in have) >= max(1, round(0.6 * len(words)))
+    return sum(1 for w in words if _stem(w) in have) >= max(1, math.ceil(0.6 * len(words)))
+
+
+def distinct(phrases):
+    """Phrases that name different duties: one whose content stems are all inside another's counts once
+    ("variance analysis" and "analysis of variances" are one duty, not two)."""
+    out, seen = [], []
+    for p in phrases:
+        st = {_stem(w) for w in _content(p)}
+        if not st or any(st <= o or o <= st for o in seen):
+            continue
+        seen.append(st)
+        out.append(p)
+    return out
 
 
 def stale(v):
@@ -389,12 +417,16 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
                 if kind == "day":
                     usage["requests_at_limit"] = usage.get("requests", 0)
                 break
-            if e.code in (500, 502, 503, 504) and stats.get("server_retries", 0) < SERVER_RETRIES:
-                # Nov 18: one 503 ("model overloaded") ended the run's reviews with 329 queued. Wait and resend the same batch,
-                # a few times a run; the run's time limit still applies.
+            # Nov 18: one 503 ("model overloaded") ended the run's reviews with 329 queued. Wait and resend the same batch.
+            # Third review: one budget for the whole classify job (usage is shared by both stages), and time-bound rather than
+            # a fixed count: the 4:15 pm run stopped after 3 retries with 4 of its 10 minutes unused.
+            n = usage.get("server_retries", 0)
+            wait = min(SERVER_WAIT * (n + 1), 90)
+            if e.code in (500, 502, 503, 504) and n < SERVER_RETRIES and (seconds is None or clock() - t0 + wait < seconds - 30):
+                usage["server_retries"] = n + 1
                 stats["server_retries"] = stats.get("server_retries", 0) + 1
-                stats["error"] = f"HTTP {e.code} (retried)"
-                (sleep or time.sleep)(SERVER_WAIT * stats["server_retries"])
+                stats["last_server_error"] = f"HTTP {e.code}"
+                (sleep or time.sleep)(wait)
                 continue
             stats["error"] = f"HTTP {e.code}" + (f" ({model} not found: set CLASSIFY_MODEL)" if e.code == 404 else "")
             break
@@ -409,6 +441,9 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
         stats["calls"] += 1
         stats["sent"] += len(batch)
         stats["model"] = model
+        if stats.get("last_server_error"):                  # recovered: the 5xx is history, not the run's state
+            stats["recovered"] = stats.get("recovered", 0) + 1
+            stats.pop("last_server_error")
         for r in batch:
             v = got.get(r["id"])
             if v:
@@ -419,6 +454,9 @@ def run_reviews(items, cache, token, post=http_post, max_calls=MAX_CALLS, today=
         i += per
         if i < len(items) and stats["calls"] < max_calls:
             (sleep or time.sleep)(6.5)                     # stay under the free tier's per-minute limit
+    if stats.get("last_server_error") and not stats["error"]:
+        stats["error"] = stats["last_server_error"]          # gave up while the service was still failing
+    stats.pop("last_server_error", None)
     stats["left"] = max(0, len(items) - i)
     return stats
 
@@ -554,7 +592,9 @@ def audit_report(cache, today, sampled, st, fits):
         del log[k]
     week = [log[k] for k in log if _age(k, today) < 7]
     rv, ft = sum(d["reviewed"] for d in week), sum(d["fits"] for d in week)
-    out = {"sampled": sampled, "reviewed": st.get("reviewed", 0), "fits": fits[:5], "week_reviewed": rv, "week_fits": ft}
+    out = {"scope": "company-board jobs the rules dropped after the title and place filters, with 300+ characters of "
+                    "description; not titles the filters never kept, places misread, boards left unread or searches that missed",
+           "sampled": sampled, "reviewed": st.get("reviewed", 0), "fits": fits[:5], "week_reviewed": rv, "week_fits": ft}
     if rv >= 16 and ft * 8 > rv:
         out["flag"] = f"{ft} of {rv} sampled rule rejects in 7 days were fits: the rules may be missing good jobs"
     return out
@@ -585,6 +625,7 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
     keyed(cache, rows + border + sample)
     reused = reuse(cache, sample + border + queue, today)
     calls, usage = budget(cache, now)
+    usage["server_retries"] = 0                          # one 5xx budget for this job's two stages; never saved
     per = int(usage.get("per_request") or PER_REQUEST)
     deadline = time.monotonic() + RUN_SECONDS
     todo_s, twins_s = twins_out([r for r in sample if not cached(cache, r)])
@@ -593,19 +634,34 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
     todo += [r for r in twins_out(olds)[0] if r["id"] not in {t["id"] for t in todo}]   # new jobs first, then re-reviews
     st_s = run_reviews(todo_s, cache, token, post, max_calls=min(AUDIT_REQUESTS, calls), today=today, per_request=per, usage=usage,
                        seconds=RUN_SECONDS)
-    if st_s.get("limited"):
-        stats = dict(run_reviews([], cache, token, post, max_calls=0, today=today), error=st_s["error"], limited=st_s["limited"], left=len(todo))
-    else:
-        stats = run_reviews(todo, cache, token, post, max_calls=max(0, calls - st_s["calls"]), today=today, per_request=per, usage=usage,
+    # Third review, Nov 18: nothing checked the top of the list. Rules-scored A/B jobs (keyword evidence, never read by the
+    # model) go to the model, highest-ranked first, one request a run. Their verdicts replace the rules' like any other.
+    ab = sorted((r for r in rows if r.get("priority") in ("A", "B") and r.get("fit_by", "rules") == "rules" and not cached(cache, r)
+                 and r["id"] not in {t["id"] for t in todo}), key=lambda r: -int(r.get("priority_score") or 0))[:per * AB_CHECK_REQUESTS]
+    ab_before = {r["id"]: r.get("priority") for r in ab}
+    st_ab = {"calls": 0, "reviewed": 0, "sent": 0}
+    if ab and not st_s.get("limited") and calls - st_s["calls"] > AB_CHECK_REQUESTS:
+        st_ab = run_reviews(ab, cache, token, post, max_calls=AB_CHECK_REQUESTS, today=today, per_request=per, usage=usage,
                             seconds=max(0, deadline - time.monotonic()))
+    if st_s.get("limited") or st_ab.get("limited"):
+        stats = dict(run_reviews([], cache, token, post, max_calls=0, today=today), error=st_s.get("error") or st_ab.get("error"),
+                     limited=st_s.get("limited") or st_ab.get("limited"), left=len(todo))
+    else:
+        stats = run_reviews(todo, cache, token, post, max_calls=max(0, calls - st_s["calls"] - st_ab["calls"]), today=today,
+                            per_request=per, usage=usage, seconds=max(0, deadline - time.monotonic()))
     for first, rest in list(twins_s.items()) + list(twins.items()):     # the same posting under other ids: one review for all
         v = (cache["jobs"].get(first) or {})
         if v.get("h"):
             for r in rest:
                 cache["jobs"][r["id"]] = dict(v, h=digest(r.get("title"), r.get("description")), at=today, reused=True)
                 reused += 1
-    sent = stats.get("sent", 0) + st_s.get("sent", 0)
-    got = stats["reviewed"] + st_s["reviewed"]
+    retries = usage.pop("server_retries", 0)
+    stats["server_retries"] = retries                    # both stages (third review: the sample's were never published)
+    stats["recovered"] = stats.get("recovered", 0) + st_s.get("recovered", 0)
+    if st_s.get("error") and st_s["error"] != stats.get("error"):
+        stats["sample_error"] = st_s["error"]
+    sent = stats.get("sent", 0) + st_s.get("sent", 0) + st_ab.get("sent", 0)
+    got = stats["reviewed"] + st_s["reviewed"] + st_ab.get("reviewed", 0)
     if sent >= 16 and got < 0.8 * sent and per > 4:
         usage["per_request"] = 4                       # replies leave jobs out at this size: smaller requests from the next run
     rescued = demoted = 0
@@ -632,7 +688,24 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
             added.append(rows[-1])
             rescued += 1
     scrape.after_review(rows, added, feed_dir, today)
+    checked = [r for r in rows if r["id"] in ab_before and cached(cache, r) and cached(cache, r).get("by") == "model"]
+    held = sum(1 for r in checked if r.get("priority") in ("A", "B"))
+    stats["ab_check"] = {"scope": "rules-scored A/B jobs, highest-ranked first, read by the model", "sampled": len(ab),
+                         "reviewed": len(checked), "still_ab": held, "left_ab": len(checked) - held,
+                         "examples_left": [f"{r.get('company')}: {r.get('title')} ({ab_before[r['id']]} -> {r.get('priority')}, "
+                                           f"fit {r.get('fit_score')})" for r in checked if r.get("priority") not in ("A", "B")][:5],
+                         "rules_ab_unread": sum(1 for r in rows if r.get("priority") in ("A", "B") and r.get("fit_by", "rules") == "rules")}
+    log = cache.setdefault("ab_audit", {})
+    day = log.setdefault(today, {"reviewed": 0, "held": 0})
+    day["reviewed"] += len(checked)
+    day["held"] += held
+    for k in sorted(log)[:-14]:
+        del log[k]
+    wk = [log[k] for k in log if _age(k, today) < 7]
+    stats["ab_check"].update(week_reviewed=sum(d["reviewed"] for d in wk), week_held=sum(d["held"] for d in wk))
     waiting = [b for b in border if not cached(cache, b)]
+    stats["status"] = ("skipped" if stats.get("error", "").startswith("no GEMINI_API_KEY") else
+                       "complete" if not stats.get("left") and not stats.get("error") else "partial")
     stats.update(rescued=rescued, demoted=demoted, prompt_version=PROMPT_VERSION,
                  stale_verdicts=sum(1 for r in rows if stale(cached(cache, r))), borderline=len(border), cache_size=len(cache["jobs"]), reused=reused,
                  held_waiting=len(waiting), held_oldest_days=max([_age(b.get("held_since"), today) for b in waiting] or [0]),
@@ -650,6 +723,7 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
     try:
         st = json.load(open(st_path, encoding="utf-8"))
         st["classifier"] = stats
+        st.setdefault("complete", {})["classifier"] = stats["status"] in ("complete", "skipped")
         st["rows_written"] = len(rows)
         json.dump(st, open(st_path, "w", encoding="utf-8"), indent=1)
     except (FileNotFoundError, ValueError):
@@ -658,8 +732,29 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
     return stats
 
 
+def record_failure(feed_dir, exc):
+    """Third review, Nov 18: a crash used to print one line and exit 0, so the collected feed went out with no sign that the
+    review never ran. The feed still goes out (rules verdicts stand), but feed_status.json says so and the watchdog shows it."""
+    import traceback
+    st_path = os.path.join(feed_dir, "feed_status.json")
+    try:
+        st = json.load(open(st_path, encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    tb = traceback.extract_tb(exc.__traceback__)
+    where = f"{os.path.basename(tb[-1].filename)}:{tb[-1].lineno}" if tb else ""
+    st["classifier"] = {"status": "failed", "error": f"crashed: {type(exc).__name__}: {str(exc)[:200]} ({where})",
+                        "reviewed": 0, "left": None}
+    st.setdefault("complete", {})["classifier"] = False
+    tmp = st_path + ".new"
+    json.dump(st, open(tmp, "w", encoding="utf-8"), indent=1)
+    os.replace(tmp, st_path)
+    return True
+
+
 if __name__ == "__main__":
     try:
         main(*(sys.argv[1:3]))
-    except Exception as exc:     # the feed from the collect job is published unchanged
-        print(f"classify skipped: {type(exc).__name__}: {exc}")
+    except Exception as exc:     # the feed from the collect job is published unchanged, and marked
+        print(f"classify failed: {type(exc).__name__}: {exc}")
+        record_failure(sys.argv[1] if len(sys.argv) > 1 else "in", exc)
