@@ -18,6 +18,9 @@ v10 (Nov 14): three caps at C, each named in priority_why: a job whose own categ
 ranked A/B on the model's 50-60 scores), a listing by an intermediary or an unnamed employer (employer.py), and a job the feed
 has not confirmed for 2+ days (confirm = unconfirmed). confirm also moves the score a little: a board left unread because it
 had not changed loses nothing; a job missed by this run or past the aggregators' 3-day search window loses 2 points.
+
+v11 (Nov 18): a fourth cap at C: a job whose fit came from its title alone (relevance.rules found no description to check,
+fit_why "Title match only"). It stays in the feed; it can't rank A/B until there are duties to judge.
 """
 import re
 
@@ -119,12 +122,15 @@ def score(row):
     if gate or t == "suspicious" or f == "gone":
         tier = "D"
     acct = str(row.get("fit_category") or "").startswith("Accounting")
+    no_desc = str(row.get("fit_why") or "").startswith("Title match only")   # relevance.rules saw no duties: the title is the evidence
     capped = fit < 50 or row.get("ghost_risk") == "high" or yrs >= 5 or acct or et in ("staffing", "search_firm", "marketplace",
-             "undisclosed") or cf == "unconfirmed"
+             "undisclosed") or cf == "unconfirmed" or no_desc
     if capped and tier in ("A", "B"):
         tier = "C"
         if acct:
             pts.append((-1, "accounting-heavy work (held at C)"))
+        if no_desc:
+            pts.append((-1, "no description to check the duties (held at C)"))
     reasons = [(-100, g) for g in gate] + sorted(pts, key=lambda x: -abs(x[0]))
     return total, tier, reasons
 

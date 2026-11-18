@@ -97,13 +97,13 @@ def classify(row, mass=False):
         return "staffing", "high: the posting says " + "; ".join(said + (["contract-to-hire terms"] if contract else []))
     if said:
         return "staffing", "medium: the posting says " + said[0]
-    if mass:
+    native = bool(_NATIVE.match(str(row.get("id") or "")))
+    trust = row.get("trust")
+    if mass and not (native and trust == "verified"):   # the employer's own website links this board: its copies are its own
         return "marketplace", "medium: many copies of one ad under this name"
     other = re.search(r"applies through (.{1,60})'s board \(a recruiter or parent company\?\)", str(row.get("trust_why") or ""))
     if other:                                        # trust.py: the board belongs to another company. Parent or recruiter can't
         return "unknown", f"medium: applies through {other.group(1)}'s board (parent company or recruiter)"   # be told apart
-    native = bool(_NATIVE.match(str(row.get("id") or "")))
-    trust = row.get("trust")
     if native and trust in ("verified", "consistent"):
         return "direct", f"high: on its own board ({trust})"
     if native and trust == "suspicious":
@@ -148,11 +148,16 @@ def annotate(rows, mass_keys=None):
             k = _mass_key(r)
             if k:
                 ads[k] = ads.get(k, 0) + 1
-        mass_keys = {e for (e, _), n in titles.items() if n >= intel.MASS} | {k for k, n in ads.items() if n >= intel.MASS}
+        # Nov 18: the title signal is kept per (employer, title), not per employer. It used to mark every row of an employer
+        # that posted one title MASS+ times, so a bank's eight city copies of "Financial Analyst" would have held its
+        # separate FP&A Manager seat at C as a "marketplace" listing. Recruiters are still caught by name, by their own
+        # words and by the repeated cluster itself.
+        mass_keys = {k for k, n in titles.items() if n >= intel.MASS} | {k for k, n in ads.items() if n >= intel.MASS}
     out = {}
     for r in rows:
         try:
-            mass = identity.emp_key(r.get("company")) in mass_keys or (_mass_key(r) or ()) in mass_keys
+            e, t = identity.emp_key(r.get("company")), identity.title_ident(r.get("title"))
+            mass = (e, t) in mass_keys or e in mass_keys or (_mass_key(r) or ()) in mass_keys   # e: an employer-level key given by a caller
             t, why = classify(r, mass)
         except Exception:
             t, why = "unknown", ""

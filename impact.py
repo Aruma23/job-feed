@@ -12,7 +12,8 @@ Usage: python -I impact.py <base_tree> [<head_tree>] [<jobs.csv>]
   jobs.csv:  the published feed to run both on (default: head_tree/jobs.csv)
 Prints a Markdown report (checks.yml appends it to the run's summary). Exit code 0 always: it informs, it doesn't block.
 
-What it re-runs, per row, with each version's own modules: employer typing (employer.annotate), requirements (reqs.requirements:
+What it re-runs, per row, with each version's own modules: the relevance rules' fit for rows the rules scored (Nov 18; a model
+verdict stands, it needs the network), employer typing (employer.annotate), requirements (reqs.requirements:
 years, education, seniority), pay read from the text when the pay fields are empty (reqs.pay_from_text) and the priority tier
 (priority.assess). It doesn't re-run searches, board reads, the model review or freshness (those need the network or a run's
 state): their changes need their own tests. Public data only; nothing is written.
@@ -24,19 +25,35 @@ import importlib
 import os
 import sys
 
-MODULES = ("employer", "reqs", "priority")
-OWN = ("employer", "identity", "intel", "reqs", "priority", "freshness", "trust", "geo", "relevance", "textfit")
+MODULES = ("employer", "reqs", "priority", "relevance", "discover")
+OPTIONAL = ("relevance", "discover")        # older trees are still compared on the rest
+OWN = ("employer", "identity", "intel", "reqs", "priority", "freshness", "trust", "geo", "relevance", "textfit", "discover", "ats",
+       "footprint", "harvest", "ccindex", "backlog", "history")
 
 
 def _load(tree):
     for m in [m for m in list(sys.modules) if m in OWN]:
         del sys.modules[m]
     sys.path.insert(0, os.path.abspath(tree))
-    try:
-        return {n: importlib.import_module(n) for n in MODULES}
-    except Exception as e:                       # a tree without one of the modules (older code): report, don't crash
-        sys.path.pop(0)
-        raise RuntimeError(f"{tree}: {type(e).__name__}: {e}")
+    out = {}
+    for n in MODULES:
+        try:
+            out[n] = importlib.import_module(n)
+        except Exception as e:                   # a tree without one of the modules (older code): report, don't crash
+            if n in OPTIONAL:
+                continue
+            sys.path.pop(0)
+            raise RuntimeError(f"{tree}: {type(e).__name__}: {e}")
+    return out
+
+
+def _refit(M, r, text):
+    """Nov 18: the rules' fit for a row the rules scored (fit_by = rules). A model verdict needs the network, so it stands;
+    but the rules decide every row the model never saw, which is most of the feed."""
+    if r.get("fit_by", "rules") != "rules" or "relevance" not in M or "discover" not in M:
+        return
+    v = M["relevance"].rules(r.get("title"), text, M["discover"].title_kind(r.get("title")))
+    r["fit_score"], r["fit_category"], r["fit_why"] = str(v["score"]), v["category"], v["why"]
 
 
 def _same(base, head, names):
@@ -63,6 +80,10 @@ def run(tree, rows, requirements=True):
                 r["employer_type"], r["employer_type_why"] = "error", f"{type(e).__name__}"
         for r in out:
             text = str(r.get("description") or "").replace("\\n", "\n")
+            try:
+                _refit(M, r, text)
+            except Exception as e:
+                r["fit_score"] = "error:" + type(e).__name__
             if requirements:
                 try:
                     req = M["reqs"].requirements(r.get("title") or "", text)
@@ -106,6 +127,23 @@ def report(base_rows, head_rows, limit=15):
             why = str(h.get("priority_why", "")).replace("|", "/")[:110]
             lines.append(f"| {h.get('company', '')[:28]}: {h.get('title', '')[:48]} | {b.get('priority')} → {h.get('priority')} | "
                          f"{b.get('employer_type', '')} → {h.get('employer_type', '')} | {why} |")
+    fit = [(b, h) for b, h in zip(base_rows, head_rows) if b.get("fit_score") != h.get("fit_score")]
+    if fit:
+        def n(x):
+            try:
+                return int(x.get("fit_score") or 0)
+            except ValueError:
+                return -1
+        cross_up = sum(1 for b, h in fit if n(b) < 50 <= n(h))
+        cross_down = sum(1 for b, h in fit if n(h) < 50 <= n(b))
+        lines += ["", f"**Fit score (rules): {len(fit)} jobs change; {cross_up} newly reach 50 (qualified), {cross_down} drop below.**"]
+        for b, h in sorted(fit, key=lambda x: -abs(n(x[1]) - n(x[0])))[:6]:
+            lines.append(f"- {h.get('company', '')[:28]}: {h.get('title', '')[:48]}: {b.get('fit_score')} → {h.get('fit_score')}")
+    cat = moves("fit_category")
+    if cat:
+        lines += ["", f"**Fit category: {sum(cat.values())} jobs change.**"]
+        for (b, h), k in cat.most_common(6):
+            lines.append(f"- {b[:40] or '(empty)'} → {h[:40] or '(empty)'}: {k}")
     for col, label in (("employer_type", "Employer type"), ("years_min", "Years asked"), ("seniority", "Seniority"),
                        ("education", "Education"), ("pay_high", "Pay read from the text (top of range)")):
         m = moves(col)
@@ -114,7 +152,7 @@ def report(base_rows, head_rows, limit=15):
         lines += ["", f"**{label}: {sum(m.values())} jobs change.**"]
         for (b, h), n in m.most_common(6):
             lines.append(f"- {str(b)[:40] or '(empty)'} → {str(h)[:40] or '(empty)'}: {n}")
-    if not any(moves(c) for c in ("priority", "employer_type", "years_min", "seniority", "education", "pay_high")):
+    if not any(moves(c) for c in ("priority", "fit_score", "fit_category", "employer_type", "years_min", "seniority", "education", "pay_high")):
         lines += ["", "No published job changes under the re-run parts. (Search, board-read, review and freshness changes "
                   "need their own tests.)"]
     return "\n".join(lines) + "\n"

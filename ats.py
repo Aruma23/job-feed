@@ -247,15 +247,53 @@ def unwrap(url, resolve=None):
     return u
 
 
-def resolve_redirect(u):
-    """Follows redirects (HEAD, then GET) and returns where the link lands."""
+class UnsafeURL(ValueError):
+    pass
+
+
+def public_url(u):
+    """u when it is an http(s) link to a public host; UnsafeURL otherwise. Links in job postings are written by strangers: a
+    redirect to a loopback, private, link-local or cloud-metadata address (or a non-web scheme) is never followed."""
+    import ipaddress
+    import socket
+    p = urllib.parse.urlsplit(str(u or ""))
+    host = (p.hostname or "").strip(".").lower()
+    if p.scheme not in ("http", "https") or not host or host == "localhost" or host.endswith((".localhost", ".internal", ".local")):
+        raise UnsafeURL(f"not a public web link: {str(u)[:80]}")
+    try:
+        addrs = {ipaddress.ip_address(host)}
+    except ValueError:
+        try:
+            addrs = {ipaddress.ip_address(a[4][0].split("%")[0]) for a in socket.getaddrinfo(host, None)}
+        except (OSError, UnicodeError):
+            return u                                  # doesn't resolve: the request itself will fail normally
+    if any(not a.is_global or a.is_multicast for a in addrs):
+        raise UnsafeURL(f"{host} points inside a private network")
+    return u
+
+
+class _SafeRedirect(urllib.request.HTTPRedirectHandler):
+    max_redirections = 8
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        public_url(urllib.parse.urljoin(req.full_url, newurl))   # every hop is checked, not only the first link
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+SAFE_OPENER = urllib.request.build_opener(_SafeRedirect)
+
+
+def resolve_redirect(u, opener=None):
+    """Follows redirects (HEAD, then GET) and returns where the link lands. Only public http(s) hosts, at every hop."""
+    op = (opener or SAFE_OPENER).open
+    public_url(u)
     req = urllib.request.Request(u, method="HEAD", headers={"User-Agent": UA})
     try:
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+        with op(req, timeout=TIMEOUT) as r:
             return r.geturl()
     except urllib.error.HTTPError as e:
         if e.code in (405, 403):
-            with urllib.request.urlopen(urllib.request.Request(u, headers={"User-Agent": UA}), timeout=TIMEOUT) as r:
+            with op(urllib.request.Request(u, headers={"User-Agent": UA}), timeout=TIMEOUT) as r:
                 return r.geturl()
         raise
 

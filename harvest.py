@@ -3,8 +3,11 @@
 registry.tsv (one line per board, sorted, so day-to-day diffs stay small):
   board  status  checked  local  jobs  seen  first
   status: new (harvested, not yet checked) | local (has jobs in a commute region or remote US: it is in boards.json and read
-          every run) | other (live, no local jobs) | empty (live, no jobs) | gone (404/403/410) | error (request failed)
-  Rechecks: other and empty after 30 days, gone after 120, error after 2.
+          every run) | other (live, no local jobs) | empty (live, no jobs) | gone (404/410) | blocked (401/403: refused, maybe
+          to this runner) | refused (400: the request or the adapter is wrong, not the board) | error (request failed)
+  Rechecks: other and empty after 30 days, gone after 120, blocked after 7, refused after 30, error after 2.
+  Nov 18: 400 and 403 used to count as gone (120 days). A block or a changed endpoint across a whole system would have
+  shelved thousands of live boards for four months.
 harvest_state.json: which crawl and which system prefix comes next, and the block within it (a checkpoint after every
   block, so an interrupted run loses at most one block).
 
@@ -37,7 +40,7 @@ WORKDAY_VERIFY_MAX = 25
 # systems whose employers are mostly American first; European-heavy ones last
 KIND_ORDER = ["greenhouse", "ashby", "lever", "workday", "rippling", "smartrecruiters", "workable", "breezy", "pinpoint", "recruitee",
               "teamtailor", "personio"]
-RECHECK_DAYS = {"other": 30, "empty": 30, "gone": 120, "error": 2}
+RECHECK_DAYS = {"other": 30, "empty": 30, "gone": 120, "blocked": 7, "refused": 30, "error": 2}
 COLS = ["board", "status", "checked", "local", "jobs", "seen", "first"]
 
 
@@ -187,6 +190,17 @@ def harvest(reg, index, st, today, stats, get=None, crawl_list=None, seconds=Non
 
 
 # ---------------- verifying ----------------
+def status_of(code):
+    """Registry status for an HTTP error. Only 404/410 say the board is gone; a refusal is about the request or the runner."""
+    if code in (404, 410):
+        return "gone"
+    if code in (401, 403):
+        return "blocked"
+    if code == 400:
+        return "refused"
+    return "error"
+
+
 def due_for_check(r, today):
     if r["status"] == "new":
         return True
@@ -212,7 +226,7 @@ def verify(reg, db, today, stats, place_ok, title_kind, add_board, get=ats.http,
         try:
             return b, ats.peek(b, get), ""
         except ats.HttpError as e:
-            return b, None, "gone" if e.code in (404, 410, 403, 400) else "error"
+            return b, None, status_of(e.code)
         except Exception:
             return b, None, "error"
 

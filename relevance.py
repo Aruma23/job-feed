@@ -82,6 +82,7 @@ _TITLE_CAT = [(WFP, r"workforce|headcount|capacity|staffing"), (FPA, r"fp\s*&\s*
               (ACCT, r"account|audit|tax|payroll|controller|bookkeep")]
 PROMPT_VERSION = 1         # bump when SYSTEM or CATS change: older verdicts are then re-reviewed as budget allows
 MODEL_RESCUE = 65          # a reviewed unconventional title joins the feed at this score or above (65+: a real partial fit or better)
+UNGROUNDED_CAP = MODEL_RESCUE - 1   # a model score none of whose evidence is in the posting is held below the rescue bar
 
 
 def _hits(text):
@@ -99,7 +100,8 @@ def rules(title, description, kind):
     if not kind:
         score = min(15, 5 + 2 * core)
     elif not has_desc:
-        score = base + 10
+        score = base                # Nov 18: was base + 10 (a title alone scored 60); missing evidence never adds points,
+                                    # and priority.py holds a job with no description at C
     else:
         score = base + min(40, 7 * core) + min(8, 3 * adj) - 6 * max(0, acct - core)
     score = max(0, min(100, score))
@@ -280,8 +282,9 @@ def review(batch, token, model, post=http_post, usage=None):
         gap = str(j.get("gap") or "").strip()[:100]
         why = ("Strong match: " if score >= 70 else "Some match: " if strengths else "") + ", ".join(strengths) + ("." if strengths else "")
         why = (why + (" Gap: " + gap.rstrip(".") + "." if gap else "")).strip() or "Reviewed: little planning or finance work."
-        if unchecked:
-            why += " (Model's evidence not found in the posting.)"
+        if unchecked:                                   # Nov 18: a score whose every cited duty is missing from the posting
+            score = min(score, UNGROUNDED_CAP)          # can't rescue a job or reach A/B on its own; the rules still apply
+            why += " (Model's evidence not found in the posting; score held at %d.)" % UNGROUNDED_CAP
         out[jid] = {"score": score, "category": cat, "why": why, "by": "model", "pv": PROMPT_VERSION}
     return out
 

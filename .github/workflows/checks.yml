@@ -5,11 +5,9 @@ name: Checks
 # request (from a Claude session, an outside audit or by hand) now gets the full test suite and a report of what it does to
 # the jobs already published (impact.py), so a rule that passes its own tests but moves real jobs shows before merging.
 on:
-  pull_request:
-    paths: ["*.py", "tests/**", "requirements.txt", ".github/workflows/**"]   # code changes only (PR #5's filter)
-  push:
+  pull_request:                       # every pull request (Nov 18: no path filter; tests read CONTRACT.md, seeds and docs too,
+  push:                               # and a change that skipped the checks reaches main untested)
     branches-ignore: [main]
-    paths: ["*.py", "tests/**", "requirements.txt", ".github/workflows/**"]
   workflow_dispatch:
 
 permissions: {}                       # nothing by default
