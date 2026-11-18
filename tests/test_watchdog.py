@@ -54,11 +54,17 @@ class Findings(unittest.TestCase):
         self.assertIn("sweep-budget", keys)
 
     def test_idle_system_as_the_old_code_reported_it(self):
-        import json
-        st = json.load(open(os.path.join(os.path.dirname(HERE), "feed_status.json")))
-        if "workday" in st.get("direct", {}).get("adapter_health", {}) and not st["direct"]["adapter_health"]["workday"].get("read"):
-            keys = [x["key"] for x in W.check(st, [RUN_OK], NOW)]
-            self.assertIn("system-idle-workday", keys, "the real Nov 14 feed_status")
+        # Frozen copy of the Nov 14 shape (Workday: nothing due, read, skipped or late). It used to be read from the published
+        # feed_status.json, which every run rewrites: the Nov 16 2:06 pm run had Workday already read that morning (once a
+        # day), so "skipped 1" was correct, the test failed, and every scheduled scrape stopped at the test step for 2 days.
+        nov14 = dict(OK_STATUS, direct=dict(OK_STATUS["direct"], adapter_health={"workday": {
+            "due": 0, "read": 0, "failed": 0, "drops": 0, "late": 0, "skipped": 0, "state": "ok", "since": "2026-11-01"}}))
+        keys = [x["key"] for x in W.check(nov14, [RUN_OK], NOW)]
+        self.assertIn("system-idle-workday", keys, "the real Nov 14 feed_status")
+        later = dict(OK_STATUS, direct=dict(OK_STATUS["direct"], adapter_health={"workday": {
+            "due": 0, "read": 0, "skipped": 1, "late": 0, "state": "ok", "since": "2026-11-01"}}))
+        self.assertNotIn("system-idle-workday", [x["key"] for x in W.check(later, [RUN_OK], NOW)],
+                         "second run of a day: Workday was read in the morning")
         st = dict(OK_STATUS, direct=dict(OK_STATUS["direct"], adapter_health={"workday": {"due": 0, "read": 0, "skipped": 0, "since": "2026-11-01"}}))
         self.assertEqual(W.check(st, [RUN_OK], NOW)[0]["key"], "system-idle-workday")
 
