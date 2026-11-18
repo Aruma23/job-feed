@@ -125,5 +125,27 @@ class OutboundLinks(unittest.TestCase):
             ats.resolve_redirect("http://127.0.0.1/r")
 
 
+class RipplingPage(unittest.TestCase):
+    def test_description_comes_from_the_job_page_when_the_api_404s(self):
+        page = ('<html><script id="__NEXT_DATA__" type="application/json">' + json.dumps({"props": {"pageProps": {"apiData": {
+            "jobPost": {"description": {"company": "<p>About Clarity</p>", "role": "<p>Own the monthly forecast and budget.</p>"},
+                        "createdOn": "2026-11-12T16:06:13.853000-08:00", "board": {"companyName": "Clarity Clinic"}}}}}})
+            + '</script></html>')
+        lst = {"items": [{"id": "77", "name": "FP&A Manager", "url": "https://ats.rippling.com/clarity-clinic/jobs/77",
+                          "locations": [{"city": "New York", "stateCode": "NY", "country": "United States"}]}], "totalPages": 1}
+
+        def get(url, **k):
+            if "pageSize" in url:
+                return lst
+            if "/api/v2/board/" in url:
+                raise ats.HttpError(404, url)
+            return page
+        jobs = ats.rippling("clarity-clinic", lambda j: True, get)
+        self.assertIn("Own the monthly forecast", jobs[0]["description"], "was empty: the detail API 404s")
+        self.assertTrue(jobs[0]["description"].index("Own the") < jobs[0]["description"].index("About Clarity"), "role first")
+        self.assertEqual(jobs[0]["company"], "Clarity Clinic")
+        self.assertEqual(jobs[0]["posted"], "2026-11-12")
+
+
 if __name__ == "__main__":
     unittest.main()

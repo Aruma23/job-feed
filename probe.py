@@ -123,7 +123,13 @@ def rippling_detail(slugs=("clarity-clinic", "advisor360-llc", "vouch-inc")):
 if __name__ == "__main__":
     what = (sys.argv[1:] or ["all"])[0]
     if what == "rippling":
-        rippling_detail()
+        for slug in ("clarity-clinic", "advisor360-llc", "vouch-inc"):      # the adapter itself, end to end
+            try:
+                js = ats.rippling(slug, lambda j: True, pages=1)
+                print("adapter", slug, len(js), "jobs;", sum(1 for j in js if len(j["description"]) > 80), "with a description;",
+                      "company", js[0]["company"] if js else "-", "posted", js[0]["posted"] if js else "-")
+            except Exception as e:
+                print("adapter", slug, "failed:", type(e).__name__, str(e)[:160])
         sys.exit(0)
     toks = cc() if what in ("cc", "all") else json.load(open("probe_tokens.json"))
     if what in ("ats", "all"):

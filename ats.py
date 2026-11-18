@@ -564,20 +564,41 @@ def rippling(slug, want, get=http, pages=10):
                    "location": "; ".join(_loc(l.get("city"), l.get("stateCode") or l.get("state"), l.get("country")) or l.get("name", "") for l in locs) + ("; Remote" if remote else ""),
                    "remote": remote, "url": j.get("url", ""), "posted": "", "description": ""}
             if want(job):
+                d = {}
                 try:
                     d = get(f"https://ats.rippling.com/api/v2/board/{slug}/jobs/{j.get('id')}")
-                    desc = d.get("description") or d.get("descriptions") or d.get("content") or ""
-                    if isinstance(desc, dict):                 # {"company": "...", "role": "..."}: the role first
-                        desc = "\n\n".join(str(desc[k]) for k in sorted(desc, key=lambda k: k != "role") if desc[k])
-                    job["description"] = text_of(desc)
                 except Exception:
                     pass
+                if not (d.get("description") or d.get("descriptions") or d.get("content")):
+                    # Nov 18: the detail API answers 404 for every job (probe run 44368737011), so every kept Rippling job came
+                    # without a description. The public job page carries the same posting in its Next.js data.
+                    try:
+                        d = rippling_page(get(j.get("url") or f"https://ats.rippling.com/{slug}/jobs/{j.get('id')}", want_json=False))
+                    except Exception:
+                        d = {}
+                desc = d.get("description") or d.get("descriptions") or d.get("content") or ""
+                if isinstance(desc, dict):                     # {"company": "...", "role": "..."}: the role first
+                    desc = "\n\n".join(str(desc[k]) for k in sorted(desc, key=lambda k: k != "role") if desc[k])
+                job["description"] = text_of(desc)
+                job["posted"] = str(d.get("createdOn") or "")[:10]
+                name = ((d.get("board") or {}).get("companyName") or "").strip()
+                if name:
+                    job["company"] = name                      # "Clarity Clinic", not the board slug "clarity-clinic"
             out.append(job)
         page += 1
         if page >= int(data.get("totalPages") or 0):
             out.complete = True
             break
     return out
+
+
+def rippling_page(html):
+    """apiData.jobPost from a Rippling job page's __NEXT_DATA__ (description {company, role}, createdOn, board.companyName)."""
+    m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', str(html or ""), re.S)
+    if not m:
+        return {}
+    data = json.loads(m.group(1))
+    return ((data.get("props") or {}).get("pageProps") or {}).get("apiData", {}).get("jobPost") or {}
 
 
 def personio(slug, want, get=http):
