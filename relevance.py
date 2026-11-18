@@ -688,6 +688,11 @@ def main(feed_dir=".", cache_path="classify_cache.json", post=http_post, token=N
             added.append(rows[-1])
             rescued += 1
     scrape.after_review(rows, added, feed_dir, today)
+    import reqs                                          # a rescued job above senior analyst is left out like any other (Nov 18)
+    above = {id(r) for r in added if reqs.out_of_level(r)}
+    if above:
+        rows[:] = [r for r in rows if id(r) not in above]
+        rescued -= len(above)
     checked = [r for r in rows if r["id"] in ab_before and cached(cache, r) and cached(cache, r).get("by") == "model"]
     held = sum(1 for r in checked if r.get("priority") in ("A", "B"))
     stats["ab_check"] = {"scope": "rules-scored A/B jobs, highest-ranked first, read by the model", "sampled": len(ab),

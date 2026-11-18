@@ -46,7 +46,8 @@ YRS_SCRUB = re.compile(r"\d{1,2}\s*[-–]?\s*year\s+(?:accredited|degree|univers
 DEGREE_ANY = re.compile(r"bachelor|\bba\b|\bbs\b|undergraduate degree|4[- ]year degree|college degree|degree in", re.I)
 DEGREE_HIGH = re.compile(r"\bmba\b|master'?s|\bms\b in|graduate degree|\bphd\b", re.I)
 CERT_HARD = re.compile(r"\bcpa\b|\bcfa\b|series (7|63|65|66|79|24|86|87)|\bfrm\b|\bcma\b|security clearance|secret clearance|top secret", re.I)
-_SENIOR = [("intern", r"\bintern"), ("director+", r"\b(director|head of|vice president|vp|chief|cfo)\b"), ("manager", r"\bmanager\b|\bteam lead\b"),
+_SENIOR = [("intern", r"\bintern"), ("director+", r"\b(director|head of|vice president|s?vp|evp|chief|cfo)\b|\bc1[5-9]\b"),
+           ("manager", r"\bmanager\b|\bteam lead\b|\bsupervisor\b|\bavp\b|\bassistant vice president\b|\bc1[34]\b"),
            ("senior", r"\bsenior\b|\bsr\.?\b|\biii\b|\bprincipal\b|\bstaff\b"), ("entry", r"\b(junior|jr\.?|entry|graduate|new grad|associate i)\b|\banalyst i\b")]
 # "Lead" in a title is a manager only with people responsibility in the text (a Finance Lead is usually an individual contributor)
 LEAD = re.compile(r"\blead\b", re.I)
@@ -159,6 +160,18 @@ def requirements(title, description):
         level = "entry" if hi and lo <= 1 else "senior" if lo >= 5 else "analyst"
     return {"skills": "; ".join(skills), "years_min": (f"{lo}-{hi}" if hi != lo else str(lo)) if hi else "", "education": "; ".join(edu),
             "seniority": level}
+
+
+# Nov 18: the candidate wants analyst to senior analyst roles only ("I'm fine with senior analyst"; no manager stretch). A job at
+# manager level or above is not published: Citi's C13 (AVP) and C14 (VP) grades, AVP, supervisor, Lead with people to manage.
+# Internships aren't either (the board path already drops them; Indeed and LinkedIn rows had no title filter).
+LEVEL_OUT = ("manager", "director+", "intern")
+
+
+def out_of_level(row, fresh=False):
+    """True when the job is outside analyst to senior analyst (manager, director+ or intern), from the title and description."""
+    lvl = (not fresh and row.get("seniority")) or requirements(row.get("title"), row.get("description"))["seniority"]
+    return lvl in LEVEL_OUT     # fresh: ignore a stored label (last run's rows were labelled by older patterns)
 
 
 def annual_pay(row):

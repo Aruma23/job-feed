@@ -12,7 +12,7 @@ import relevance as R  # noqa: E402
 
 
 class DutySearches(unittest.TestCase):
-    NEW = ["revenue strategy", "commercial finance", "finance and strategy manager", "business planning manager",
+    NEW = ["revenue strategy", "commercial finance", "finance and strategy analyst", "business planning analyst",   # Nov 18: analyst level
            "business operations forecasting budget", "strategy operations forecast budget variance", "pricing strategy financial model",
            "strategy and operations finance"]
 
@@ -25,6 +25,7 @@ class DutySearches(unittest.TestCase):
             self.assertNotIn((site, term), base, "trial searches are not in the base list")
             self.assertTrue(site in ("indeed", "linkedin", "glassdoor", "zip_recruiter", "google") and 0 < n <= 100)
         self.assertEqual(len(S.POOL), len(set((s, t) for s, t, _ in S.POOL)), "no duplicate trial searches")
+        self.assertFalse([t for _, t, _ in S.POOL if S.ABOVE_LEVEL.search(t)], "no search for roles above senior analyst")
 
     def test_new_trials_are_admitted_when_there_is_room(self):
         state = {"v": 1, "run": 0, "searches": {}, "sites": {}}
@@ -41,12 +42,14 @@ class DutySearches(unittest.TestCase):
     def test_unconventional_titles_are_judged_by_duties(self):
         fpa = ("Own the annual budget and monthly forecast, variance analysis versus plan, the P&L review and scenario planning. "
                "Partner with sales leadership on pricing and revenue forecasting.")
-        for title in ("Revenue Strategy Manager", "Business Operations Manager", "Finance & Strategy Manager", "Commercial Finance Lead"):
+        for title in ("Revenue Strategy Associate", "Business Operations Analyst", "Finance & Strategy Analyst", "Commercial Finance Lead"):
             r = R.rules(title, fpa, D.title_kind(title))
             self.assertGreaterEqual(r["score"], 50, title)
             self.assertNotEqual(r["category"], R.ACCT, title)
         ops = "Vendor onboarding, warehouse logistics, procurement and customer support tickets."
-        self.assertLess(R.rules("Business Operations Manager", ops, D.title_kind("Business Operations Manager"))["score"], 50)
+        self.assertLess(R.rules("Business Operations Analyst", ops, D.title_kind("Business Operations Analyst"))["score"], 50)
+        for title in ("Revenue Strategy Manager", "Business Operations Manager", "Senior Manager, FP&A", "FP&A Supervisor"):
+            self.assertEqual(D.title_kind(title), "", f"{title}: above senior analyst (Nov 18)")
 
 
 if __name__ == "__main__":

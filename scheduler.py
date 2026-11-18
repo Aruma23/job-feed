@@ -18,6 +18,7 @@ v10 (Nov 14):
   - Mined phrases (scrape.mined_pool) join the trial pool after POOL; MINED_ACTIVE caps how many are on trial at once.
 """
 import json
+import re
 import os
 from datetime import date, timedelta
 
@@ -39,8 +40,8 @@ POOL = [
     # whatever the title says; the relevance rules then judge each job by its duties, and each phrase still has to earn
     # its place with new qualified jobs. Listed first: untried phrases are admitted in this order, 2 a run
     # when there is room, so these go ahead of the older untried ones.
-    ("indeed", "revenue strategy", 30), ("indeed", "commercial finance", 30), ("indeed", "finance and strategy manager", 30),
-    ("indeed", "business planning manager", 30), ("indeed", "business operations forecasting budget", 30),
+    ("indeed", "revenue strategy", 30), ("indeed", "commercial finance", 30), ("indeed", "finance and strategy analyst", 30),
+    ("indeed", "business planning analyst", 30), ("indeed", "business operations forecasting budget", 30),
     ("indeed", "strategy operations forecast budget variance", 30), ("indeed", "pricing strategy financial model", 30),
     ("linkedin", "revenue strategy", 20), ("linkedin", "commercial finance", 20), ("linkedin", "strategy and operations finance", 20),
     ("indeed", "FP&A associate", 40), ("indeed", "senior financial analyst", 40), ("indeed", "commercial finance analyst", 30),
@@ -108,6 +109,11 @@ def _state_of(entry, today):
     return "active"
 
 
+# Nov 18: the candidate wants analyst to senior analyst roles. A phrase that searches for manager level or above is retired
+# (its history kept, its slot freed); the feed leaves such jobs out anyway (reqs.above_level), so they only cost searches.
+ABOVE_LEVEL = re.compile(r"\b(manager|director|head of|vice president|vp|avp|supervisor|lead)\b", re.I)
+
+
 def plan(state, base, pool, today):
     """-> (searches to run [(site, term, n)], decisions {key: reason}). Advances the run counter."""
     state["run"] = run = state.get("run", 0) + 1
@@ -125,6 +131,11 @@ def plan(state, base, pool, today):
     for k in order:
         e = entries[k]
         site = e["site"]
+        if ABOVE_LEVEL.search(e.get("term", "")):
+            e["state"] = "retired"
+            decisions[k] = "retired: searches for roles above senior analyst"
+            freed += 1
+            continue
         if site in paused_sites:
             info = state["sites"][site]
             if site not in probed and info.get("probed") != today:
@@ -158,7 +169,7 @@ def plan(state, base, pool, today):
         s, t, n = item[:3]
         why = item[3] if len(item) > 3 else ""
         k = key(s, t)
-        if k in entries or room <= 0 or admitted >= POOL_ADMIT or s in paused_sites:
+        if k in entries or room <= 0 or admitted >= POOL_ADMIT or s in paused_sites or ABOVE_LEVEL.search(t):
             continue
         if why and mined_on >= MINED_ACTIVE:
             continue

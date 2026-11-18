@@ -132,10 +132,10 @@ class Mined(unittest.TestCase):
                  "location": "New York, NY"} for i in range(n)]
 
     def test_proposes_uncovered_phrase_only(self):
-        rows = self.rows("Finance & Strategy Analyst", 4) + self.rows("Revenue Finance Analyst", 4) + self.rows("Senior FP&A Analyst", 5) + self.rows("Tax Strategy Analyst", 5)
+        rows = self.rows("Planning & Strategy Analyst", 4) + self.rows("Revenue Finance Analyst", 4) + self.rows("Senior FP&A Analyst", 5) + self.rows("Tax Strategy Analyst", 5)
         got = scrape.mined_pool(rows, {"searches": {}})
         terms = [t for _, t, _, _ in got]
-        self.assertIn("finance and strategy analyst", terms)
+        self.assertIn("planning and strategy analyst", terms)   # Nov 18: "finance and strategy analyst" is now a search
         self.assertNotIn("revenue finance analyst", terms, "the 'revenue analyst' trial already matches every word")
         self.assertNotIn("fp&a analyst", terms, "an existing search already matches those titles")
         self.assertFalse(any("tax" in t for t in terms))

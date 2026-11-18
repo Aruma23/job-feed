@@ -256,7 +256,7 @@ class ClassifyJob(unittest.TestCase):
     def test_sample_first_twins_once_fits_rescued_and_usage_published(self):
         held = [dict(row(f"greenhouse:{i}", desc=FPA + f" Team {i}."), held_since="2026-10-28") for i in range(3)]
         twin = dict(row("lever:7", company="Acme Staffing", desc=FPA + " Team 0."), held_since="2026-11-02")
-        sample = [dict(row("greenhouse:50", title="Revenue Operations Manager", desc=FPA + " Revenue."), _drop="few planning duties"),
+        sample = [dict(row("greenhouse:50", title="Revenue Operations Analyst", desc=FPA + " Revenue."), _drop="few planning duties"),
                   dict(row("greenhouse:51", title="Store Manager", desc=DULL), _drop="few planning duties")]
         verdicts = {"greenhouse:0": verdict(), "greenhouse:50": verdict(82, "Corporate / strategic finance")}
         st, out, saved, status, calls = self.run_job({"review_ids": [], "borderline": held + [twin], "audit": sample,
@@ -268,7 +268,7 @@ class ClassifyJob(unittest.TestCase):
         self.assertNotIn("greenhouse:51", out)
         self.assertEqual(st["reused"], 1)
         fn = status["false_negatives"]
-        self.assertEqual((fn["sampled"], fn["reviewed"], [f["title"] for f in fn["fits"]]), (2, 2, ["Revenue Operations Manager"]))
+        self.assertEqual((fn["sampled"], fn["reviewed"], [f["title"] for f in fn["fits"]]), (2, 2, ["Revenue Operations Analyst"]))
         self.assertEqual((status["usage"]["requests"], status["usage"]["ceiling"]), (2, R.DAILY_START))
         self.assertEqual((status["held_waiting"], status["held_oldest_days"]), (0, 0))
         self.assertEqual(saved["usage"]["requests"], 2, "the day's count is saved for the next run")

@@ -44,6 +44,11 @@ unsupported at C and partial at B),
 range the posting states in its text, read strictly: next to pay words, a New York range when several places are listed,
 nothing when it is ambiguous).
 
+Level (Nov 18, 2026): the feed publishes analyst to senior analyst roles only. A job whose `seniority` is manager, director+ or
+intern (reqs.py: Manager, Senior Manager, Supervisor, Team Lead, AVP, VP/SVP/EVP, Director, Head of, Citi grades C13+, a Lead
+with people to manage) is not published, not sent for review and not searched for; `feed_status.json` → `level_gate` counts
+what was left out. Such a job leaving the feed is not a closing: the audit counts it as left out on purpose.
+
 Freshness (freshness.py):
 - `freshness`: fresh (≤ 7 days) | active (≤ 30, or a real change in the last 14) | aging (≤ 60) | stale (> 60) | gone (the employer's own board, read completely, no longer lists it).
 - `ghost_risk`: low | medium | high. Age alone is at most medium; high needs two signals (120+ days, evergreen wording, reposted 2+ times, re-dated 3+ times without change) or "gone".

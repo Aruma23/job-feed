@@ -12,6 +12,7 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
+sys.path.insert(0, HERE)
 import ats  # noqa: E402
 import employer  # noqa: E402
 import harvest  # noqa: E402
@@ -351,7 +352,7 @@ class ThirdReview(unittest.TestCase):
                 w = csv.DictWriter(f, fieldnames=scrape.COLS, extrasaction="ignore")
                 w.writeheader()
                 w.writerows([T.row("indeed:1", title="Financial Analyst")])
-            sample = [dict(T.row("greenhouse:50", title="Revenue Operations Manager"), _drop="few planning duties")]
+            sample = [dict(T.row("greenhouse:50", title="Revenue Operations Analyst"), _drop="few planning duties")]
             held = [dict(T.row("greenhouse:1"), held_since="2026-11-17")]
             json.dump({"review_ids": [], "borderline": held, "audit": sample}, open(os.path.join(d, "review.json"), "w"))
             json.dump({"ran_at": "x"}, open(os.path.join(d, "feed_status.json"), "w"))
@@ -439,6 +440,77 @@ class ThirdReview(unittest.TestCase):
 def datetime_now():
     from datetime import datetime, timezone
     return datetime(2026, 11, 18, 21, 0, tzinfo=timezone.utc)
+
+
+class LevelGate(unittest.TestCase):
+    """Nov 18: the candidate wants analyst to senior analyst only. Manager level and up is not published, read or searched."""
+
+    def test_levels(self):
+        import reqs
+        up = ["FP&A Manager", "Senior Manager, Strategic Finance", "Director of FP&A", "AVP, Financial Planning",
+              "Assistant Vice President - FP&A", "FP&A Supervisor", "Business Execution Finance - C14 - NEW YORK",
+              "Head of Finance", "VP, Corporate Development"]
+        ok = ["Senior Financial Analyst", "FP&A Analyst II", "Associate, FP&A", "Lead Financial Analyst - FP&A",
+              "Business Execution Finance - C12 - NEW YORK", "Financial Analyst"]
+        for t in up:
+            self.assertTrue(reqs.out_of_level({"title": t, "description": DUTIES}), t)
+        for t in ok:
+            self.assertFalse(reqs.out_of_level({"title": t, "description": DUTIES}), t)
+        self.assertTrue(reqs.out_of_level({"title": "Strategic Finance Lead", "description": DUTIES + " Manage a team of 3 analysts."}),
+                        "a Lead with people to manage")
+
+    def test_boards_never_fetch_manager_titles(self):
+        import discover as D
+        for t in ("FP&A Manager", "Manager, Financial Planning & Analysis", "Senior Manager FP&A", "Team Lead, Finance"):
+            self.assertEqual(D.title_kind(t), "", t)
+        self.assertEqual(D.title_kind("Senior Financial Analyst"), "strong")
+
+    def test_last_feeds_manager_rows_leave_without_being_restored(self):
+        import csv
+        import shutil
+        import tempfile
+        import scrape
+        import test_scrape as TS
+        from datetime import datetime
+        d = tempfile.mkdtemp()
+        try:
+            out, st = os.path.join(d, "jobs.csv"), os.path.join(d, "feed_status.json")
+            prev = [dict({c: "" for c in scrape.COLS}, id=f"in-{i}", site="indeed", title="FP&A Manager", company=f"Co{i}",
+                         location="New York, NY", job_url=f"https://indeed.example/{i}", description=DUTIES,
+                         first_seen="2026-11-17", last_seen="2026-11-17", date_posted="2026-11-17") for i in range(30)]
+            prev.append(dict(prev[0], id="in-99", title="Senior Financial Analyst", company="Keep Co",
+                             job_url="https://indeed.example/99"))
+            with open(out, "w", newline="", encoding="utf-8") as f:
+                w = csv.DictWriter(f, fieldnames=scrape.COLS)
+                w.writeheader()
+                w.writerows(prev)
+            old = scrape.SEARCHES
+            scrape.SEARCHES = [("indeed", "fp&a", 5)]
+            try:
+                fresh = [TS.job(200, "indeed", "Director, FP&A", "Big Co", desc=DUTIES),
+                         TS.job(201, "indeed", "FP&A Analyst", "Small Co", desc=DUTIES)]
+                scrape.main(scrape=TS.fake({("indeed", "fp&a"): fresh}), out=out, status_path=st,
+                            now=datetime.fromisoformat("2026-11-18T12:00:00+00:00"))
+            finally:
+                scrape.SEARCHES = old
+            rows = TS.read(out)
+            titles = sorted(r["title"] for r in rows)
+            self.assertEqual(titles, ["FP&A Analyst", "Senior Financial Analyst"])
+            status = json.load(open(st))
+            self.assertNotEqual(status["audit"]["level"], "block", "30 indeed rows left on purpose are not 'lost'")
+            self.assertEqual(status["level_gate"]["left_out"], 31)
+        finally:
+            shutil.rmtree(d)
+
+    def test_manager_searches_are_retired_not_run(self):
+        import scheduler as S
+        state = {"v": 1, "run": 0, "sites": {}, "searches": {
+            "indeed|finance and strategy manager": {"site": "indeed", "term": "finance and strategy manager", "n": 30, "src": "pool",
+                                                    "added": "2026-11-02", "runs_total": 40, "days": {}, "state": "active"}}}
+        searches, why = S.plan(state, [("indeed", "fp&a", 30)], S.POOL, "2026-11-18")
+        self.assertNotIn("finance and strategy manager", [t for _, t, _ in searches])
+        self.assertTrue(why["indeed|finance and strategy manager"].startswith("retired"))
+        self.assertIn("indeed|finance and strategy manager", state["searches"], "its history is kept")
 
 
 if __name__ == "__main__":

@@ -274,7 +274,7 @@ def qualifies(row, cache=None):
     """Right place and relevant: the rules, or the model's cached verdict on the same posting when there is one (v10: the
     scheduler is credited with the feed's final verdicts, not only the rules')."""
     p = geo.resolve(row.get("location"), str(row.get("is_remote")) == "True")
-    return p.status in ("local", "remote_us") and verdict(row, cache)["score"] >= QUALIFY_MIN
+    return p.status in ("local", "remote_us") and verdict(row, cache)["score"] >= QUALIFY_MIN and not _above_safe(row)
 
 
 def final_qualified(row):
@@ -590,6 +590,26 @@ def annotate(agg_rows, direct_rows):
     return folded
 
 
+def _above_safe(row, fresh=False):
+    try:
+        return reqs.out_of_level(row, fresh)
+    except Exception:
+        return False
+
+
+def level_gate(rows):
+    """(kept, left out): rows above senior analyst leave the feed (reqs.out_of_level). Counted in feed_status level_gate."""
+    kept, out = [], []
+    for r in rows:
+        (out if _above_safe(r) else kept).append(r)
+    LEVEL_GATE.update(left_out=len(out), by_level=_count(r.get("seniority", "") for r in out),
+                      by_site=_count(audit._site(r) for r in out))
+    return kept, out
+
+
+LEVEL_GATE = {}
+
+
 def finish(rows, cache):
     """Region, finder hint, requisition ID, source IDs and fit for every row. Returns the review queue (row ids)."""
     queue = []
@@ -685,6 +705,9 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     dstats["rescued_by_review"] = len(rescued)
     rows = rows + direct_rows
     queue = finish(rows, cache)
+    rows, above = level_gate(rows)                  # Nov 18: manager level and up is never published
+    gone = {r["id"] for r in above}
+    queue = [q for q in queue if (q.get("id") if isinstance(q, dict) else q) not in gone]
     hist = history.load(os.path.join(here, "history.json"))
     hstats = history.update(hist, rows, today, closed)
     history.save(hist, os.path.join(here, "history.json"))
@@ -692,6 +715,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     import discover as D
     intel_summary = intel.annotate(rows, today, os.path.join(here, "employers.json"), D.NEVER)
     explained = set(closed) | set(dstats.pop("_explained", [])) | {h["id"] for h in held}
+    explained |= {r["id"] for r in above} | {p.get("id") for p in previous_all if _above_safe(p, fresh=True)}   # left out on purpose, not lost
     now_counts = {"rows_by_site": _count(audit._site(r) for r in rows), "boards": {"boards read": dstats.get("boards_ok", 0)}}
     if dstats.get("boards_due") is not None:
         now_counts["boards_due"] = dstats["boards_due"]
@@ -728,6 +752,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
                "history": hstats, "seniority": _count(r["seniority"] for r in rows),
                "scheduler": dict(scheduler.report(sched, today), decisions=decisions, settled=settled),
                "contract": contract, "coverage": coverage(rows), "intel": intel_summary, "audit": report,
+               "level_gate": dict(LEVEL_GATE),
                # Third review, Nov 18: "partial" is about lost data; these say which stage finished. The classify job sets
                # "classifier" (None until it runs).
                "complete": {"board_sweep": not (dstats.get("boards_due", 0) or 0) > (dstats.get("boards_ok", 0) or 0) + (dstats.get("boards_failed", 0) or 0),

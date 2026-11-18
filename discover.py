@@ -49,7 +49,9 @@ HARD_EXCLUDE = ["intern", "internship", "summer", "class of", "co-op", "coop", "
                 "recruiting", "sourcer", "attorney", "counsel", "engineer", "engineering", "director", "vice president", "vp", "svp", "evp",
                 "head of", "chief", "principal", "controller", "billing", "accounts payable", "accounts receivable", "collections",
                 "compliance", "product manager", "program manager", "data scientist", "solution architect", "solutions architect",
-                "partner development", "people partner"]
+                "partner development", "people partner",
+                # Nov 18: above the candidate's level (analyst to senior analyst): not read, not reviewed, not published
+                "manager", "managers", "mgr", "supervisor", "avp", "assistant vice president", "team lead"]
 SOFT_EXCLUDE = ["sales", "marketing", "account executive", "account manager", "business development"]
 AMBIG = re.compile(r"\b(strategy|strategic|operations|ops|planning|insights|analytics|analyst|associate|performance|decision support|commercial|"
                    r"revenue|business|capital|budget|reporting|portfolio|treasury|investor relations|corporate development|pricing)\b", re.I)
