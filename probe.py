@@ -83,8 +83,34 @@ def ats_check(tokens):
         print(f"{kind}: {tried} tried, {shown} with jobs")
 
 
+def rippling_detail(slugs=("clarity-clinic", "advisor360-llc", "vouch-inc")):
+    """Nov 18: every kept Rippling job came without a description (adapter_health: 35 of 35). One list and one detail per board."""
+    for slug in slugs:
+        try:
+            data = ats.http(f"https://ats.rippling.com/api/v2/board/{slug}/jobs?page=0&pageSize=50", tries=1)
+            items = data.get("items") or []
+            print(slug, "list ok:", len(items), "items; keys", sorted(items[0])[:20] if items else [])
+            if not items:
+                continue
+            j = items[0]
+            for u in (f"https://ats.rippling.com/api/v2/board/{slug}/jobs/{j.get('id')}", j.get("url") or ""):
+                if not u:
+                    continue
+                try:
+                    d = ats.http(u, tries=1, want_json=u.startswith("https://ats.rippling.com/api"))
+                    print("  detail", u[:110], "->", json.dumps(shape(d))[:700] if not isinstance(d, str) else f"html {len(d)} chars; "
+                          + ("has __NEXT_DATA__" if "__NEXT_DATA__" in d else "no __NEXT_DATA__"))
+                except Exception as e:
+                    print("  detail", u[:110], "->", type(e).__name__, str(e)[:160])
+        except Exception as e:
+            print(slug, "list failed:", type(e).__name__, str(e)[:160])
+
+
 if __name__ == "__main__":
     what = (sys.argv[1:] or ["all"])[0]
+    if what == "rippling":
+        rippling_detail()
+        sys.exit(0)
     toks = cc() if what in ("cc", "all") else json.load(open("probe_tokens.json"))
     if what in ("ats", "all"):
         ats_check(toks)
