@@ -21,6 +21,14 @@
 ],
 0
 ],
+"in-1e2d7a1d1ecbfe35": [
+"2026-11-19",
+[
+"indeed|corporate finance analyst",
+"indeed|finance associate"
+],
+0
+],
 "in-253cbb6fe1e3add9": [
 "2026-11-18",
 [
@@ -56,19 +64,21 @@
 ],
 0
 ],
-"in-3d9602c18ce60f50": [
-"2026-11-19",
-[
-"indeed|business operations forecasting budget"
-],
-0
-],
 "in-491e2b1568932d99": [
 "2026-11-18",
 [
 "indeed|strategic finance"
 ],
 0
+],
+"in-4967e5f77f6859be": [
+"2026-11-19",
+[
+"indeed|financial planning and analysis",
+"indeed|financial analyst",
+"indeed|business finance analyst"
+],
+1
 ],
 "in-4b68c5dd54c87dc7": [
 "2026-11-18",
@@ -84,6 +94,13 @@
 "indeed|financial analyst"
 ],
 0
+],
+"in-59f7742510cd0270": [
+"2026-11-19",
+[
+"indeed|forecasting analyst"
+],
+1
 ],
 "in-5e3d00bb9d71829b": [
 "2026-11-18",
@@ -106,13 +123,6 @@
 "indeed|financial planning and analysis"
 ],
 1
-],
-"in-6bf51a17826b3f3e": [
-"2026-11-19",
-[
-"indeed|finance associate"
-],
-0
 ],
 "in-6f029f3415ac0fb3": [
 "2026-11-18",
@@ -143,17 +153,25 @@
 ],
 1
 ],
-"in-aa4821fb0ecc2d07": [
-"2026-11-19",
-[
-"indeed|business planning analyst"
-],
-0
-],
 "in-abce165593ad798f": [
 "2026-11-19",
 [
 "indeed|headcount planning"
+],
+0
+],
+"in-ae2b42730f41041c": [
+"2026-11-19",
+[
+"indeed|financial analyst"
+],
+0
+],
+"in-c82fc32fbf56d0e8": [
+"2026-11-19",
+[
+"indeed|business planning analyst",
+"indeed|capacity planning analyst"
 ],
 0
 ],
@@ -164,19 +182,20 @@
 ],
 1
 ],
-"in-e4cd044b5265702c": [
-"2026-11-19",
-[
-"indeed|business operations forecasting budget"
-],
-1
-],
 "in-ea869a1a61d92135": [
 "2026-11-18",
 [
 "indeed|strategic finance"
 ],
 1
+],
+"in-eb3ede4a3947fdd0": [
+"2026-11-19",
+[
+"indeed|corporate finance analyst",
+"indeed|strategy and operations analyst"
+],
+0
 ],
 "in-ee7940bea42138b1": [
 "2026-11-18",
@@ -263,7 +282,7 @@
 1
 ]
 },
-"run": 67,
+"run": 68,
 "searches": {
 "glassdoor|FP&A analyst": {
 "added": "2026-11-01",
@@ -808,18 +827,18 @@
 0
 ],
 "2026-11-19": [
-2,
-16,
-16,
-8,
-0,
+3,
+26,
+26,
+14,
+0.333,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 60,
-"runs_total": 67,
+"runs_total": 68,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -920,10 +939,10 @@
 0
 ],
 "2026-11-19": [
-2,
-6,
+3,
+9,
 0,
-2,
+3,
 0,
 0,
 0
@@ -932,7 +951,7 @@
 "last_run_day": "2026-11-19",
 "n": 40,
 "retrial": "reduced",
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -1049,10 +1068,10 @@
 0
 ],
 "2026-11-19": [
-1,
-5,
-0,
 2,
+10,
+0,
+4,
 0,
 0,
 0
@@ -1061,7 +1080,7 @@
 "last_run_day": "2026-11-19",
 "n": 30,
 "retrial": "reduced",
-"runs_total": 9,
+"runs_total": 10,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -1186,19 +1205,19 @@
 0
 ],
 "2026-11-19": [
-2,
-80,
-13,
-41,
-0.5,
+3,
+120,
+23,
+60,
+2.167,
 0,
-0
+1
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 40,
 "retrial": "paused",
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -1312,18 +1331,18 @@
 0
 ],
 "2026-11-19": [
-1,
-30,
-19,
 2,
-1.0,
+60,
+42,
+2,
+0,
 0,
 1
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 30,
-"runs_total": 46,
+"runs_total": 47,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -1472,18 +1491,18 @@
 1
 ],
 "2026-11-19": [
-2,
-80,
-34,
-17,
-1.25,
+3,
+120,
+59,
+26,
+2.25,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 40,
-"runs_total": 67,
+"runs_total": 68,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -1672,11 +1691,20 @@
 0,
 0,
 0
+],
+"2026-11-19": [
+1,
+6,
+1,
+2,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-15",
+"last_run_day": "2026-11-19",
 "n": 30,
-"runs_total": 18,
+"runs_total": 19,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -1788,11 +1816,20 @@
 0,
 0,
 0
+],
+"2026-11-19": [
+1,
+30,
+18,
+2,
+0,
+0,
+0
 ]
 },
-"last_run_day": "2026-11-14",
+"last_run_day": "2026-11-19",
 "n": 30,
-"runs_total": 43,
+"runs_total": 44,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -2069,11 +2106,11 @@
 0
 ],
 "2026-11-19": [
-2,
-69,
-41,
-9,
-0.333,
+3,
+108,
+64,
+12,
+0.666,
 0,
 0
 ]
@@ -2081,7 +2118,7 @@
 "last_run_day": "2026-11-19",
 "n": 40,
 "retrial": "paused",
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2206,10 +2243,10 @@
 0
 ],
 "2026-11-19": [
-2,
-20,
-6,
-2,
+3,
+30,
+10,
+3,
 0,
 0,
 0
@@ -2218,7 +2255,7 @@
 "last_run_day": "2026-11-19",
 "n": 30,
 "retrial": "paused",
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2510,18 +2547,18 @@
 1
 ],
 "2026-11-19": [
-2,
-80,
-55,
-19,
-0.333,
+3,
+120,
+84,
+26,
+1.333,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 40,
-"runs_total": 62,
+"runs_total": 63,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2786,18 +2823,18 @@
 1
 ],
 "2026-11-19": [
-2,
-98,
-46,
-50,
-0.583,
+3,
+148,
+72,
+77,
+1.583,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 60,
-"runs_total": 57,
+"runs_total": 58,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2946,18 +2983,18 @@
 3
 ],
 "2026-11-19": [
-2,
-180,
-166,
-35,
-0.25,
+3,
+270,
+248,
+51,
+0.583,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 60,
-"runs_total": 64,
+"runs_total": 65,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -3082,19 +3119,19 @@
 0
 ],
 "2026-11-19": [
-2,
-58,
-13,
-22,
-0.25,
+3,
+88,
+20,
+36,
+1.583,
 0,
-0
+1
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 30,
 "retrial": "reduced",
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -3243,10 +3280,10 @@
 0
 ],
 "2026-11-19": [
-2,
-30,
-24,
-2,
+3,
+44,
+34,
+3,
 0,
 0,
 0
@@ -3254,7 +3291,7 @@
 },
 "last_run_day": "2026-11-19",
 "n": 30,
-"runs_total": 64,
+"runs_total": 65,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -3583,10 +3620,10 @@
 0
 ],
 "2026-11-19": [
-2,
-32,
-24,
-4,
+3,
+49,
+37,
+6,
 0,
 0,
 0
@@ -3595,7 +3632,7 @@
 "last_run_day": "2026-11-19",
 "n": 30,
 "retrial": "reduced",
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -3983,10 +4020,10 @@
 0
 ],
 "2026-11-19": [
-1,
-30,
-19,
 2,
+60,
+41,
+3,
 0,
 0,
 0
@@ -3994,7 +4031,7 @@
 },
 "last_run_day": "2026-11-19",
 "n": 30,
-"runs_total": 45,
+"runs_total": 46,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -4171,10 +4208,10 @@
 3
 ],
 "2026-11-19": [
-2,
-120,
-102,
-14,
+3,
+180,
+157,
+18,
 0,
 0,
 0
@@ -4182,7 +4219,7 @@
 },
 "last_run_day": "2026-11-19",
 "n": 60,
-"runs_total": 67,
+"runs_total": 68,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -4291,8 +4328,8 @@
 0
 ],
 "2026-11-19": [
-2,
-2,
+3,
+4,
 0,
 0,
 0,
@@ -4303,7 +4340,7 @@
 "last_run_day": "2026-11-19",
 "n": 30,
 "retrial": "reduced",
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -4552,10 +4589,10 @@
 0
 ],
 "2026-11-19": [
-2,
-26,
-16,
-5,
+3,
+39,
+24,
+9,
 0,
 0,
 0
@@ -4564,7 +4601,7 @@
 "last_run_day": "2026-11-19",
 "n": 40,
 "retrial": "paused",
-"runs_total": 10,
+"runs_total": 11,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -4713,7 +4750,7 @@
 7
 ],
 "2026-11-19": [
-2,
+3,
 67,
 67,
 65,
@@ -4724,7 +4761,7 @@
 },
 "last_run_day": "2026-11-19",
 "n": 25,
-"runs_total": 67,
+"runs_total": 68,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -4857,18 +4894,18 @@
 1
 ],
 "2026-11-19": [
-2,
-40,
-11,
-22,
-0.583,
+3,
+60,
+26,
+36,
+2.416,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 20,
-"runs_total": 51,
+"runs_total": 52,
 "site": "linkedin",
 "src": "pool",
 "state": "active",
@@ -5017,18 +5054,18 @@
 0
 ],
 "2026-11-19": [
-2,
-50,
-7,
-46,
-0.583,
+3,
+60,
+17,
+55,
+1.916,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 25,
-"runs_total": 67,
+"runs_total": 68,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -5153,18 +5190,18 @@
 1
 ],
 "2026-11-19": [
-2,
-50,
-11,
-28,
-0.25,
+3,
+75,
+21,
+45,
+3.083,
 0,
-0
+1
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 25,
-"runs_total": 45,
+"runs_total": 46,
 "site": "linkedin",
 "src": "pool",
 "state": "active",
@@ -5297,10 +5334,10 @@
 0
 ],
 "2026-11-19": [
-2,
-40,
-36,
-4,
+3,
+60,
+55,
+6,
 1.0,
 0,
 1
@@ -5308,7 +5345,7 @@
 },
 "last_run_day": "2026-11-19",
 "n": 20,
-"runs_total": 49,
+"runs_total": 50,
 "site": "linkedin",
 "src": "pool",
 "state": "active",
@@ -5457,10 +5494,10 @@
 6
 ],
 "2026-11-19": [
-2,
-47,
-32,
-16,
+3,
+57,
+41,
+18,
 0,
 0,
 0
@@ -5468,7 +5505,7 @@
 },
 "last_run_day": "2026-11-19",
 "n": 25,
-"runs_total": 64,
+"runs_total": 65,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -5601,18 +5638,18 @@
 5
 ],
 "2026-11-19": [
-2,
-40,
-24,
-12,
+3,
+50,
+30,
+16,
+1.0,
 0,
-0,
-0
+1
 ]
 },
 "last_run_day": "2026-11-19",
 "n": 20,
-"runs_total": 50,
+"runs_total": 51,
 "site": "linkedin",
 "src": "pool",
 "state": "active",
@@ -5761,10 +5798,10 @@
 3
 ],
 "2026-11-19": [
-2,
-40,
-40,
-4,
+3,
+60,
+60,
+6,
 0,
 0,
 0
@@ -5772,7 +5809,7 @@
 },
 "last_run_day": "2026-11-19",
 "n": 20,
-"runs_total": 67,
+"runs_total": 68,
 "site": "linkedin",
 "src": "base",
 "state": "active",
