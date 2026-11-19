@@ -22,8 +22,30 @@ TITLE_WORDS_OUT = ["manager", "managers", "mgr", "supervisor", "avp", "assistant
 SEARCH_OUT = re.compile(r"\b(manager|director|head of|vice president|vp|avp|supervisor|lead|intern|internship)\b", re.I)
 
 
+# A posting that requires a language other than English (in its title, or in a sentence that says fluent / bilingual / required
+# without "preferred" or "a plus"). English is the profile's working language; a bilingual-required role is a certain reject.
+_LANG = (r"(mandarin|chinese|cantonese|japanese|korean|spanish|french|german|portuguese|italian|hebrew|arabic|russian|hindi|"
+         r"vietnamese|turkish|polish|dutch)")
+_LANG_TITLE = re.compile(r"\b" + _LANG + r"\b[^,;]{0,12}\b(bilingual|speak\w*|fluen\w*)|\bbilingual\b[^,;]{0,12}\b" + _LANG + r"\b", re.I)
+_LANG_TEXT = re.compile(r"\b(?:bilingual|fluen\w+|native)\b[^.;\n]{0,30}\b" + _LANG + r"\b[^.;\n]{0,60}|\b" + _LANG +
+                        r"\b[^.;\n]{0,30}\b(?:bilingual|fluen\w+)\b[^.;\n]{0,60}", re.I)
+_LANG_SOFT = re.compile(r"prefer|a plus|plus\b|bonus|nice to have|desir|advantag|asset\b|helpful|ideal|not required|optional|benefi|"
+                        r"welcome|\bor english", re.I)
+
+
+def language_required(row):
+    """The language a posting requires besides English, or ''."""
+    m = _LANG_TITLE.search(str(row.get("title") or ""))
+    if m:
+        return next(g for g in m.groups() if g and re.fullmatch(_LANG, g, re.I)).title()
+    for m in _LANG_TEXT.finditer(str(row.get("description") or "").replace("\\n", "\n")[:12000]):
+        if not _LANG_SOFT.search(m.group(0)):
+            return next(g for g in m.groups() if g).title()
+    return ""
+
+
 def off(row, fresh=False):
-    """'' when the job is inside the target, else why not: 'level: manager' or 'years: requires 6+'.
+    """'' when the job is inside the target, else why not: 'level: manager', 'years: requires 6+' or 'language: requires Korean'.
     fresh: ignore a stored seniority label (a row from an earlier feed was labelled by older patterns)."""
     lvl = (not fresh and row.get("seniority")) or reqs.requirements(row.get("title"), row.get("description"))["seniority"]
     if lvl in LEVEL_OUT:
@@ -31,6 +53,9 @@ def off(row, fresh=False):
     lo, _ = reqs.years_required(str(row.get("description") or "").replace("\\n", "\n")[:12000])
     if lo > MAX_REQUIRED_YEARS:
         return f"years: requires {lo}+"
+    lang = language_required(row)
+    if lang:
+        return f"language: requires {lang}"
     return ""
 
 

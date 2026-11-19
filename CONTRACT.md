@@ -47,8 +47,10 @@ nothing when it is ambiguous).
 Target profile (Nov 18, 2026; target.py is the one place it is written): the feed publishes analyst to senior analyst roles
 that require at most 4 years. A job whose `seniority` is manager, director+ or intern (reqs.py: Manager, Senior Manager,
 Supervisor, Team Lead, AVP, VP/SVP/EVP, Director, Head of, Citi grades C13+, a Lead with people to manage), or whose posting
-requires 5 or more years (a figure that is only preferred doesn't count), is not published, not sent for review and not
-searched for. `feed_status.json` → `target` says what the run published against the profile (`violations` must be 0) and what
+requires 5 or more years (a figure that is only preferred doesn't count), or which is a student or campus-cohort program
+(co-op, new grad, class of, a start year in the title; these count as `intern`), or which requires a language besides
+English, is not published, not sent for review and not searched for. Tiers: B needs `fit_score` 65+, A needs 75+ (listing
+points never lift a partial fit). `feed_status.json` → `target` says what the run published against the profile (`violations` must be 0) and what
 the gate left out (`gate`). Such a job leaving the feed is not a closing: the audit counts it as left out on purpose.
 
 Freshness (freshness.py):

@@ -28,6 +28,11 @@ import re
 
 import target
 
+# Nov 18 (evening): the tier is a statement about the role first. The listing points (fresh, verified, local, new) add up to
+# 28, so a fit of 50 ("some match": JPMorgan "Quantitative Trading & Research", fit 50) ranked B and a 60 could rank A. 74 jobs
+# the review itself scored under its own "real partial fit" bar were in A/B. Now B needs that bar and A a strong fit.
+FIT_FOR_B = 65     # relevance.MODEL_RESCUE: the score at which a reviewed job counts as a real fit
+FIT_FOR_A = 75
 FLOOR = 75000
 ASK = 100000
 TIERS = ((85, "A"), (70, "B"), (55, "C"))
@@ -128,10 +133,12 @@ def score(row):
         tier = "D"
     acct = str(row.get("fit_category") or "").startswith("Accounting")
     ev = row.get("fit_evidence") or ("title_only" if str(row.get("fit_why") or "").startswith("Title match only") else "")
-    capped = fit < 50 or row.get("ghost_risk") == "high" or yrs >= 5 or acct or et in ("staffing", "search_firm", "marketplace",
+    capped = fit < FIT_FOR_B or row.get("ghost_risk") == "high" or yrs >= 5 or acct or et in ("staffing", "search_firm", "marketplace",
              "undisclosed") or cf == "unconfirmed" or ev in ("title_only", "unsupported")
     if capped and tier in ("A", "B"):
         tier = "C"
+        if FIT_FOR_B > fit >= 50:
+            pts.append((-1, f"fit {fit} is a partial match (under {FIT_FOR_B}: held at C)"))
         if acct:
             pts.append((-1, "accounting-heavy work (held at C)"))
         if ev == "title_only":
@@ -141,6 +148,9 @@ def score(row):
     elif ev == "partial" and tier == "A":          # one duty of several checks out: worth a look, not the top of the list
         tier = "B"
         pts.append((-1, "only part of the review's evidence is in the posting (held at B)"))
+    elif tier == "A" and fit < FIT_FOR_A:
+        tier = "B"
+        pts.append((-1, f"fit {fit} (under {FIT_FOR_A}: held at B)"))
     reasons = [(-100, g) for g in gate] + sorted(pts, key=lambda x: -abs(x[0]))
     return total, tier, reasons
 

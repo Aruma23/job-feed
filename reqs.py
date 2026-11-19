@@ -46,9 +46,13 @@ YRS_SCRUB = re.compile(r"\d{1,2}\s*[-–]?\s*year\s+(?:accredited|degree|univers
 DEGREE_ANY = re.compile(r"bachelor|\bba\b|\bbs\b|undergraduate degree|4[- ]year degree|college degree|degree in", re.I)
 DEGREE_HIGH = re.compile(r"\bmba\b|master'?s|\bms\b in|graduate degree|\bphd\b", re.I)
 CERT_HARD = re.compile(r"\bcpa\b|\bcfa\b|series (7|63|65|66|79|24|86|87)|\bfrm\b|\bcma\b|security clearance|secret clearance|top secret", re.I)
-_SENIOR = [("intern", r"\bintern"), ("director+", r"\b(director|head of|vice president|s?vp|evp|chief|cfo)\b|\bc1[5-9]\b"),
+# "intern" was r"\bintern": it also matched Internal and International ("Financial Analyst, International" was an internship,
+# sent to D and, from Nov 18, left out of the feed). Student and campus-cohort programs count here too: a co-op, a new-grad or
+# class-of role, a title carrying its start year.
+_SENIOR = [("intern", r"\bintern(s|ship|ships)?\b|\bco-?op\b|\bundergrad\w*|\bstudents?\b|\bnew grad\w*|\bcampus\b|\bclass of\b|"
+                      r"\bsummer (analyst|associate)\b|\bfellowship\b|\bapprentice\w*|\btrainee\b|\b202[6-9]\b"), ("director+", r"\b(director|head of|vice president|s?vp|evp|chief|cfo)\b|\bc1[5-9]\b"),
            ("manager", r"\bmanager\b|\bteam lead\b|\bsupervisor\b|\bavp\b|\bassistant vice president\b|\bc1[34]\b"),
-           ("senior", r"\bsenior\b|\bsr\.?\b|\biii\b|\bprincipal\b|\bstaff\b"), ("entry", r"\b(junior|jr\.?|entry|graduate|new grad|associate i)\b|\banalyst i\b")]
+           ("senior", r"\bsenior\b|\bsr\.?\b|\biii\b|\bprincipal\b|\bstaff\b"), ("entry", r"\b(junior|jr\.?|entry|graduate|associate i)\b|\banalyst i\b")]
 # "Lead" in a title is a manager only with people responsibility in the text (a Finance Lead is usually an individual contributor)
 LEAD = re.compile(r"\blead\b", re.I)
 MANAGES = re.compile(r"direct reports?|manag(e|ing) (a |the |your )?(team|staff|analysts|people)|team of \d+|people manage|hiring and|"

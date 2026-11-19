@@ -111,5 +111,45 @@ class NoRelevantBoardIsLeftUnread(unittest.TestCase):
         self.assertGreater(key({"hits": 0, "nyc": 2, "ok": "2026-11-17"}), key(overdue), "3 days is not overdue yet")
 
 
+class SecondSweepForWrongAssumptions(unittest.TestCase):
+    """Nov 18, late: what else the published feed held that the profile rules out, measured on the real feed first."""
+
+    def test_internal_and_international_are_not_internships(self):
+        for t in ("Financial Analyst, International", "Internal Communications Associate", "Senior Analyst - International Development",
+                  "Financial Analyst, Internal Reporting"):
+            self.assertNotEqual(reqs.requirements(t, "")["seniority"], "intern", t)
+            self.assertEqual(target.off(row(t)), "", f"'{t}' was cut as an internship")
+        self.assertEqual(reqs.requirements("Finance Intern", "")["seniority"], "intern")
+        self.assertEqual(reqs.requirements("FP&A Internship - Summer", "")["seniority"], "intern")
+
+    def test_student_and_campus_cohort_programs_are_out(self):
+        for t in ("Undergrad Co-op - Finance/Accounting", "Pricing Analyst, New Grad", "AI Finance Researcher (MBA Student)",
+                  "Finance Analyst, Rotational Program - Full Time 2027", "2028 Summer Analyst, Investment Banking",
+                  "Apprentice Business Analyst", "Early Careers: Investment Banking Trainee"):
+            self.assertEqual(target.off(row(t)), "level: intern", t)
+        for t in ("Financial Analyst I", "Junior FP&A Analyst", "Associate, FP&A"):
+            self.assertEqual(target.off(row(t)), "", t)
+
+    def test_a_required_second_language_is_out_and_a_preferred_one_is_not(self):
+        self.assertEqual(target.off(row("Financial Analyst (Korean Bilingual)")), "language: requires Korean")
+        self.assertEqual(target.off(row(extra="Fluency in Spanish required, including the ability to read and write.")),
+                         "language: requires Spanish")
+        self.assertEqual(target.off(row(extra="Fluency in Spanish is a plus.")), "")
+        self.assertEqual(target.off(row(extra="Bilingual Spanish preferred but not required.")), "")
+        self.assertEqual(target.off(row(extra="You will support our French and German entities on budgeting.")), "")
+
+    def test_listing_points_cannot_lift_a_partial_fit(self):
+        import priority
+        listing = {"freshness": "fresh", "trust": "verified", "region": "New York", "status": "new", "seniority": "analyst",
+                   "employer_type": "direct", "fit_evidence": "grounded", "fit_why": "Some match: forecasting, budgeting."}
+        tier = lambda fit: priority.score(dict(listing, fit_score=str(fit)))[1]
+        self.assertEqual(tier(50), "C", "was B: 50 + 28 listing points")
+        self.assertEqual(tier(64), "C", "was A")
+        self.assertEqual(tier(65), "B")
+        self.assertEqual(tier(74), "B", "was A")
+        self.assertEqual(tier(75), "A")
+        self.assertEqual(priority.FIT_FOR_B, R.MODEL_RESCUE, "B starts where the review calls a job a real fit")
+
+
 if __name__ == "__main__":
     unittest.main()
