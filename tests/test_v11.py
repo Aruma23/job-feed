@@ -484,8 +484,12 @@ class LevelGate(unittest.TestCase):
                 w = csv.DictWriter(f, fieldnames=scrape.COLS)
                 w.writeheader()
                 w.writerows(prev)
+            json.dump([{"rows_by_site": {"indeed": 31}}] * 4, open(os.path.join(d, "audit_log.json"), "w"))
+            json.dump({"v": 1, "run": 5, "searches": {}, "sites": {"glassdoor": {"state": "paused", "since": "2026-11-01",
+                                                                                  "zero_runs": 24}}},
+                      open(os.path.join(d, "search_stats.json"), "w"))
             old = scrape.SEARCHES
-            scrape.SEARCHES = [("indeed", "fp&a", 5)]
+            scrape.SEARCHES = [("indeed", "fp&a", 5), ("glassdoor", "fp&a", 5)]
             try:
                 fresh = [TS.job(200, "indeed", "Director, FP&A", "Big Co", desc=DUTIES),
                          TS.job(201, "indeed", "FP&A Analyst", "Small Co", desc=DUTIES)]
@@ -500,6 +504,12 @@ class LevelGate(unittest.TestCase):
             self.assertNotEqual(status["audit"]["level"], "block", "30 indeed rows left on purpose are not 'lost'")
             self.assertEqual(status["target"]["gate"]["left_out"], 31)
             self.assertEqual(status["target"]["violations"], 0)
+            self.assertFalse([i for i in status["audit"]["items"] if i.get("key", "").startswith("coverage-rows_by_site")
+                              or "against a usual" in i.get("title", "")],
+                             "rows the gate left out still count as brought by their source")
+            self.assertEqual(status["paused_probes_empty"], ["glassdoor"])
+            self.assertEqual(status["empty_sites"], [])
+            self.assertFalse(status["partial"], "a paused site's empty daily probe is not a partial run")
         finally:
             shutil.rmtree(d)
 

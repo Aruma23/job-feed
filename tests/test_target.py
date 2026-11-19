@@ -96,5 +96,20 @@ class EachRunIsCounted(unittest.TestCase):
         self.assertFalse([x for x in W.check(ok, [T.RUN_OK], T.NOW) if x["key"].startswith("off-target")])
 
 
+class NoRelevantBoardIsLeftUnread(unittest.TestCase):
+    def test_an_overdue_board_with_local_jobs_jumps_the_unproven_ones(self):
+        today = "2026-11-19"
+        fresh_big = {"hits": 0, "nyc": 60, "ok": "2026-11-18"}
+        overdue = {"hits": 0, "nyc": 2, "ok": "2026-11-14"}
+        older = {"hits": 0, "nyc": 1, "ok": "2026-11-02"}
+        matched = {"hits": 1, "nyc": 1, "last_hit": "2026-11-12", "ok": "2026-11-13"}
+        no_local = {"hits": 0, "nyc": 0, "ok": "2026-11-01"}
+        key = lambda b: D.priority(b, today, 0.05)
+        order = sorted([fresh_big, overdue, older, matched, no_local], key=key)
+        self.assertEqual(order[:3], [matched, older, overdue], "recent matches first, then the most overdue")
+        self.assertLess(key(fresh_big), key(no_local), "a board with no local jobs gets no boost")
+        self.assertGreater(key({"hits": 0, "nyc": 2, "ok": "2026-11-17"}), key(overdue), "3 days is not overdue yet")
+
+
 if __name__ == "__main__":
     unittest.main()

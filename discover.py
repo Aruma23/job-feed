@@ -312,12 +312,21 @@ def priority(info, today, rate=None):
     recent = (d - date.fromisoformat(info["last_hit"])).days if info.get("last_hit") else 999
     if recent > HIT_MEMORY_DAYS:            # Third review, Nov 18: a match long ago no longer outranks every unproven board
         recent = 999
+    if recent == 999 and info.get("nyc") and info.get("ok"):
+        # Nov 18 (evening): a board that lists NYC-area jobs is never left unread past OVERDUE_DAYS. The sweep runs out of
+        # time every run and the least promising go last, so "read at least every 2 days" (footprint.py) was not kept for the
+        # tail: 1,288 such boards were 4+ days old, the oldest 17. Overdue boards go right after the recently matched ones,
+        # the most overdue first.
+        age = (d - date.fromisoformat(str(info["ok"])[:10])).days
+        if age >= OVERDUE_DAYS:
+            return (HIT_MEMORY_DAYS + 1, -age, -info.get("nyc", 0))
     if recent == 999 and rate is not None:
         return (recent, 0, -(info.get("nyc", 0) + 1) * rate)
     return (recent, -info.get("hits", 0), -info.get("nyc", 0))
 
 
 HIT_MEMORY_DAYS = 30      # a board whose last match is older than this is ordered with the boards that never matched
+OVERDUE_DAYS = 4          # a board with NYC-area jobs unread this long jumps the unproven boards
 
 
 def read_age(db, today):

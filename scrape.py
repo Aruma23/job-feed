@@ -676,6 +676,11 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     # JobSpy logs most blocks and returns nothing instead of raising. Previously-known results are healthy;
     # malformed records without a usable title and URL are not.
     empty_sites = empty_sources(status)
+    # Nov 18: a site the scheduler already paused is probed once a day; its probe coming back empty is the known state, not a
+    # partial run. (Glassdoor, Google and ZipRecruiter, paused since Nov 1, made the first run of every day "partial".)
+    paused = sorted(k for k, v in (sched.get("sites") or {}).items() if v.get("state") == "paused")
+    probes_empty = [s for s in empty_sites if s in paused]
+    empty_sites = [s for s in empty_sites if s not in paused]
     rows = merge(previous, fresh, today)
     direct = DIRECT_DEFAULT if direct is None else direct
     direct_rows, held, dstats, closed = [], [], {"version": "v5", "skipped": True}, []
@@ -722,7 +727,12 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     intel_summary = intel.annotate(rows, today, os.path.join(here, "employers.json"), D.NEVER)
     explained = set(closed) | set(dstats.pop("_explained", [])) | {h["id"] for h in held}
     explained |= {r["id"] for r in above} | {p.get("id") for p in previous_all if _above_safe(p, fresh=True)}   # left out on purpose, not lost
-    now_counts = {"rows_by_site": _count(audit._site(r) for r in rows), "boards": {"boards read": dstats.get("boards_ok", 0)}}
+    # rows_by_site measures what each source brought, so rows the target gate left out still count (Nov 18: the gate's first
+    # run read as "indeed brought 340 rows, against a usual 1000")
+    by_src = _count(audit._site(r) for r in rows)
+    for k, v in (LEVEL_GATE.get("by_site") or {}).items():
+        by_src[k] = by_src.get(k, 0) + v
+    now_counts = {"rows_by_site": by_src, "boards": {"boards read": dstats.get("boards_ok", 0)}}
     if dstats.get("boards_due") is not None:
         now_counts["boards_due"] = dstats["boards_due"]
     log_path = os.path.join(here, "audit_log.json")
@@ -749,7 +759,7 @@ def main(scrape=None, out="jobs.csv", status_path="feed_status.json", now=None, 
     for r in rows:
         cats[r["fit_category"]] = cats.get(r["fit_category"], 0) + 1
     summary = {"ran_at": now.isoformat(timespec="seconds"), "partial": bool(failed or empty_sites or not report["complete"]),
-               "empty_sites": empty_sites,
+               "empty_sites": empty_sites, "paused_sites": paused, "paused_probes_empty": probes_empty,
                "searches": len(status), "failed": len(failed), "fresh_rows": len(fresh),
                "rows_written": len(rows), "by_site": by_site, "detail": status, "direct": dstats,
                "relevance": {"by_category": cats, "strong_fits": sum(1 for r in rows if int(r["fit_score"] or 0) >= 70),
