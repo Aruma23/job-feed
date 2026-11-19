@@ -59,8 +59,8 @@
 "reviewed": 14
 },
 "2026-11-19": {
-"fits": 3,
-"reviewed": 43
+"fits": 4,
+"reviewed": 50
 }
 },
 "jobs": {
@@ -10480,6 +10480,17 @@
 "score": 0,
 "why": "Gap: IT and operations business analysis."
 },
+"greenhouse:4506567009": {
+"at": "2026-11-19",
+"by": "model",
+"category": "FP&A / forecasting / budgeting",
+"ev": "grounded",
+"h": "4378cf23a9bb",
+"n": "a259ff508fe54e",
+"pv": 1,
+"score": 60,
+"why": "Some match: Hardware KPI Ownership, partner with Finance to define KPIs, portfolio performance analytics. Gap: Data engineering and hardware quality analytics focus."
+},
 "greenhouse:4507211009": {
 "at": "2026-11-14",
 "by": "model",
@@ -16647,6 +16658,18 @@
 "score": 0,
 "why": "Some match: Develop and manage project schedules, quality assurance and technical review activities. Gap: Research and data analysis role unrelated to finance."
 },
+"greenhouse:5475834008": {
+"at": "2026-11-19",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "0e6d732e6860",
+"n": "649079b953db08",
+"pv": 1,
+"reused": true,
+"score": 40,
+"why": "Some match: review and track grant-funded project schedules, budgets, assist with grant reimbursements. Gap: Grant compliance and aviation project administration."
+},
 "greenhouse:5475936008": {
 "at": "2026-11-11",
 "by": "model",
@@ -21405,6 +21428,17 @@
 "score": 10,
 "why": "Some match: SEC Reporting and Technical Accounting, preparing and filing all external financial reports, complex technical accounting matters, purchase accounting. Gap: accounting operations and SEC reporting."
 },
+"greenhouse:8168898": {
+"at": "2026-11-19",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "5f4493ce61cc",
+"n": "e4f57af57db2d2",
+"pv": 1,
+"score": 45,
+"why": "Some match: tracking budgets and business results, budgeting and expense administration. Gap: Marketing events and operations role."
+},
 "greenhouse:8171095": {
 "at": "2026-11-01",
 "by": "model",
@@ -21666,6 +21700,17 @@
 "h": "71e2ecdee390",
 "score": 60,
 "why": "Some match: Market Analysis & Insights, Cross-Functional Collaboration, Project Management, strategic opportunities. Gap: heavy focus on marketing and commercial strategy rather than financial planning."
+},
+"greenhouse:8193718": {
+"at": "2026-11-19",
+"by": "model",
+"category": "FP&A / forecasting / budgeting",
+"ev": "grounded",
+"h": "0478c2ebdcd5",
+"n": "8dd89f4e7b4b8c",
+"pv": 1,
+"score": 75,
+"why": "Strong match: analyze and monitor performance, financial and utilization metrics, scoping analyses. Gap: Data analytics focus rather than core financial planning."
 },
 "greenhouse:8193817003": {
 "at": "2026-11-06",
@@ -28493,6 +28538,18 @@
 "score": 85,
 "why": "Strong match: analyzing new capital need proposals, supporting Capital Plan updates, conducting research and forecasting. Gap: Public sector capital projects focus."
 },
+"in-72bff37bff23c43c": {
+"at": "2026-11-19",
+"by": "model",
+"category": "FP&A / forecasting / budgeting",
+"ev": "grounded",
+"h": "1cf5ee49c5a6",
+"n": "fe0f8236278916",
+"pv": 1,
+"reused": true,
+"score": 75,
+"why": "Strong match: strategic planning, finance and operations coordination, decide where to invest, keep the plan working all year. Gap: Heavy go-to-market operations and territory planning focus."
+},
 "in-7368637afb229bb0": {
 "at": "2026-11-13",
 "by": "model",
@@ -28944,11 +29001,12 @@
 "by": "model",
 "category": "Treasury / investment / adjacent finance",
 "ev": "grounded",
-"h": "77b3e501ca7b",
-"n": "cda17fdce431ec",
+"h": "f7cfd186f942",
+"n": "af248a64aefba8",
 "pv": 1,
-"score": 60,
-"why": "Some match: leading diligence and financial modelling, private equity secondary investment opportunities, preparing investment memoranda. Gap: focused on investment underwriting rather than corporate planning or FP&A."
+"reused": true,
+"score": 55,
+"why": "Some match: financial modelling, diligence of investment opportunities. Gap: Private equity investing focus rather than corporate FP&A."
 },
 "in-859d5b31e804d697": {
 "at": "2026-11-04",
@@ -33296,6 +33354,17 @@
 "score": 30,
 "why": "Some match: Real-Time Risk & Exposure Monitoring. Gap: Risk management and regulatory compliance."
 },
+"lever:39e2d1ad-f5ff-4793-ba1a-88d22e0e336b": {
+"at": "2026-11-19",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "1176eadd0349",
+"n": "8619f0620619c3",
+"pv": 1,
+"score": 10,
+"why": "Gap: Sales and customer benefits advisory."
+},
 "lever:3a31f777-5d7a-4410-a460-45988fb00a89": {
 "at": "2026-11-11",
 "by": "model",
@@ -33925,6 +33994,16 @@
 "h": "1d26609512ef",
 "score": 20,
 "why": "Some match: process optimization, streamline workflows. Gap: engineering site reliability and IT operations role."
+},
+"lever:518eface-acb7-4de4-9679-3dcf215369ea": {
+"at": "2026-11-19",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"h": "d4ce9512ed3d",
+"n": "f0eb9c09193f7a",
+"reused": true,
+"score": 35,
+"why": "Some match: defines system and project requirements, data validation specifications. Gap: Litigation IT and systems analysis, not financial analysis."
 },
 "lever:526e484a-908e-4d50-b51d-cb176e88a0bf": {
 "at": "2026-11-11",
@@ -34579,6 +34658,17 @@
 "pv": 1,
 "score": 10,
 "why": "Gap: Client experience and support role."
+},
+"lever:70af44f1-23bf-4266-9490-da513e513e28": {
+"at": "2026-11-19",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "2c6525eb1528",
+"n": "a613ea3ace5ae9",
+"pv": 1,
+"score": 35,
+"why": "Some match: Process improvement, Evaluate existing HR processes. Gap: HRIS and HR systems administration."
 },
 "lever:7192e02c-5a46-4944-a05b-a1aa8e34ae58": {
 "at": "2026-11-12",
@@ -35791,6 +35881,17 @@
 "n": "adadf69cac6135",
 "score": 0,
 "why": "Gap: Sales and insurance advisory role."
+},
+"lever:aa5457bf-ddcd-4b04-99d9-dbc81d929210": {
+"at": "2026-11-19",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "37c1d274aafb",
+"n": "0beebae2707cb6",
+"pv": 1,
+"score": 10,
+"why": "Gap: Insurance sales and client advisory role."
 },
 "lever:aaa9346e-a7e6-4490-9478-9ecea20252e0": {
 "at": "2026-11-06",
@@ -37249,6 +37350,17 @@
 "reused": true,
 "score": 40,
 "why": "Some match: commercial management support. Gap: Job posting text is mostly boilerplate privacy and application notices."
+},
+"lever:f0250cdd-fa3d-48b9-995f-a9e752576ba4": {
+"at": "2026-11-19",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "8ac0f5d99f8f",
+"n": "b0c89695277d4a",
+"pv": 1,
+"score": 30,
+"why": "Some match: project management, provide realistic project estimates. Gap: Technical implementation and software consulting."
 },
 "lever:f093db3f-a6f3-4ed5-b43b-461dce71a236": {
 "at": "2026-11-19",
@@ -42418,6 +42530,16 @@
 "pv": 1,
 "score": 65,
 "why": "Some match: strategic decision-making, operational priorities, performance tracking, key performance indicators. Gap: Operations advisory focus rather than financial budgeting or planning."
+},
+"smartrecruiters:3743990016959436": {
+"at": "2026-11-19",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"h": "25b0489e622d",
+"n": "b377436c2f7b3e",
+"reused": true,
+"score": 20,
+"why": "Some match: day-to-day operations support. Gap: administrative college aide role."
 },
 "smartrecruiters:73237740": {
 "at": "2026-11-15",
@@ -56680,11 +56802,11 @@
 }
 ],
 "limited": false,
-"requests": 6,
+"requests": 16,
 "requests_at_limit": 0,
-"tokens": 14204,
-"tokens_in": 10944,
-"tokens_out": 3260,
+"tokens": 17249,
+"tokens_in": 13261,
+"tokens_out": 3988,
 "tokens_thinking": 0
 },
 "v": 1
