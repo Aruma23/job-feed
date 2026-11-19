@@ -19,7 +19,9 @@ PROMPT_LEVEL = "analyst, senior analyst or associate roles"           # the word
 # Title words the company boards skip before fetching a description (discover.HARD_EXCLUDE adds them).
 TITLE_WORDS_OUT = ["manager", "managers", "mgr", "supervisor", "avp", "assistant vice president", "team lead"]
 # A search phrase that asks for these is retired (scheduler.plan) and never admitted.
-SEARCH_OUT = re.compile(r"\b(manager|director|head of|vice president|vp|avp|supervisor|lead|intern|internship)\b", re.I)
+SEARCH_OUT = re.compile(r"\b(manager|director|head of|vice president|vp|avp|supervisor|lead|intern|internship|investment banking|"
+                        r"equity research|trading|private equity|credit analyst|underwriting|valuation|contract|temporary|investment analyst|"
+                        r"portfolio analyst)\b", re.I)
 
 
 # A posting that requires a language other than English (in its title, or in a sentence that says fluent / bilingual / required
@@ -44,8 +46,45 @@ def language_required(row):
     return ""
 
 
+# Lanes outside the profile (decided Nov 18: "do what makes sense"). Markets and deal roles are not planning or corporate
+# finance and hire from their own analyst programs: investment banking, trading, equity / investment / credit research,
+# private equity and venture investing, M&A and deal advisory, capital markets, underwriting and credit, valuation,
+# securities and structured products, quant, actuarial. A title that is plainly a finance-team job (FP&A, financial analyst,
+# treasury, strategic / corporate finance) stays even when it names such a business ("FP&A Analyst, Capital Markets").
+MARKETS = re.compile(
+    r"investment bank\w*|\b(investment|corporate) (&|and) (corporate|investment) banking\b|\bcorporate banking\b|\bequity research\b|"
+    r"\b(global )?investment research\b|\bcredit research\b|\bsell[- ]side\b|\bbuy[- ]side\b|\btrad(er|ing)\b|\bprivate equity\b|"
+    r"\bventure capital\b|\bhedge fund\b|\bm&a\b|\bmergers\b|\bleveraged finance\b|\bcapital markets\b|\bfinancial markets\b|"
+    r"\bunderwrit\w*|\bportfolio manage\w*|\bwealth\b|\bcredit (analyst|risk|specialist|officer|associate|review)\b|\bdeals\b|"
+    r"\bdeal advisory\b|\btransaction (advisory|services)\b|\bvaluations?\b|\bsecurit(ies|ized)\b|\bstructured\b|\bfixed income\b|"
+    r"\bderivativ\w*|\bactuar\w*|\binvestment (analyst|associate|professional|officer|strategist)\b|"
+    r"\b(analyst|associate),? investments?\b|\bquantitative (research|trading|analyst|finance)\b|\bquant\b|\bloan (origination|officer)\b|"
+    r"\bbanker\b|\bbrokerage\b|\basset[- ]backed\b", re.I)
+FINANCE_TEAM = re.compile(r"fp&a|financial planning|planning|budget|forecast|corporate finance|strategic finance|business finance|"
+                          r"finance business partner|treasury|financial analyst|finance analyst|finance (&|and) strategy", re.I)
+# Not a permanent full-time job: said in the title, or in a sentence that states the terms (not one that merely uses the word:
+# "contract negotiations", "non-temporary position").
+TERMS_TITLE = re.compile(r"\(contract\w*\)|[-–,:] *contract\w*\b|^contract\b(?!s| (analyst|administrat\w+|specialist|manage\w*|coordinator|negotiat\w+|associate|compliance|operations))|\bcontract\s*$|\bcontract(-| )to(-| )hire\b|"
+                         r"\bcontract (role|position)\b|\b\d+[- ]months?\b|\btemp(orary)?\b|\bpart[- ]time\b|\binterim\b|\bfreelance\w*\b|"
+                         r"\bseasonal\b|\bper diem\b|\bhours?( per|/) ?week\b|\b\d+ ?(hours?|hrs?)\b|\bpt\b", re.I)
+TERMS_TEXT = re.compile(r"\bthis (is|role is|position is) an? [^.\n]{0,40}\b(contract|temporary|part[- ]time)\b[^.\n]{0,20}\b(position|role|"
+                        r"assignment|opportunity|engagement)\b|\bcontract[- ]to[- ]hire\b|\bfor this contract (role|position)\b|"
+                        r"\b\d+[-–to ]*\d*[- ]months? (contract|assignment)\b|\b(contract |project |assignment )?duration: *\d+", re.I)
+
+
+def lane(row):
+    """'' or why the job is outside the lanes and terms the profile wants: 'lane: markets role', 'terms: contract'."""
+    t = str(row.get("title") or "")
+    if MARKETS.search(t) and not FINANCE_TEAM.search(t):
+        return "lane: markets or deals role"
+    if TERMS_TITLE.search(t) or TERMS_TEXT.search(str(row.get("description") or "").replace("\\n", "\n")[:8000]):
+        return "terms: contract, temporary or part-time"
+    return ""
+
+
 def off(row, fresh=False):
-    """'' when the job is inside the target, else why not: 'level: manager', 'years: requires 6+' or 'language: requires Korean'.
+    """'' when the job is inside the target, else why not: 'level: manager', 'years: requires 6+', 'language: requires Korean',
+    'lane: markets or deals role' or 'terms: contract, temporary or part-time'.
     fresh: ignore a stored seniority label (a row from an earlier feed was labelled by older patterns)."""
     lvl = (not fresh and row.get("seniority")) or reqs.requirements(row.get("title"), row.get("description"))["seniority"]
     if lvl in LEVEL_OUT:
@@ -56,7 +95,7 @@ def off(row, fresh=False):
     lang = language_required(row)
     if lang:
         return f"language: requires {lang}"
-    return ""
+    return lane(row)
 
 
 def off_safe(row, fresh=False):

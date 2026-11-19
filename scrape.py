@@ -114,8 +114,7 @@ SEARCHES = [
     ("indeed", "headcount planning", 30),
     ("indeed", "business planning analyst", 40),
     ("indeed", "finance associate", 40),
-    ("indeed", "investment analyst", 40),
-    ("indeed", "portfolio analyst", 30),
+    # Nov 18: "investment analyst" and "portfolio analyst" removed: they fed the markets lane the profile leaves out (target.py)
     ("indeed", "economic consulting analyst", 30),
     ("linkedin", "FP&A analyst", 25),
     ("linkedin", "financial analyst", 25),

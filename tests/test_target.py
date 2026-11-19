@@ -151,5 +151,39 @@ class SecondSweepForWrongAssumptions(unittest.TestCase):
         self.assertEqual(priority.FIT_FOR_B, R.MODEL_RESCUE, "B starts where the review calls a job a real fit")
 
 
+class LanesAndTerms(unittest.TestCase):
+    """Nov 18, 9:30 pm ("do what makes sense"): markets and deal roles out, permanent full-time roles only."""
+
+    def test_markets_and_deal_roles_are_out(self):
+        for t in ("Investment Banking Analyst II", "Equity Research Associate - Biotechnology", "Analyst Trader, Structured Products",
+                  "Quantitative Trading & Research - Credit", "Leveraged Finance Associate", "Credit Risk Analyst",
+                  "Deals Valuation - Tangible Assets", "Investment & Corporate Banking - Healthcare", "Investment Analyst",
+                  "Capital Markets Analyst - Project Finance", "Private Equity Associate"):
+            self.assertEqual(target.off(row(t)), "lane: markets or deals role", t)
+
+    def test_finance_team_jobs_stay_even_at_a_bank_or_fund(self):
+        for t in ("FP&A Analyst, Capital Markets", "Financial Analyst, Investment Banking Division", "Treasury Analyst",
+                  "Senior Analyst | Asset Management", "Analyst, FP&A - Fund Management", "Strategic Finance Associate",
+                  "Deal Desk & Pricing Analyst", "Senior Associate, Finance & Strategy - Deal Desk", "Investor Relations Analyst",
+                  "Revenue Analyst", "Security Operations Analyst"):
+            self.assertEqual(target.off(row(t)), "", t)
+
+    def test_contract_temp_and_part_time_are_out(self):
+        for t in ("Strategic Finance Analyst - 15 Month Contract", "Staff Data Analyst (Contract)", "Temporary Business Analyst",
+                  "Project Finance Officer - 10 hours per week", "Coordinator, Retail Performance (Temp)", "Part-Time Finance Associate"):
+            self.assertEqual(target.off(row(t)), "terms: contract, temporary or part-time", t)
+        self.assertEqual(target.off(row("FP&A Analyst", extra="This is a remote Contract/Consultant position.")),
+                         "terms: contract, temporary or part-time")
+        self.assertEqual(target.off(row("Resource Analyst", extra="The hourly range for this contract role is $30-$45.")),
+                         "terms: contract, temporary or part-time")
+
+    def test_the_word_alone_is_not_the_terms(self):
+        for t, extra in (("Contracts Analyst", ""), ("Contract Analyst", "Review vendor contracts."),
+                         ("Deal Desk Analyst", "Model the financial implications of contract duration and volume."),
+                         ("Business Analyst", "Benefits are available for any non-temporary position."),
+                         ("Financial Analyst", "Support contract negotiations and temporary staffing budgets.")):
+            self.assertEqual(target.off(row(t, extra)), "", t)
+
+
 if __name__ == "__main__":
     unittest.main()

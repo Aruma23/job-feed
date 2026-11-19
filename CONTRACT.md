@@ -49,7 +49,9 @@ that require at most 4 years. A job whose `seniority` is manager, director+ or i
 Supervisor, Team Lead, AVP, VP/SVP/EVP, Director, Head of, Citi grades C13+, a Lead with people to manage), or whose posting
 requires 5 or more years (a figure that is only preferred doesn't count), or which is a student or campus-cohort program
 (co-op, new grad, class of, a start year in the title; these count as `intern`), or which requires a language besides
-English, is not published, not sent for review and not searched for. Tiers: B needs `fit_score` 65+, A needs 75+ (listing
+English, or whose title is a markets or deals role (investment banking, trading, equity / credit research, private equity,
+M&A, capital markets, underwriting, valuation; a finance-team title such as "FP&A Analyst, Capital Markets" stays), or which
+is a contract, temporary or part-time job, is not published, not sent for review and not searched for. Tiers: B needs `fit_score` 65+, A needs 75+ (listing
 points never lift a partial fit). `feed_status.json` → `target` says what the run published against the profile (`violations` must be 0) and what
 the gate left out (`gate`). Such a job leaving the feed is not a closing: the audit counts it as left out on purpose.
 
