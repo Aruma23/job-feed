@@ -1,8 +1,13 @@
 # Feed audit
 
-2026-11-20T16:32+00:00 · **OK** · All checks passed.
+2026-11-20T20:24+00:00 · **OK** · All checks passed.
 
-## INFO: 245 jobs are shown from earlier runs (153 job-site listings past the 3-day search window, 54 missed by this run only, 26 on unchanged boards not due for a read, 12 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-16.
+## INFO: 1 linkedin job(s) left the feed without a confirmed closing.
+
+- What the feed did: Left out (too few to suggest a broken reader).
+  - Lyft: Senior PBP, Finance
+
+## INFO: 239 jobs are shown from earlier runs (153 job-site listings past the 3-day search window, 50 missed by this run only, 24 on unchanged boards not due for a read, 12 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-16.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
   - FlagStar Bank: Branch Banking Client Consultant II (last 2026-11-18)
@@ -11,7 +16,7 @@
   - Authentic Brands Group LLC: Senior Royalty & Contract Compliance Administrator (last 2026-11-18)
   - MORRISON & FOERSTER: Legal Practice Coordinator (Restructuring) (last 2026-11-18)
 
-## INFO: 60 sets of rows share employer, title, place and description.
+## INFO: 58 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
