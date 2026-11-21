@@ -1,14 +1,8 @@
 # Feed audit
 
-2026-11-21T00:25+00:00 · **WARN** · Published, with warnings.
+2026-11-21T12:22+00:00 · **OK** · All checks passed.
 
-## WARN: 1 job ids now belong to a different employer than last run.
-
-- What the feed did: Kept the new value.
-- What to do: An id must stay with one opening; check the source.
-  - workday:JR3112: now Coach
-
-## INFO: 508 jobs are shown from earlier runs (210 on unchanged boards not due for a read, 134 missed by this run only, 120 job-site listings past the 3-day search window, 44 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-18.
+## INFO: 259 jobs are shown from earlier runs (120 job-site listings past the 3-day search window, 61 missed by this run only, 44 on unchanged boards not due for a read, 34 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-18.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
   - David Joseph & Company: Senior Software Engineer (last 2026-11-19)
@@ -17,7 +11,7 @@
   - Valley Bank: Digital Banking Fraud Analyst (last 2026-11-19)
   - Phillips 66: Analyst II, Bayway Digital Area Coordinator (last 2026-11-18)
 
-## INFO: 60 sets of rows share employer, title, place and description.
+## INFO: 58 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
