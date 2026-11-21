@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-21T16:22+00:00 · **OK** · All checks passed.
+2026-11-21T20:19+00:00 · **OK** · All checks passed.
 
-## INFO: 252 jobs are shown from earlier runs (120 job-site listings past the 3-day search window, 58 missed by this run only, 41 on unchanged boards not due for a read, 33 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-18.
+## INFO: 250 jobs are shown from earlier runs (120 job-site listings past the 3-day search window, 56 missed by this run only, 41 on unchanged boards not due for a read, 33 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-18.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
   - David Joseph & Company: Senior Software Engineer (last 2026-11-19)
