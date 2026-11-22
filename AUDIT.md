@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-22T16:23+00:00 · **OK** · All checks passed.
+2026-11-22T20:24+00:00 · **OK** · All checks passed.
 
-## INFO: 308 jobs are shown from earlier runs (202 job-site listings past the 3-day search window, 44 not shown by their source for 2+ days, 36 on unchanged boards not due for a read, 26 missed by this run only); the oldest was last confirmed 2026-11-18.
+## INFO: 300 jobs are shown from earlier runs (202 job-site listings past the 3-day search window, 42 not shown by their source for 2+ days, 36 on unchanged boards not due for a read, 20 missed by this run only); the oldest was last confirmed 2026-11-18.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
   - Kenvue: Reliability Analyst (last 2026-11-19)

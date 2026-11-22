@@ -112,8 +112,8 @@
 "prev_14d": 1,
 "score": 34,
 "teams": {
-"Revenue Operations": 1,
-"Consumption & Pricing": 1
+"Consumption & Pricing": 1,
+"Revenue Operations": 1
 },
 "seniority": {
 "analyst": 9
@@ -212,26 +212,36 @@
 "score": 32,
 "teams": {
 "Deal Desk": 2,
+"Corporate Development": 1,
+"Commercial Operations": 1,
+"Restaurant Growth Strategy & Operations": 1,
+"Enterprise Strategy & Planning": 1,
 "DashPass": 1,
 "Marketplace": 1,
-"Legal": 1,
-"Enterprise Strategy & Planning": 1,
-"Commercial Operations": 1,
-"Corporate Development": 1,
 "Supply Chain Profitability Strategy & Operations": 1,
-"DashPass S&O": 1,
-"Restaurant Growth Strategy & Operations": 1
+"Legal": 1,
+"DashPass S&O": 1
 },
 "seniority": {
 "senior": 6,
-"entry": 3,
-"analyst": 2
+"analyst": 2,
+"entry": 3
 },
 "top_pay": 190000,
 "best": [
 {
 "id": "li-4474864698",
 "title": "Senior Associate, Finance & Strategy - Deal Desk",
+"priority": "A"
+},
+{
+"id": "greenhouse:8396300",
+"title": "Senior Associate, Commercial Operations",
+"priority": "A"
+},
+{
+"id": "greenhouse:8353733",
+"title": "Associate, Enterprise Strategy & Planning",
 "priority": "A"
 },
 {
@@ -242,16 +252,6 @@
 {
 "id": "greenhouse:8273992",
 "title": "Associate, Finance & Strategy - Marketplace ",
-"priority": "A"
-},
-{
-"id": "greenhouse:8265444",
-"title": "Senior Associate, Finance & Strategy - Deal Desk",
-"priority": "A"
-},
-{
-"id": "greenhouse:8256078",
-"title": "Senior Associate, Finance & Strategy - G&A, Legal",
 "priority": "A"
 }
 ],
@@ -465,57 +465,6 @@
 ]
 },
 {
-"employer": "Anthropic",
-"key": "anthropic",
-"openings": 6,
-"new_14d": 2,
-"prev_14d": 1,
-"score": 16,
-"teams": {
-"Strategic Planning": 1,
-"Commercial Associate": 1,
-"Demand Planning": 2,
-"Deal Velocity": 1
-},
-"seniority": {
-"senior": 1,
-"analyst": 5
-},
-"top_pay": 405000,
-"best": [
-{
-"id": "greenhouse:5481842008",
-"title": "GTM Strategy & Operations - Strategic Planning",
-"priority": "A"
-},
-{
-"id": "greenhouse:5485591008",
-"title": "GTM Strategy & Operations Business Partner",
-"priority": "B"
-},
-{
-"id": "greenhouse:5382750008",
-"title": "AI Infrastructure Operations, Demand Planning",
-"priority": "B"
-},
-{
-"id": "greenhouse:5382744008",
-"title": "Infrastructure Capacity Planner, Demand Planning",
-"priority": "B"
-},
-{
-"id": "greenhouse:5468352008",
-"title": "Data Center Asset Management, Commercial Associate ",
-"priority": "C"
-}
-],
-"signals": [
-"6 fitting openings, 2 posted in 14 days (1 the 14 before)",
-"2 in Demand Planning",
-"Data Center Asset Management, Commercial Associate : pay added: 320000-405000 yearly; description edited"
-]
-},
-{
 "employer": "NBCUniversal",
 "key": "nbcuniversal",
 "openings": 7,
@@ -565,6 +514,57 @@
 "hiring Senior Financial Analyst \u2013 NBC Sports x2",
 "hiring Senior Financial Analyst x3",
 "Senior Financial Analyst, Ad Sales: pay added: 80000-95000 yearly"
+]
+},
+{
+"employer": "Anthropic",
+"key": "anthropic",
+"openings": 6,
+"new_14d": 2,
+"prev_14d": 1,
+"score": 16,
+"teams": {
+"Commercial Associate": 1,
+"Demand Planning": 2,
+"Deal Velocity": 1,
+"Strategic Planning": 1
+},
+"seniority": {
+"analyst": 5,
+"senior": 1
+},
+"top_pay": 405000,
+"best": [
+{
+"id": "greenhouse:5481842008",
+"title": "GTM Strategy & Operations - Strategic Planning",
+"priority": "A"
+},
+{
+"id": "greenhouse:5382750008",
+"title": "AI Infrastructure Operations, Demand Planning",
+"priority": "B"
+},
+{
+"id": "greenhouse:5382744008",
+"title": "Infrastructure Capacity Planner, Demand Planning",
+"priority": "B"
+},
+{
+"id": "greenhouse:5485591008",
+"title": "GTM Strategy & Operations Business Partner",
+"priority": "B"
+},
+{
+"id": "greenhouse:5468352008",
+"title": "Data Center Asset Management, Commercial Associate ",
+"priority": "C"
+}
+],
+"signals": [
+"6 fitting openings, 2 posted in 14 days (1 the 14 before)",
+"2 in Demand Planning",
+"Data Center Asset Management, Commercial Associate : pay added: 320000-405000 yearly; description edited"
 ]
 },
 {
@@ -1126,6 +1126,40 @@
 ]
 },
 {
+"employer": "Job Mobz",
+"key": "job mobz",
+"openings": 3,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 10,
+"teams": {},
+"seniority": {
+"analyst": 3
+},
+"top_pay": "",
+"best": [
+{
+"id": "smartrecruiters:744000162608589",
+"title": "Corporate Development Associate",
+"priority": "B"
+},
+{
+"id": "smartrecruiters:744000162608281",
+"title": "Corporate Development Associate",
+"priority": "B"
+},
+{
+"id": "smartrecruiters:744000054380336",
+"title": "Business Operations Associate ",
+"priority": "B"
+}
+],
+"signals": [
+"3 fitting openings, 2 posted in 14 days (0 the 14 before)",
+"hiring Corporate Development Associate x2"
+]
+},
+{
 "employer": "Weekday AI",
 "key": "weekday ai",
 "openings": 5,
@@ -1213,40 +1247,6 @@
 ],
 "signals": [
 "6 fitting openings, 0 posted in 14 days (3 the 14 before)"
-]
-},
-{
-"employer": "Job Mobz",
-"key": "job mobz",
-"openings": 3,
-"new_14d": 2,
-"prev_14d": 0,
-"score": 10,
-"teams": {},
-"seniority": {
-"analyst": 3
-},
-"top_pay": "",
-"best": [
-{
-"id": "smartrecruiters:744000054380336",
-"title": "Business Operations Associate ",
-"priority": "B"
-},
-{
-"id": "smartrecruiters:744000162608589",
-"title": "Corporate Development Associate",
-"priority": "B"
-},
-{
-"id": "smartrecruiters:744000162608281",
-"title": "Corporate Development Associate",
-"priority": "B"
-}
-],
-"signals": [
-"3 fitting openings, 2 posted in 14 days (0 the 14 before)",
-"hiring Corporate Development Associate x2"
 ]
 },
 {
@@ -1380,13 +1380,13 @@
 "prev_14d": 1,
 "score": 9,
 "teams": {
+"Datadog Procurement": 1,
 "Cloud Finance": 1,
-"R&D Finance": 1,
-"Datadog Procurement": 1
+"R&D Finance": 1
 },
 "seniority": {
-"analyst": 4,
-"senior": 1
+"senior": 1,
+"analyst": 4
 },
 "top_pay": 132000,
 "best": [
@@ -1632,35 +1632,6 @@
 ]
 },
 {
-"employer": "Department for the Aging",
-"key": "department for aging",
-"openings": 2,
-"new_14d": 2,
-"prev_14d": 0,
-"score": 8,
-"teams": {},
-"seniority": {
-"analyst": 1,
-"senior": 1
-},
-"top_pay": 120000,
-"best": [
-{
-"id": "in-0c4e60e617c19597",
-"title": "Administrative Budget Analyst",
-"priority": "A"
-},
-{
-"id": "in-d8b2ddee3a4f0689",
-"title": "Senior Claiming & Revenue Analyst",
-"priority": "A"
-}
-],
-"signals": [
-"2 fitting openings, 2 posted in 14 days (0 the 14 before)"
-]
-},
-{
 "employer": "centene",
 "key": "centene",
 "openings": 2,
@@ -1789,43 +1760,6 @@
 ]
 },
 {
-"employer": "MongoDB",
-"key": "mongodb",
-"openings": 3,
-"new_14d": 1,
-"prev_14d": 1,
-"score": 8,
-"teams": {
-"P&T": 1
-},
-"seniority": {
-"analyst": 1,
-"entry": 1,
-"senior": 1
-},
-"top_pay": 165000,
-"best": [
-{
-"id": "greenhouse:8372135",
-"title": "Pricing & Monetization Associate",
-"priority": "A"
-},
-{
-"id": "greenhouse:8328622",
-"title": "Financial Analyst, P&T",
-"priority": "A"
-},
-{
-"id": "greenhouse:8237572",
-"title": "Senior Financial Analyst",
-"priority": "A"
-}
-],
-"signals": [
-"3 fitting openings, 1 posted in 14 days (1 the 14 before)"
-]
-},
-{
 "employer": "ghr",
 "key": "ghr",
 "openings": 8,
@@ -1877,44 +1811,6 @@
 ]
 },
 {
-"employer": "AlphaSense",
-"key": "alphasense",
-"openings": 3,
-"new_14d": 0,
-"prev_14d": 2,
-"score": 8,
-"teams": {
-"Corporate Finance": 2,
-"FP&A": 1
-},
-"seniority": {
-"analyst": 2,
-"senior": 1
-},
-"top_pay": 140000,
-"best": [
-{
-"id": "greenhouse:8927805002",
-"title": "Mid-Market Account Executive, Corporate Finance",
-"priority": "A"
-},
-{
-"id": "greenhouse:8920908002",
-"title": "Enterprise Account Executive, Corporate Finance",
-"priority": "A"
-},
-{
-"id": "greenhouse:8635066002",
-"title": "Senior Analyst, FP&A",
-"priority": "A"
-}
-],
-"signals": [
-"3 fitting openings, 0 posted in 14 days (2 the 14 before)",
-"2 in Corporate Finance"
-]
-},
-{
 "employer": "Curaleaf ",
 "key": "curaleaf",
 "openings": 4,
@@ -1956,6 +1852,43 @@
 ],
 "signals": [
 "4 fitting openings, 0 posted in 14 days (3 the 14 before)"
+]
+},
+{
+"employer": "MongoDB",
+"key": "mongodb",
+"openings": 3,
+"new_14d": 1,
+"prev_14d": 1,
+"score": 8,
+"teams": {
+"P&T": 1
+},
+"seniority": {
+"entry": 1,
+"senior": 1,
+"analyst": 1
+},
+"top_pay": 165000,
+"best": [
+{
+"id": "greenhouse:8328622",
+"title": "Financial Analyst, P&T",
+"priority": "A"
+},
+{
+"id": "greenhouse:8237572",
+"title": "Senior Financial Analyst",
+"priority": "A"
+},
+{
+"id": "greenhouse:8372135",
+"title": "Pricing & Monetization Associate",
+"priority": "A"
+}
+],
+"signals": [
+"3 fitting openings, 1 posted in 14 days (1 the 14 before)"
 ]
 },
 {
@@ -2189,37 +2122,6 @@
 ]
 },
 {
-"employer": "Eataly North America",
-"key": "eataly north america",
-"openings": 2,
-"new_14d": 1,
-"prev_14d": 1,
-"score": 7,
-"teams": {
-"Eataly Corporate": 2
-},
-"seniority": {
-"analyst": 1,
-"senior": 1
-},
-"top_pay": 115000,
-"best": [
-{
-"id": "smartrecruiters:744000161113509",
-"title": "Culinary Operations Analyst - Eataly Corporate",
-"priority": "B"
-},
-{
-"id": "smartrecruiters:744000158601029",
-"title": "Senior Financial Planning Analyst (FP&A) - Eataly Corporate",
-"priority": "C"
-}
-],
-"signals": [
-"2 in Eataly Corporate"
-]
-},
-{
 "employer": "Herm\u00e8s",
 "key": "herm s",
 "openings": 3,
@@ -2252,6 +2154,37 @@
 "signals": [
 "3 fitting openings, 1 posted in 14 days (0 the 14 before)",
 "FP&A Analyst: pay removed"
+]
+},
+{
+"employer": "Eataly North America",
+"key": "eataly north america",
+"openings": 2,
+"new_14d": 1,
+"prev_14d": 1,
+"score": 7,
+"teams": {
+"Eataly Corporate": 2
+},
+"seniority": {
+"senior": 1,
+"analyst": 1
+},
+"top_pay": 115000,
+"best": [
+{
+"id": "smartrecruiters:744000161113509",
+"title": "Culinary Operations Analyst - Eataly Corporate",
+"priority": "B"
+},
+{
+"id": "smartrecruiters:744000158601029",
+"title": "Senior Financial Planning Analyst (FP&A) - Eataly Corporate",
+"priority": "C"
+}
+],
+"signals": [
+"2 in Eataly Corporate"
 ]
 },
 {
@@ -2305,6 +2238,38 @@
 {
 "id": "in-1abebf6658169f41",
 "title": "Business Data Analyst",
+"priority": "C"
+}
+],
+"signals": [
+"2 fitting openings, 2 posted in 14 days (0 the 14 before)"
+]
+},
+{
+"employer": "Amazon.com Services LLC",
+"key": "amazon com services",
+"openings": 2,
+"new_14d": 2,
+"prev_14d": 0,
+"score": 6,
+"teams": {
+"Devices Sales and Marketing Finance": 1,
+"Ads Marketing": 1
+},
+"seniority": {
+"analyst": 1,
+"senior": 1
+},
+"top_pay": 128800,
+"best": [
+{
+"id": "gd-1010332210576",
+"title": "Devices & Services Finance Analyst, Devices Sales and Marketing Finance",
+"priority": "C"
+},
+{
+"id": "gd-1010331656403",
+"title": "Senior Financial Analyst, Ads Marketing",
 "priority": "C"
 }
 ],
@@ -2636,43 +2601,6 @@
 ]
 },
 {
-"employer": "HARVEY",
-"key": "harvey",
-"openings": 3,
-"new_14d": 0,
-"prev_14d": 1,
-"score": 6,
-"teams": {
-"Support Operations": 2
-},
-"seniority": {
-"analyst": 3
-},
-"top_pay": 204000,
-"best": [
-{
-"id": "ashby:dd56ec18-3c16-42e0-89c1-2348b25c1a98",
-"title": "GTM Strategy & Operations",
-"priority": "B"
-},
-{
-"id": "ashby:e69f2050-b4c0-4fbb-9852-2c60d2adbb45",
-"title": "CX Data Analyst",
-"priority": "C"
-},
-{
-"id": "ashby:f8857e81-4062-4669-a7e3-7b73b114979b",
-"title": "CX Data Analyst",
-"priority": "C"
-}
-],
-"signals": [
-"3 fitting openings, 0 posted in 14 days (1 the 14 before)",
-"2 in Support Operations",
-"hiring CX Data Analyst x2"
-]
-},
-{
 "employer": "Figure Lending",
 "key": "figure lending",
 "openings": 3,
@@ -2765,11 +2693,6 @@
 "top_pay": 170000,
 "best": [
 {
-"id": "greenhouse:7152327",
-"title": "Associate",
-"priority": "B"
-},
-{
 "id": "greenhouse:7152831",
 "title": "Associate",
 "priority": "B"
@@ -2778,11 +2701,83 @@
 "id": "greenhouse:7449146",
 "title": "Associate, Exit Planning and Transaction Support",
 "priority": "B"
+},
+{
+"id": "greenhouse:7152327",
+"title": "Associate",
+"priority": "B"
 }
 ],
 "signals": [
 "3 fitting openings, 0 posted in 14 days (0 the 14 before)",
 "hiring Associate x2"
+]
+},
+{
+"employer": "HARVEY",
+"key": "harvey",
+"openings": 3,
+"new_14d": 0,
+"prev_14d": 1,
+"score": 6,
+"teams": {
+"Support Operations": 2
+},
+"seniority": {
+"analyst": 3
+},
+"top_pay": 204000,
+"best": [
+{
+"id": "ashby:dd56ec18-3c16-42e0-89c1-2348b25c1a98",
+"title": "GTM Strategy & Operations",
+"priority": "B"
+},
+{
+"id": "ashby:e69f2050-b4c0-4fbb-9852-2c60d2adbb45",
+"title": "CX Data Analyst",
+"priority": "C"
+},
+{
+"id": "ashby:f8857e81-4062-4669-a7e3-7b73b114979b",
+"title": "CX Data Analyst",
+"priority": "C"
+}
+],
+"signals": [
+"3 fitting openings, 0 posted in 14 days (1 the 14 before)",
+"2 in Support Operations",
+"hiring CX Data Analyst x2"
+]
+},
+{
+"employer": "Cohere",
+"key": "cohere",
+"openings": 2,
+"new_14d": 1,
+"prev_14d": 1,
+"score": 5,
+"teams": {
+"G&A": 1
+},
+"seniority": {
+"analyst": 2
+},
+"top_pay": 260000,
+"best": [
+{
+"id": "ashby:a3a69960-3c85-4b11-b9b7-d4056d406c2e",
+"title": "Business Operations Lead",
+"priority": "A"
+},
+{
+"id": "li-4492526438",
+"title": "Financial Analyst, G&A",
+"priority": "C"
+}
+],
+"signals": [
+"hiring Financial Analyst, G&A again (reposted 1x)"
 ]
 },
 {
@@ -2954,44 +2949,6 @@
 ]
 },
 {
-"employer": "Oscar Health",
-"key": "oscar health",
-"openings": 3,
-"new_14d": 0,
-"prev_14d": 0,
-"score": 5,
-"teams": {
-"SIU": 1,
-"Medical Economics": 1,
-"Strategic Finance": 1
-},
-"seniority": {
-"senior": 1,
-"analyst": 2
-},
-"top_pay": 161925,
-"best": [
-{
-"id": "greenhouse:8193718",
-"title": "Senior Analyst, Data Analytics, SIU",
-"priority": "B"
-},
-{
-"id": "greenhouse:8011066",
-"title": "Associate, Strategic Finance",
-"priority": "B"
-},
-{
-"id": "greenhouse:8023759",
-"title": "Associate, Medical Economics",
-"priority": "C"
-}
-],
-"signals": [
-"3 fitting openings, 0 posted in 14 days (0 the 14 before)"
-]
-},
-{
 "employer": "generate",
 "key": "generate",
 "openings": 3,
@@ -3000,8 +2957,8 @@
 "score": 5,
 "teams": {
 "Acquisitions & Development": 1,
-"Treasury": 1,
-"Credit": 1
+"Credit": 1,
+"Treasury": 1
 },
 "seniority": {
 "analyst": 1,
@@ -3022,6 +2979,44 @@
 {
 "id": "ashby:39ce9d4a-b118-4e78-bccd-8d59bed7d509",
 "title": "Analyst, Treasury",
+"priority": "C"
+}
+],
+"signals": [
+"3 fitting openings, 0 posted in 14 days (0 the 14 before)"
+]
+},
+{
+"employer": "Oscar Health",
+"key": "oscar health",
+"openings": 3,
+"new_14d": 0,
+"prev_14d": 0,
+"score": 5,
+"teams": {
+"Medical Economics": 1,
+"Strategic Finance": 1,
+"SIU": 1
+},
+"seniority": {
+"analyst": 2,
+"senior": 1
+},
+"top_pay": 161925,
+"best": [
+{
+"id": "greenhouse:8011066",
+"title": "Associate, Strategic Finance",
+"priority": "B"
+},
+{
+"id": "greenhouse:8193718",
+"title": "Senior Analyst, Data Analytics, SIU",
+"priority": "B"
+},
+{
+"id": "greenhouse:8023759",
+"title": "Associate, Medical Economics",
 "priority": "C"
 }
 ],
@@ -3486,26 +3481,26 @@
 ]
 },
 {
-"employer": "tekion",
-"key": "tekion",
+"employer": "Labor Mobility Partnerships",
+"key": "labor mobility partnerships",
 "openings": 1,
 "new_14d": 1,
 "prev_14d": 0,
 "score": 4,
 "teams": {},
 "seniority": {
-"entry": 1
+"analyst": 1
 },
-"top_pay": 113000,
+"top_pay": "",
 "best": [
 {
-"id": "ashby:31fa4a83-3912-43af-8a61-aebf27ad4ed4",
-"title": "Pricing Specialist",
+"id": "smartrecruiters:744000160873792",
+"title": "Project Consultant: Financial Model for Income Share Agreements and Loans ",
 "priority": "A"
 }
 ],
 "signals": [
-"Pricing Specialist: title: Pricing Analyst I -> Pricing Specialist"
+"hiring Project Consultant: Financial Model for Income Share Agreements and Loans  again (reposted 1x)"
 ]
 },
 {
@@ -3529,29 +3524,6 @@
 ],
 "signals": [
 "Associate Demand Planner: pay removed"
-]
-},
-{
-"employer": "Labor Mobility Partnerships",
-"key": "labor mobility partnerships",
-"openings": 1,
-"new_14d": 1,
-"prev_14d": 0,
-"score": 4,
-"teams": {},
-"seniority": {
-"analyst": 1
-},
-"top_pay": "",
-"best": [
-{
-"id": "smartrecruiters:744000160873792",
-"title": "Project Consultant: Financial Model for Income Share Agreements and Loans ",
-"priority": "A"
-}
-],
-"signals": [
-"hiring Project Consultant: Financial Model for Income Share Agreements and Loans  again (reposted 1x)"
 ]
 },
 {
@@ -3670,6 +3642,37 @@
 ]
 },
 {
+"employer": "Nourish",
+"key": "nourish",
+"openings": 2,
+"new_14d": 0,
+"prev_14d": 1,
+"score": 4,
+"teams": {
+"Strategy & Operations": 1
+},
+"seniority": {
+"senior": 1,
+"analyst": 1
+},
+"top_pay": "",
+"best": [
+{
+"id": "greenhouse:5391731008",
+"title": "Strategic Finance Lead",
+"priority": "A"
+},
+{
+"id": "greenhouse:5463436008",
+"title": "(Sr) Lead, Strategy & Operations",
+"priority": "B"
+}
+],
+"signals": [
+"hiring Strategic Finance Lead again (reposted 1x)"
+]
+},
+{
 "employer": "iCapital",
 "key": "icapital",
 "openings": 2,
@@ -3762,34 +3765,26 @@
 ]
 },
 {
-"employer": "Nourish",
-"key": "nourish",
-"openings": 2,
-"new_14d": 0,
-"prev_14d": 1,
+"employer": "tekion",
+"key": "tekion",
+"openings": 1,
+"new_14d": 1,
+"prev_14d": 0,
 "score": 4,
-"teams": {
-"Strategy & Operations": 1
-},
+"teams": {},
 "seniority": {
-"analyst": 1,
-"senior": 1
+"entry": 1
 },
-"top_pay": "",
+"top_pay": 113000,
 "best": [
 {
-"id": "greenhouse:5391731008",
-"title": "Strategic Finance Lead",
+"id": "ashby:31fa4a83-3912-43af-8a61-aebf27ad4ed4",
+"title": "Pricing Specialist",
 "priority": "A"
-},
-{
-"id": "greenhouse:5463436008",
-"title": "(Sr) Lead, Strategy & Operations",
-"priority": "B"
 }
 ],
 "signals": [
-"hiring Strategic Finance Lead again (reposted 1x)"
+"Pricing Specialist: title: Pricing Analyst I -> Pricing Specialist"
 ]
 },
 {
@@ -3886,6 +3881,29 @@
 ],
 "signals": [
 "Senior Financial Analyst, FP&A \u2013 Revenue & Commissions: pay removed"
+]
+},
+{
+"employer": "Celonis",
+"key": "celonis",
+"openings": 1,
+"new_14d": 1,
+"prev_14d": 0,
+"score": 3,
+"teams": {},
+"seniority": {
+"analyst": 1
+},
+"top_pay": "",
+"best": [
+{
+"id": "li-4475236722",
+"title": "Finance Business Partner",
+"priority": "C"
+}
+],
+"signals": [
+"Finance Business Partner: pay removed"
 ]
 },
 {

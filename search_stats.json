@@ -99,6 +99,13 @@
 ],
 0
 ],
+"in-605bbea204a404cf": [
+"2026-11-22",
+[
+"indeed|revenue strategy"
+],
+0
+],
 "in-63697fa6b9d7dd03": [
 "2026-11-19",
 [
@@ -316,6 +323,13 @@
 ],
 0
 ],
+"in-e5af8610849a0fb2": [
+"2026-11-22",
+[
+"indeed|financial planning and analysis"
+],
+0
+],
 "in-e96bce8f114be648": [
 "2026-11-20",
 [
@@ -391,7 +405,7 @@
 0
 ]
 },
-"run": 81,
+"run": 82,
 "searches": {
 "glassdoor|FP&A analyst": {
 "added": "2026-11-01",
@@ -592,21 +606,21 @@
 0
 ],
 "2026-11-22": [
-2,
+3,
+30,
+30,
+7,
+2.0,
 0,
-0,
-0,
-0,
-0,
-0
+2
 ]
 },
 "last_run_day": "2026-11-22",
 "n": 30,
-"runs_total": 8,
+"runs_total": 9,
 "site": "glassdoor",
 "src": "base",
-"state": "trial",
+"state": "active",
 "term": "financial analyst"
 },
 "glassdoor|strategic finance": {
@@ -621,9 +635,9 @@
 0
 ],
 "2026-11-22": [
-2,
-0,
-0,
+3,
+30,
+30,
 0,
 0,
 0,
@@ -632,10 +646,10 @@
 },
 "last_run_day": "2026-11-22",
 "n": 30,
-"runs_total": 8,
+"runs_total": 9,
 "site": "glassdoor",
 "src": "base",
-"state": "trial",
+"state": "active",
 "term": "strategic finance"
 },
 "google|FP&A analyst jobs near New York, NY since 3 days ago": {
@@ -1035,10 +1049,10 @@
 0
 ],
 "2026-11-22": [
-3,
+4,
+20,
+20,
 16,
-16,
-13,
 0,
 0,
 0
@@ -1046,7 +1060,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 60,
-"runs_total": 81,
+"runs_total": 82,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -1321,10 +1335,10 @@
 0
 ],
 "2026-11-22": [
-3,
-18,
-3,
-10,
+4,
+25,
+4,
+13,
 0,
 0,
 0
@@ -1333,7 +1347,7 @@
 "last_run_day": "2026-11-22",
 "n": 30,
 "retrial": "reduced",
-"runs_total": 23,
+"runs_total": 24,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -1485,10 +1499,10 @@
 1
 ],
 "2026-11-22": [
-3,
-180,
-49,
-42,
+4,
+240,
+64,
+55,
 0,
 0,
 0
@@ -1497,7 +1511,7 @@
 "last_run_day": "2026-11-22",
 "n": 40,
 "retrial": "paused",
-"runs_total": 24,
+"runs_total": 25,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -1638,10 +1652,10 @@
 0
 ],
 "2026-11-22": [
-3,
-90,
-54,
-11,
+4,
+120,
+75,
+15,
 0.333,
 0,
 0
@@ -1649,7 +1663,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 30,
-"runs_total": 59,
+"runs_total": 60,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -1825,10 +1839,10 @@
 0
 ],
 "2026-11-22": [
-3,
-120,
-50,
-16,
+4,
+160,
+69,
+18,
 0,
 0,
 0
@@ -1836,7 +1850,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 40,
-"runs_total": 81,
+"runs_total": 82,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2054,10 +2068,10 @@
 0
 ],
 "2026-11-22": [
-3,
-34,
-13,
-15,
+4,
+44,
+16,
+19,
 0,
 0,
 0
@@ -2065,7 +2079,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 30,
-"runs_total": 31,
+"runs_total": 32,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -2206,10 +2220,10 @@
 0
 ],
 "2026-11-22": [
-3,
-90,
-36,
 4,
+120,
+50,
+7,
 0.333,
 0,
 0
@@ -2217,7 +2231,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 30,
-"runs_total": 56,
+"runs_total": 57,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -2530,10 +2544,10 @@
 0
 ],
 "2026-11-22": [
-3,
-120,
-71,
-12,
+4,
+160,
+94,
+17,
 0,
 0,
 0
@@ -2542,7 +2556,7 @@
 "last_run_day": "2026-11-22",
 "n": 40,
 "retrial": "paused",
-"runs_total": 24,
+"runs_total": 25,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -2694,10 +2708,10 @@
 1
 ],
 "2026-11-22": [
-3,
-31,
-28,
-6,
+4,
+39,
+35,
+8,
 0,
 0,
 0
@@ -2706,7 +2720,7 @@
 "last_run_day": "2026-11-22",
 "n": 30,
 "retrial": "paused",
-"runs_total": 24,
+"runs_total": 25,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -3025,10 +3039,10 @@
 0
 ],
 "2026-11-22": [
-3,
-119,
-71,
-10,
+4,
+153,
+88,
+12,
 0,
 0,
 0
@@ -3036,7 +3050,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 40,
-"runs_total": 76,
+"runs_total": 77,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -3328,10 +3342,10 @@
 1
 ],
 "2026-11-22": [
-3,
-139,
-72,
-47,
+4,
+182,
+93,
+59,
 0,
 0,
 0
@@ -3339,7 +3353,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 60,
-"runs_total": 71,
+"runs_total": 72,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -3515,10 +3529,10 @@
 0
 ],
 "2026-11-22": [
-3,
-270,
-258,
-38,
+4,
+360,
+344,
+50,
 0,
 0,
 0
@@ -3526,7 +3540,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 60,
-"runs_total": 78,
+"runs_total": 79,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -3678,10 +3692,10 @@
 0
 ],
 "2026-11-22": [
-3,
-90,
-37,
-21,
+4,
+120,
+46,
+26,
 0,
 0,
 0
@@ -3690,7 +3704,7 @@
 "last_run_day": "2026-11-22",
 "n": 30,
 "retrial": "reduced",
-"runs_total": 24,
+"runs_total": 25,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -3866,10 +3880,10 @@
 0
 ],
 "2026-11-22": [
-3,
-69,
-35,
-9,
+4,
+90,
+45,
+12,
 0,
 0,
 0
@@ -3877,7 +3891,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 30,
-"runs_total": 78,
+"runs_total": 79,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -4233,10 +4247,10 @@
 0
 ],
 "2026-11-22": [
-2,
-30,
-15,
-2,
+3,
+44,
+21,
+3,
 0,
 0,
 0
@@ -4245,7 +4259,7 @@
 "last_run_day": "2026-11-22",
 "n": 30,
 "retrial": "reduced",
-"runs_total": 22,
+"runs_total": 23,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -4660,10 +4674,10 @@
 0
 ],
 "2026-11-22": [
-3,
-90,
-69,
-7,
+4,
+120,
+96,
+9,
 0,
 0,
 0
@@ -4671,7 +4685,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 30,
-"runs_total": 59,
+"runs_total": 60,
 "site": "indeed",
 "src": "pool",
 "state": "active",
@@ -4875,10 +4889,10 @@
 0
 ],
 "2026-11-22": [
-3,
-180,
-148,
-9,
+4,
+240,
+202,
+10,
 0.333,
 0,
 0
@@ -4886,7 +4900,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 60,
-"runs_total": 81,
+"runs_total": 82,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -5301,10 +5315,10 @@
 0
 ],
 "2026-11-22": [
-3,
-48,
-25,
-20,
+4,
+64,
+33,
+26,
 0,
 0,
 0
@@ -5313,7 +5327,7 @@
 "last_run_day": "2026-11-22",
 "n": 40,
 "retrial": "paused",
-"runs_total": 24,
+"runs_total": 25,
 "site": "indeed",
 "src": "base",
 "state": "active",
@@ -5489,10 +5503,10 @@
 3
 ],
 "2026-11-22": [
-3,
-30,
-30,
-26,
+4,
+40,
+40,
+36,
 0.833,
 0,
 0
@@ -5500,7 +5514,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 25,
-"runs_total": 81,
+"runs_total": 82,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -5660,7 +5674,7 @@
 1
 ],
 "2026-11-22": [
-3,
+4,
 60,
 22,
 43,
@@ -5671,7 +5685,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 20,
-"runs_total": 65,
+"runs_total": 66,
 "site": "linkedin",
 "src": "pool",
 "state": "active",
@@ -5847,7 +5861,7 @@
 5
 ],
 "2026-11-22": [
-3,
+4,
 67,
 43,
 53,
@@ -5858,7 +5872,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 25,
-"runs_total": 81,
+"runs_total": 82,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -6010,18 +6024,18 @@
 2
 ],
 "2026-11-22": [
-3,
-60,
-7,
-41,
-1.166,
+4,
+70,
+8,
+48,
+1.666,
 0,
 0
 ]
 },
 "last_run_day": "2026-11-22",
 "n": 25,
-"runs_total": 59,
+"runs_total": 60,
 "site": "linkedin",
 "src": "pool",
 "state": "active",
@@ -6181,10 +6195,10 @@
 1
 ],
 "2026-11-22": [
-3,
-30,
-27,
-7,
+4,
+50,
+46,
+10,
 0,
 0,
 0
@@ -6192,7 +6206,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 20,
-"runs_total": 63,
+"runs_total": 64,
 "site": "linkedin",
 "src": "pool",
 "state": "active",
@@ -6368,18 +6382,18 @@
 0
 ],
 "2026-11-22": [
-3,
-75,
-58,
-20,
-1.0,
+4,
+100,
+81,
+27,
+2.5,
 0,
-0
+1
 ]
 },
 "last_run_day": "2026-11-22",
 "n": 25,
-"runs_total": 78,
+"runs_total": 79,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -6539,10 +6553,10 @@
 2
 ],
 "2026-11-22": [
-3,
-50,
-43,
-11,
+4,
+70,
+60,
+15,
 1.0,
 0,
 0
@@ -6550,7 +6564,7 @@
 },
 "last_run_day": "2026-11-22",
 "n": 20,
-"runs_total": 64,
+"runs_total": 65,
 "site": "linkedin",
 "src": "pool",
 "state": "active",
@@ -6726,18 +6740,18 @@
 0
 ],
 "2026-11-22": [
-3,
-60,
-60,
-5,
+4,
+80,
+80,
+8,
+1.0,
 0,
-0,
-0
+1
 ]
 },
 "last_run_day": "2026-11-22",
 "n": 20,
-"runs_total": 81,
+"runs_total": 82,
 "site": "linkedin",
 "src": "base",
 "state": "active",
@@ -6957,7 +6971,7 @@
 "resumed": "2026-11-22",
 "since": "2026-11-01",
 "state": "active",
-"zero_runs": 2
+"zero_runs": 0
 },
 "google": {
 "probed": "2026-11-22",
