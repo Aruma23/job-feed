@@ -1,14 +1,13 @@
 # Feed audit
 
-2026-11-23T00:21+00:00 · **OK** · All checks passed.
+2026-11-23T12:37+00:00 · **OK** · All checks passed.
 
-## INFO: 2 linkedin job(s) left the feed without a confirmed closing.
+## INFO: 1 linkedin job(s) left the feed without a confirmed closing.
 
 - What the feed did: Left out (too few to suggest a broken reader).
-  - Celonis: Finance Business Partner
-  - Cohere: Financial Analyst, G&A
+  - Nielsen: Senior Financial Planning & Analysis Partner II
 
-## INFO: 742 jobs are shown from earlier runs (331 on unchanged boards not due for a read, 261 job-site listings past the 3-day search window, 94 missed by this run only, 56 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-19.
+## INFO: 377 jobs are shown from earlier runs (261 job-site listings past the 3-day search window, 54 on unchanged boards not due for a read, 36 missed by this run only, 26 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-19.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
   - Natural Resources Defense Council: Associate General Counsel (last 2026-11-20)
@@ -17,7 +16,7 @@
   - ZT Systems: Senior Staff Supply Demand Analyst (last 2026-11-20)
   - Amerita: Clinical Sales Account Executive (last 2026-11-20)
 
-## INFO: 61 sets of rows share employer, title, place and description.
+## INFO: 59 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.

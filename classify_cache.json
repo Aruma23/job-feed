@@ -17,8 +17,8 @@
 "reviewed": 32
 },
 "2026-11-23": {
-"held": 7,
-"reviewed": 8
+"held": 14,
+"reviewed": 16
 }
 },
 "audit": {
@@ -76,7 +76,7 @@
 },
 "2026-11-23": {
 "fits": 1,
-"reviewed": 16
+"reviewed": 28
 }
 },
 "jobs": {
@@ -334,14 +334,6 @@
 "reused": true,
 "score": 75,
 "why": "Strong match: Own capacity forecasting strategy, Inputs, throughputs, and outputs, Conduit back to Finance, Comp-based decisions and benchmarking. Gap: Blended with sales ops and lead routing."
-},
-"ashby:06785f83-9f6a-464b-874a-eb59f45ebccc": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "4f84b19dc43a",
-"score": 10,
-"why": "Gap: Customer success and account management role."
 },
 "ashby:06cf95ed-3cd6-4ee3-a0df-2bec8ffbc89b": {
 "at": "2026-11-02",
@@ -690,14 +682,6 @@
 "n": "eb8c1acb5fed17",
 "score": 20,
 "why": "Some match: Pricing strategies. Gap: Creative event planning and design role."
-},
-"ashby:0f1319c1-6a36-4be1-9f87-08a6dae2914b": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "2fe5db0184b8",
-"score": 45,
-"why": "Some match: sales compensation program, deal desk and quoting process. Gap: sales operations and commissions focus rather than FP&A."
 },
 "ashby:0f570b6c-a585-45e1-b4ac-fc5ba9c454ea": {
 "at": "2026-11-02",
@@ -1726,14 +1710,6 @@
 "score": 10,
 "why": "Some match: Organizational design and long-term team planning. Gap: Pure human resources business partner role."
 },
-"ashby:2cbe8c44-76a0-4f29-9c45-2c09df556318": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "4d2355793ef3",
-"score": 25,
-"why": "Some match: variance analysis, partner with FP&A. Gap: heavy month-end close, journal entries, and reconciliations focus."
-},
 "ashby:2ea615df-aa95-45ad-9579-89cd5bcfa870": {
 "at": "2026-11-15",
 "by": "model",
@@ -1818,14 +1794,6 @@
 "score": 75,
 "why": "Strong match: Evaluate tier, bundle and fee structures, model revenue and margin impact, Track price realization and discount depth, Work with Product and Finance to launch SKUs. Gap: Pricing and deal desk focus rather than broad FP&A."
 },
-"ashby:32393d97-45b2-4e7d-8d27-1bc3cc06c93e": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "678968587292",
-"score": 10,
-"why": "Some match: Reseller channel building, sourcing resellers. Gap: sales and partnerships role."
-},
 "ashby:32680534-8eca-451a-a398-8a2f2eab851d": {
 "at": "2026-11-04",
 "by": "model",
@@ -1870,15 +1838,6 @@
 "n": "96c61ae128eb69",
 "score": 10,
 "why": "Gap: Human resources and people partnering role."
-},
-"ashby:336af452-7b72-4d78-b468-cc22c2704073": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Workforce & capacity planning",
-"h": "bc33f480e6de",
-"n": "9ecc0a14ce5447",
-"score": 70,
-"why": "Strong match: Work closely with WFM, SLA governance across external care partners, Operational execution and performance telemetry. Gap: Heavy BPO operations and partner management focus."
 },
 "ashby:33bb3bed-dfee-4a62-8c9e-927ade1f1c4c": {
 "at": "2026-11-06",
@@ -2291,6 +2250,17 @@
 "score": 55,
 "why": "Some match: quantitative analyses, analytic approaches. Gap: private equity consulting analyst role."
 },
+"ashby:3dac5de6-fa35-451f-885a-d564c28be42c": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Corporate / strategic finance",
+"ev": "grounded",
+"h": "77ee4ae2e3c0",
+"n": "1a78046807d147",
+"pv": 1,
+"score": 65,
+"why": "Some match: forecast pipeline and revenue, model sales incentives, market analysis, sales productivity reporting. Gap: Sales operations and GTM strategy focus rather than core finance."
+},
 "ashby:3de19281-f714-490a-a395-a978b102f8a1": {
 "at": "2026-11-02",
 "by": "model",
@@ -2576,6 +2546,17 @@
 "score": 30,
 "why": "Some match: Data analytics, Metric definition. Gap: Product data analytics role."
 },
+"ashby:467e6bb9-7343-47ec-8cd7-b43137e6541b": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Commercial finance / business partnering",
+"ev": "grounded",
+"h": "d5d81b704120",
+"n": "c63ea3c328e372",
+"pv": 1,
+"score": 50,
+"why": "Some match: build coverage models, partner cross-functionally with Finance, business partnering to sales leaders. Gap: sales and GTM operations focus."
+},
 "ashby:46c7b8c5-2ccf-4933-8693-618d1aa9f421": {
 "at": "2026-11-04",
 "by": "model",
@@ -2720,14 +2701,6 @@
 "n": "19470b5b41ec2a",
 "score": 0,
 "why": "Gap: Sales management role, unsuitable."
-},
-"ashby:4c4af954-2c70-4a3c-acc2-97c58211f920": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "6e93ef4e0ea6",
-"score": 0,
-"why": "Some match: build quarterly security risk reporting. Gap: security risk management role."
 },
 "ashby:4c4dbf87-c271-4686-b336-20da8a5a26f6": {
 "at": "2026-11-05",
@@ -2979,6 +2952,17 @@
 "pv": 1,
 "score": 65,
 "why": "Some match: Analyze operating results and budgets, Evaluate tradeoffs and drive decisions, Develop analyses and reporting, Advise customers on portfolio performance. Gap: Client-facing advisory role rather than internal corporate FP&A."
+},
+"ashby:52bba096-667f-4e35-aa47-f8cc2219c390": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "6bc09927d1e1",
+"n": "e90ef7b23535cd",
+"pv": 1,
+"score": 35,
+"why": "Some match: pipeline and forecasting modeling, data infrastructure building. Gap: Data engineering and RevOps role rather than financial FP&A."
 },
 "ashby:52d3d043-ee24-4663-9673-0ac4c0493eba": {
 "at": "2026-11-02",
@@ -3682,15 +3666,6 @@
 "score": 0,
 "why": "Gap: Performance marketing role."
 },
-"ashby:65ad1097-40f8-466d-aaaf-cc40b9521c74": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "306422abd345",
-"n": "4e997922ddff05",
-"score": 75,
-"why": "Strong match: partner with GTM leaders, develop forecasting, scenario-planning, analyze productivity trends, identify opportunities for growth, efficiency. Gap: Sales operations and GTM analytics focus rather than core FP&A or workforce planning."
-},
 "ashby:65bd23bb-19ad-4fa3-bb74-fff881e0579b": {
 "at": "2026-11-04",
 "by": "model",
@@ -3945,6 +3920,17 @@
 "score": 35,
 "why": "Some match: Track conversion at every stage of the funnel, Build pipeline and forecast reporting. Gap: Sales and revenue operations role, not financial planning or analysis."
 },
+"ashby:6b45d60c-8458-49a3-ab36-f25b70ad407f": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "3484ffe11105",
+"n": "629958b91a87c6",
+"pv": 1,
+"score": 0,
+"why": "Gap: Sales and business development role."
+},
 "ashby:6bddd87a-0aed-415e-86f0-eccb7dbd32f7": {
 "at": "2026-11-18",
 "by": "model",
@@ -3963,15 +3949,6 @@
 "n": "44cc0d78955977",
 "score": 20,
 "why": "Gap: GRC and security compliance audit role."
-},
-"ashby:6c2effd8-9dfa-4198-b8b1-c5c4608298b7": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Corporate / strategic finance",
-"h": "9d6fc696cb5d",
-"n": "0994b26ae102a8",
-"score": 70,
-"why": "Strong match: Develop business cases for operating model changes, Impact on cost, capacity, revenue, and outcomes, Partner with Finance on service economics and pricing. Gap: Broad strategy and operations scope rather than core FP&A."
 },
 "ashby:6c848e4f-b16e-4a99-850c-97693f1b64ad": {
 "at": "2026-11-15",
@@ -4342,14 +4319,6 @@
 "n": "9e542bc7cb5dc4",
 "score": 20,
 "why": "Some match: data-informed customer experiences, support the lifecycle strategy. Gap: lifecycle marketing role rather than finance."
-},
-"ashby:79f67e47-7b85-4666-8cde-432352557034": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "ae0c2964a56a",
-"score": 35,
-"why": "Some match: pipeline forecasting, territory planning, reporting. Gap: sales operations and CRM management focus."
 },
 "ashby:7a3ff629-6c67-4aa5-bea4-f1d88b3b4777": {
 "at": "2026-11-02",
@@ -4839,6 +4808,17 @@
 "score": 10,
 "why": "Some match: Own portfolio outcomes, Drive measurable customer value. Gap: customer success leadership role, completely unrelated to finance."
 },
+"ashby:871d2fc8-def8-4837-a9b0-7cc4fe126c2b": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "3192f30a43a1",
+"n": "c484b6e5b54832",
+"pv": 1,
+"score": 15,
+"why": "Some match: collect customer feedback, improve workflows. Gap: product operations role."
+},
 "ashby:876ddd4f-537c-41f0-90d1-f077183cf264": {
 "at": "2026-11-04",
 "by": "model",
@@ -5050,14 +5030,6 @@
 "score": 45,
 "why": "Some match: Defining metrics, Sizing opportunities, Deep-dive analyses. Gap: Product data analytics rather than financial planning."
 },
-"ashby:8bf8c23a-7138-4fef-91a7-8ade53b3af75": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "c455699642c3",
-"score": 15,
-"why": "Some match: financial analysis. Gap: Client management and account strategy role, not finance."
-},
 "ashby:8bfbbcae-538a-4f59-9254-83915265b6ab": {
 "at": "2026-11-04",
 "by": "model",
@@ -5187,14 +5159,6 @@
 "n": "eb32853b757f1b",
 "score": 60,
 "why": "Some match: drive the goal-setting process (OKRs/KPIs), lead the agenda for executive meetings, operational force multiplication. Gap: More general business operations and process design than financial planning."
-},
-"ashby:8f25aefd-c3fd-4dda-9d93-9963e582878a": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "5b2cfd8892d4",
-"score": 10,
-"why": "Some match: Investor channel building, PE & VC relations. Gap: sales and partnerships role."
 },
 "ashby:8f4a50aa-5fbe-4337-951e-d8efdfd9e61f": {
 "at": "2026-11-04",
@@ -5350,14 +5314,6 @@
 "pv": 1,
 "score": 10,
 "why": "Some match: Track usage and performance. Gap: Sales and go-to-market operations role, not finance or planning."
-},
-"ashby:94752cfc-4a62-48c9-bcc0-e5f7f1905be6": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "f7381137b0d5",
-"score": 0,
-"why": "Gap: IT and security risk management role."
 },
 "ashby:9477c9e5-0745-47e8-b8be-15371da2bdae": {
 "at": "2026-11-18",
@@ -5754,14 +5710,6 @@
 "score": 25,
 "why": "Gap: Sales and revenue operations."
 },
-"ashby:a1abf26d-c90a-4190-82d4-2a5d5c636deb": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "3bcb9fe66f53",
-"score": 0,
-"why": "Gap: Sales and revenue generation role."
-},
 "ashby:a1c5ca19-5b83-4f43-8988-384da0eed3a9": {
 "at": "2026-11-05",
 "by": "model",
@@ -5837,6 +5785,17 @@
 "n": "2f31d026a63a15",
 "score": 60,
 "why": "Some match: Corporate Development, Investor Relations, M&A growth strategy. Gap: oriented toward M&A and investor relations rather than FP&A or strategic finance."
+},
+"ashby:a342fecf-4607-42bb-9dce-2952cfa6ad33": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Corporate / strategic finance",
+"ev": "grounded",
+"h": "37c7501d2a66",
+"n": "9346709292fb17",
+"pv": 1,
+"score": 90,
+"why": "Strong match: top-line revenue forecast, financial modeling and processes, Partner day-to-day with GTM organization, KPI and variance reporting cadences."
 },
 "ashby:a3455be6-19be-443d-8cb3-19ff8e2b062a": {
 "at": "2026-11-04",
@@ -6786,6 +6745,18 @@
 "score": 75,
 "why": "Strong match: market sizing, competitive landscape, unit economics, pricing strategy, operational bottlenecks. Gap: Broad strategic projects rather than core FP&A or finance."
 },
+"ashby:bb0bf773-fb50-4261-accb-e587032253fa": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "b02ccc60eb49",
+"n": "951692fb3152b4",
+"pv": 1,
+"reused": true,
+"score": 40,
+"why": "Some match: Revenue and margin accountability, Invoicing current. Gap: General management and operations execution role."
+},
 "ashby:bb2baf8c-5354-4476-98f1-25663199be30": {
 "at": "2026-11-13",
 "by": "model",
@@ -7037,6 +7008,17 @@
 "n": "ad55a57f32492c",
 "score": 65,
 "why": "Some match: Build robust business cases, Track international performance, ROI realization for program management. Gap: Strategic initiatives and program management focus rather than dedicated FP&A."
+},
+"ashby:c2d4f40d-ca81-47ac-b57c-df56f1c4c913": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "b8a839009b95",
+"n": "a2eb69290a019a",
+"pv": 1,
+"score": 10,
+"why": "Gap: enterprise software sales role."
 },
 "ashby:c34c84d9-b7f8-436e-ae8d-a9a9120cecac": {
 "at": "2026-11-13",
@@ -7292,6 +7274,17 @@
 "score": 10,
 "why": "Gap: Organizational effectiveness and HR role."
 },
+"ashby:ca3f3864-5641-46f6-98f8-647113bd12ff": {
+"at": "2026-11-23",
+"by": "model",
+"category": "FP&A / forecasting / budgeting",
+"ev": "grounded",
+"h": "f12bad38a171",
+"n": "df78f07f1e7acf",
+"pv": 1,
+"score": 95,
+"why": "Strong match: group-level forecasting across revenue, headcount, costs and, financial models that support strategic planning, scenario modelling, long-range planning, Partner with senior leaders."
+},
 "ashby:ca43a9df-5ac6-46d5-bfc1-7bdd45f284c0": {
 "at": "2026-11-12",
 "by": "model",
@@ -7327,14 +7320,6 @@
 "n": "937acc89e16546",
 "score": 10,
 "why": "Some match: Strategic calendar management, Project & task management. Gap: Executive assistant / admin role."
-},
-"ashby:caf69778-817c-41a3-9c2b-a91661a14d01": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "d29a4b3657d3",
-"score": 45,
-"why": "Some match: Drive provider acquisition forecasting, goal setting, and pl, Own the commission process, Recurring reporting rhythm. Gap: Sales and marketing operations focus."
 },
 "ashby:cb19a432-dd91-46cb-8fc7-5ac367f423a0": {
 "at": "2026-11-06",
@@ -7508,14 +7493,6 @@
 "pv": 1,
 "score": 60,
 "why": "Some match: Research energy markets, Evaluate commercial potential, Develop commercial structures, Commercial research and opportunity development. Gap: Sales and business development focus rather than financial planning."
-},
-"ashby:cf3f2740-a2ef-4512-8607-2895930680a3": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "a7d885c7c0ea",
-"score": 15,
-"why": "Some match: craft pricing strategies, negotiate key customer contracts. Gap: commercial sales and deal negotiation focus rather than finance."
 },
 "ashby:cf571c88-f1d0-4895-9256-0f6796bc1e8d": {
 "at": "2026-11-21",
@@ -7804,14 +7781,6 @@
 "score": 65,
 "why": "Some match: run the monthly lender reporting cycle, Prepare ad hoc analyses for lenders, Track excess spread, delinquency, and loss triggers, Covenant and eligibility monitoring. Gap: focused on debt facilities and capital markets rather than corporate FP&A."
 },
-"ashby:d8055ff1-518e-4aee-a2bc-06b71126947d": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "d87f0a8ab228",
-"score": 10,
-"why": "Some match: test-and-learn loop. Gap: creative marketing strategy role."
-},
 "ashby:d8414b6c-51f2-4a40-a65d-26681575604a": {
 "at": "2026-11-15",
 "by": "model",
@@ -7893,14 +7862,6 @@
 "n": "f31d587c404697",
 "score": 25,
 "why": "Some match: Build and refine our playbook, work with engineering. Gap: Travel operations and integration management."
-},
-"ashby:dbdb48d0-37b4-4ab8-900d-43a8fdb2a23f": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "af28d5b9770a",
-"score": 15,
-"why": "Some match: craft pricing strategies, negotiate key customer contracts. Gap: commercial sales and deal negotiation focus rather than finance."
 },
 "ashby:dc86fd14-ae23-4d0f-826b-80188eed16f7": {
 "at": "2026-11-04",
@@ -8080,14 +8041,6 @@
 "n": "92c70d2f03618b",
 "score": 25,
 "why": "Gap: Strategic partnerships and data sourcing role."
-},
-"ashby:e2151b12-ea15-43df-bca5-0a643d3f87dc": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "84be01609e24",
-"score": 10,
-"why": "Some match: Technology partnerships, managing relationships. Gap: sales and partnerships role."
 },
 "ashby:e2196a0b-0b25-4ac9-94e5-babd76bf404f": {
 "at": "2026-11-02",
@@ -8902,14 +8855,6 @@
 "score": 10,
 "why": "Some match: performance analysis, reporting frameworks. Gap: Pure performance marketing and digital acquisition role."
 },
-"ashby:f77006c7-a8cd-49b5-9216-8a661962afbc": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Treasury / investment / adjacent finance",
-"h": "b18a54b43f2d",
-"score": 60,
-"why": "Some match: highly analytical, managing relationships with the investment community. Gap: Investor relations focus rather than core FP&A or planning."
-},
 "ashby:f81ffda8-0c7c-4c3e-9246-aa01452678e4": {
 "at": "2026-11-04",
 "by": "model",
@@ -9220,6 +9165,17 @@
 "pv": 1,
 "score": 25,
 "why": "Some match: Work closely with the Front Office, Partners with internal stakeholders. Gap: fixed income operations and trade processing."
+},
+"greenhouse:251474": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Treasury / investment / adjacent finance",
+"ev": "grounded",
+"h": "887d2b4cb42c",
+"n": "d8b7f1d43f205a",
+"pv": 1,
+"score": 60,
+"why": "Some match: design complex financial models, analyze economic and financial data, provide strategic insights, project budget management. Gap: focuses on litigation and intellectual property economic consulting rather than corporate FP&A."
 },
 "greenhouse:3090349": {
 "at": "2026-11-03",
@@ -10413,14 +10369,6 @@
 "score": 45,
 "why": "Some match: analyze operational spending trends, cost savings and process optimization. Gap: heavy focus on T&E expense auditing, lease administration, and SOX controls."
 },
-"greenhouse:4466427009": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Workforce & capacity planning",
-"h": "688e705d2e95",
-"score": 60,
-"why": "Some match: capacity planning, dashboards and reporting, tracking priorities, operational efficiency. Gap: focuses on general operations and project management rather than financial or workforce capacity pla."
-},
 "greenhouse:4468333009": {
 "at": "2026-11-20",
 "by": "model",
@@ -10920,22 +10868,6 @@
 "score": 45,
 "why": "Some match: Conduct scenario analysis, Forecast price distributions, Build analytical tools, Build datasets. Gap: Focused on market trading and fundamental equity analysis rather than corporate FP&A."
 },
-"greenhouse:4679941006": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "86d58d9b9121",
-"score": 35,
-"why": "Some match: forecast, quantify measurable business outcomes, data-driven insights. Gap: This is a customer-facing sales/account management and revenue transformation role, not internal fin."
-},
-"greenhouse:4679947006": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "212a8251fe01",
-"score": 35,
-"why": "Some match: forecast, quantify measurable business outcomes, data-driven insights. Gap: This is a customer-facing sales/account management and revenue transformation role, not internal fin."
-},
 "greenhouse:4680206006": {
 "at": "2026-11-02",
 "by": "model",
@@ -11081,6 +11013,17 @@
 "n": "b4a6408b270b4c",
 "score": 65,
 "why": "Some match: conducting financial analysis and due diligence, reviewing applications for financial assistance, evaluating applicant eligibility, managing transactions. Gap: focus is on public economic development financing and tax incentives rather than corporate FP&A."
+},
+"greenhouse:4706637006": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "2d50445d547b",
+"n": "9db4a4c7082be0",
+"pv": 1,
+"score": 45,
+"why": "Some match: pricing insights, quote-to-signature support. Gap: Deal desk and sales operations focus."
 },
 "greenhouse:4706680005": {
 "at": "2026-11-02",
@@ -11962,6 +11905,17 @@
 "score": 25,
 "why": "Some match: analyze sales and productivity reports. Gap: account management and e-commerce focus."
 },
+"greenhouse:4744214005": {
+"at": "2026-11-23",
+"by": "model",
+"category": "FP&A / forecasting / budgeting",
+"ev": "grounded",
+"h": "8ec2e8ba5e43",
+"n": "b5bc6737eea70f",
+"pv": 1,
+"score": 75,
+"why": "Strong match: budgeting and forecasting for key functions, capacity, throughput, labor, and unit costs models, monthly budget-vs-actual and forecast-vs-actual reviews, Partner with Accounting during month-end close. Gap: Heavy accounting/inventory close responsibilities included."
+},
 "greenhouse:4744509005": {
 "at": "2026-11-16",
 "by": "model",
@@ -12000,14 +11954,6 @@
 "n": "63a71cc9bac7d1",
 "score": 30,
 "why": "Some match: Whitespace and expansion analysis, Build the business case with each customer. Gap: Account management and B2B sales role."
-},
-"greenhouse:4745559005": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "f78dea02366d",
-"score": 30,
-"why": "Some match: partners with operations and scheduling, work-management processes. Gap: Facilities maintenance and operational planning rather than workforce, capacity, or financial planni."
 },
 "greenhouse:4745568005": {
 "at": "2026-11-02",
@@ -13069,22 +13015,6 @@
 "score": 35,
 "why": "Some match: Manage and grow relationships, Commercial metrics, Account management. Gap: Client management and sales role rather than financial analysis."
 },
-"greenhouse:4864347101": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "2ca846953b7b",
-"score": 10,
-"why": "Gap: Sales and marketing role."
-},
-"greenhouse:4866814101": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "0f854aaa78ca",
-"score": 40,
-"why": "Some match: responsible for product-related budgets, develop pricing and forecast models. Gap: product marketing and business unit leadership rather than core finance or FP&A."
-},
 "greenhouse:4868147101": {
 "at": "2026-11-02",
 "by": "model",
@@ -13859,14 +13789,6 @@
 "score": 65,
 "why": "Some match: protect and grow membership revenue, manages the data and performance cycle, strategic link between global strategy and local delivery. Gap: Mainly membership strategy and operations rather than financial planning."
 },
-"greenhouse:4986265101": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "49ab2506be14",
-"score": 40,
-"why": "Some match: responsible for product-related budgets, develop pricing and forecast models. Gap: product marketing and business unit leadership rather than core finance or FP&A."
-},
 "greenhouse:4986288008": {
 "at": "2026-11-20",
 "by": "model",
@@ -14131,14 +14053,6 @@
 "score": 0,
 "why": "Some match: driving enterprise-scale deals, introducing AI platform to asset managers. Gap: sales role."
 },
-"greenhouse:5063429007": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "c7aff3acf8bc",
-"score": 15,
-"why": "Some match: negotiate pricing, billing discrepancies. Gap: media buying and advertising operations role."
-},
 "greenhouse:5067235008": {
 "at": "2026-11-21",
 "by": "model",
@@ -14188,14 +14102,6 @@
 "score": 50,
 "why": "Some match: Perform financial analysis, Private capital concepts, Corporate finance. Gap: Private equity portfolio data operations rather than corporate FP&A."
 },
-"greenhouse:5088740007": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "bf24f0ca5ed2",
-"score": 10,
-"why": "Some match: Translate client business goals into search strategies. Gap: SEO and paid search marketing role."
-},
 "greenhouse:5096961007": {
 "at": "2026-11-09",
 "by": "model",
@@ -14204,22 +14110,6 @@
 "n": "48435e90d82648",
 "score": 10,
 "why": "Some match: Provide SEO reports with little to no oversight. Gap: This is a digital marketing and SEO analyst role."
-},
-"greenhouse:5098535007": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "a133c65d8309",
-"score": 35,
-"why": "Some match: Manipulate & architect large data sets, Excel (Complex formula & data), Data visualization/dashboards experience. Gap: focused on data science, marketing, and client analytics rather than financial planning."
-},
-"greenhouse:5101431007": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "510cfcee85b4",
-"score": 10,
-"why": "Some match: media plans, measure product sales. Gap: marketing and media buying role."
 },
 "greenhouse:5101738007": {
 "at": "2026-11-02",
@@ -14230,14 +14120,6 @@
 "reused": true,
 "score": 10,
 "why": "Some match: budget parameter monitoring. Gap: paid social media marketing role."
-},
-"greenhouse:5102484007": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "b52d4f6b8aeb",
-"score": 10,
-"why": "Some match: media plans, measure product sales. Gap: marketing and media buying role."
 },
 "greenhouse:5109637007": {
 "at": "2026-11-02",
@@ -14283,14 +14165,6 @@
 "n": "a17c22a0fecf58",
 "score": 45,
 "why": "Some match: Establish Joint Business Plans, Track monthly/quarterly revenue pacing against OKRs, Own end-to-end deal execution. Gap: Sales and partnership development focus rather than financial planning."
-},
-"greenhouse:5118490007": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "9497949f1098",
-"score": 10,
-"why": "Some match: manage budget allocation, data analyzing. Gap: marketing and content management role."
 },
 "greenhouse:5119068007": {
 "at": "2026-11-02",
@@ -15004,14 +14878,6 @@
 "score": 10,
 "why": "Some match: creator partnerships. Gap: marketing and creator partnerships role."
 },
-"greenhouse:5277640008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Treasury / investment / adjacent finance",
-"h": "aa5eef5014bc",
-"score": 55,
-"why": "Some match: support pricing and underwriting activities, maintain and enhance financial models, assist in pricing strategies. Gap: Focuses on insurance/underwriting pricing rather than corporate FP&A or business partnering."
-},
 "greenhouse:5278006007": {
 "at": "2026-11-07",
 "by": "model",
@@ -15292,22 +15158,6 @@
 "score": 40,
 "why": "Some match: life sciences strategy consulting, complex problem-solving. Gap: external management consulting role rather than internal corporate finance or FP&A."
 },
-"greenhouse:5355858008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "301eca14b25a",
-"score": 45,
-"why": "Some match: client-facing PBM analytics, develop dashboards and presentations, consultative analytics partner. Gap: Heavy focus on clinical/pharmacy claims data analysis rather than financial planning or FP&A."
-},
-"greenhouse:5355895008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Corporate / strategic finance",
-"h": "93f3ae709420",
-"score": 60,
-"why": "Some match: Produce strategic insights, financial projections, Develop recurring firm-wide insights report, Cross-Functional Collaboration. Gap: focused on healthcare analytics and reporting rather than core FP&A."
-},
 "greenhouse:5362918008": {
 "at": "2026-11-20",
 "by": "model",
@@ -15447,14 +15297,6 @@
 "score": 40,
 "why": "Some match: Solve hard operating problems, Drive root cause diagnosis, Lead strategy and operations practitioners, Structured decision-making. Gap: Management consulting and organizational transformation role, not finance."
 },
-"greenhouse:5383710008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "49056611531a",
-"score": 0,
-"why": "Gap: Audio-visual operations and IT support role."
-},
 "greenhouse:5385506008": {
 "at": "2026-11-02",
 "by": "model",
@@ -15492,14 +15334,6 @@
 "pv": 1,
 "score": 20,
 "why": "Some match: Refine new business processes. Gap: Sales and business development seat."
-},
-"greenhouse:5390952008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Corporate / strategic finance",
-"h": "aaca8931c0b5",
-"score": 45,
-"why": "Some match: strategic analysis and readouts, cross-functional coordination, compute supply allocation. Gap: primarily GTM program management rather than finance or planning."
 },
 "greenhouse:5391004008": {
 "at": "2026-11-02",
@@ -15582,14 +15416,6 @@
 "score": 10,
 "why": "Some match: turn researcher and interview feedback into polished documen, build core search documentation, organize meeting notes. Gap: recruiting and administrative support role with no finance or analytical duties."
 },
-"greenhouse:5409261008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "c69f68de5996",
-"score": 25,
-"why": "Some match: workforce plans, workforce analytics. Gap: This is an HR Business Partner role, not workforce capacity planning."
-},
 "greenhouse:5409758008": {
 "at": "2026-11-02",
 "by": "model",
@@ -15643,14 +15469,6 @@
 "n": "8fe44dcf929d27",
 "score": 10,
 "why": "Some match: maintaining and optimizing workflows, developing net-new processes. Gap: Licensing operations instead of finance."
-},
-"greenhouse:5416829008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "8b0a2b79d27e",
-"score": 30,
-"why": "Some match: quote-to-cash systems. Gap: business systems engineering role."
 },
 "greenhouse:5421720008": {
 "at": "2026-11-05",
@@ -15756,14 +15574,6 @@
 "n": "8dec8cf0b22c1a",
 "score": 35,
 "why": "Some match: Structure commercial models, Understanding of economics and tradeoffs. Gap: Sales and partnership management rather than financial planning."
-},
-"greenhouse:5427766008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "252a994fdb14",
-"score": 45,
-"why": "Some match: producing recurring and ad hoc reports, designing and implementing business intelligence dashboards. Gap: operations and data reprocessing focus, lack of finance duties."
 },
 "greenhouse:5427922008": {
 "at": "2026-11-02",
@@ -16062,14 +15872,6 @@
 "score": 20,
 "why": "Some match: manage the execution of end-to-end development, own project timelines and scope. Gap: Operations project management rather than finance or planning."
 },
-"greenhouse:5444256008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "8271cff682c7",
-"score": 20,
-"why": "Some match: labor market and internal equity analysis, compensation-related reporting. Gap: HR and compensation administration role."
-},
 "greenhouse:5444527008": {
 "at": "2026-11-02",
 "by": "model",
@@ -16078,14 +15880,6 @@
 "n": "d5dd447d88308e",
 "score": 20,
 "why": "Some match: Monitor airline spend and inventory commitments, Prepare booking status updates and operational reports. Gap: Travel coordination and airline booking operations."
-},
-"greenhouse:5445426008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "4446f34f11fb",
-"score": 55,
-"why": "Some match: sizing the biggest opportunities, strategic, analytical role, cross-functional influence. Gap: growth, retention, and lifecycle marketing focus rather than core finance."
 },
 "greenhouse:5447384008": {
 "at": "2026-11-02",
@@ -16104,14 +15898,6 @@
 "n": "4c569bb6f5cd1e",
 "score": 20,
 "why": "Some match: variance analysis, revenue reporting. Gap: Heavy accounting focus on ASC 606, audits, and general ledger reconciliations."
-},
-"greenhouse:5448834008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "dc01d658586f",
-"score": 40,
-"why": "Some match: analyze and validate pharmacy claims, perform root cause analyses, identify potential financial risks. Gap: Role is centered on claims auditing and payment integrity rather than core financial analysis or FP&."
 },
 "greenhouse:5449331008": {
 "at": "2026-11-02",
@@ -16351,14 +16137,6 @@
 "reused": true,
 "score": 10,
 "why": "Gap: missing job duties description."
-},
-"greenhouse:5462823008": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Corporate / strategic finance",
-"h": "cc1c75a2a30f",
-"score": 60,
-"why": "Some match: financial projections, Analytical Project Execution, Cross-Functional Collaboration, actionable recommendations. Gap: health analytics focus instead of core financial planning."
 },
 "greenhouse:5462825008": {
 "at": "2026-11-06",
@@ -18252,14 +18030,6 @@
 "score": 10,
 "why": "Some match: Strategic Opportunity Identification, Client relationship management. Gap: Sales and account management role."
 },
-"greenhouse:6212708004": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "2c5e232965fe",
-"score": 25,
-"why": "Some match: analyze financial health and cash flow, partner with senior management. Gap: Pure data science and credit risk modeling role, not finance or planning."
-},
 "greenhouse:6212936003": {
 "at": "2026-11-02",
 "by": "model",
@@ -18268,6 +18038,17 @@
 "n": "015a300e944b1c",
 "score": 65,
 "why": "Some match: Producing analysis and models on leveraged buyouts, Discounted cash flows, Mergers and acquisitions accretion and dilution, Multiple valuation. Gap: M&A investment banking advisory rather than corporate FP&A or strategic finance."
+},
+"greenhouse:6213024004": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Treasury / investment / adjacent finance",
+"ev": "grounded",
+"h": "a14274fff84f",
+"n": "4b19291d78b65e",
+"pv": 1,
+"score": 60,
+"why": "Some match: consensus analyses, shareholder and competitive analyses, earnings presentations support. Gap: Investor relations focus rather than core FP&A or strategic finance."
 },
 "greenhouse:6214074004": {
 "at": "2026-11-02",
@@ -19137,6 +18918,17 @@
 "score": 65,
 "why": "Some match: Develop operating models, Recovery waterfalls, Transaction capital structure models, Valuations (DCF, M&A comps, and trading comps). Gap: Restructuring and investment banking advisory focus."
 },
+"greenhouse:6706257002": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "5424bb81d7ef",
+"n": "42fe4e40e6ca8a",
+"pv": 1,
+"score": 25,
+"why": "Some match: media planning, reporting and forecasting. Gap: marketing and advertising role."
+},
 "greenhouse:7131495": {
 "at": "2026-11-03",
 "by": "model",
@@ -19181,6 +18973,17 @@
 "n": "b2b5ee2297cb73",
 "score": 65,
 "why": "Some match: resource forecasting, capacity planning, process flows, dashboards. Gap: IT/software project management focus rather than corporate workforce planning."
+},
+"greenhouse:7276944002": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "partial",
+"h": "63d22c20457e",
+"n": "f834ad0fd2edd4",
+"pv": 1,
+"score": 15,
+"why": "Some match: forecasting monthly goals. Gap: Media planning and programmatic advertising role."
 },
 "greenhouse:7311309": {
 "at": "2026-11-09",
@@ -19258,14 +19061,6 @@
 "score": 60,
 "why": "Some match: risk modeling and monitoring, capital allocation decisions, analytical framework. Gap: Focused on risk and quantitative trading strategies rather than FP&A."
 },
-"greenhouse:7539938": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Corporate / strategic finance",
-"h": "f9a9aeb25d60",
-"score": 55,
-"why": "Some match: Synergy identification and model development, Operational diligence and integration, Strategic planning and project management. Gap: M&A operations and consulting focus rather than core FP&A or business partnering."
-},
 "greenhouse:7540715": {
 "at": "2026-11-02",
 "by": "model",
@@ -19304,14 +19099,6 @@
 "pv": 1,
 "score": 0,
 "why": "Some match: Building data-driven business reviews. Gap: Sales and account management role."
-},
-"greenhouse:7582977": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Corporate / strategic finance",
-"h": "c6c0c30a386e",
-"score": 60,
-"why": "Some match: Quantifying complex situations using math, Resource allocation and strategic initiatives, Building analytical frameworks. Gap: More data science and strategic advisory focused than traditional corporate finance or FP&A."
 },
 "greenhouse:7583294003": {
 "at": "2026-11-02",
@@ -19412,14 +19199,6 @@
 "n": "5b1b8362602481",
 "score": 30,
 "why": "Some match: Plan labor needs and manage capacity, Optimize performance metrics and workflows. Gap: Physical warehouse and supply chain management."
-},
-"greenhouse:7758434003": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "00e32344f130",
-"score": 15,
-"why": "Gap: Sales and partner acquisition role."
 },
 "greenhouse:7766834": {
 "at": "2026-11-15",
@@ -19608,38 +19387,6 @@
 "score": 30,
 "why": "Some match: Client coverage strategy, Pipeline management. Gap: Client coverage and sales role."
 },
-"greenhouse:7829840003": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "d89a2970d7f2",
-"score": 35,
-"why": "Some match: headcount reconciliation, workforce planning, org-health data, operational and financial goals. Gap: HR business partner and people operations role rather than financial analysis or capacity planning."
-},
-"greenhouse:7859504": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "4b032224d543",
-"score": 45,
-"why": "Some match: analyze consumer behavior data, synthesizing complex analyses. Gap: role is primarily focused on product strategy and go-to-market operations rather than finance or pla."
-},
-"greenhouse:7860703003": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Workforce & capacity planning",
-"h": "cafc7a20158e",
-"score": 30,
-"why": "Some match: Operational readiness, Program roadmaps, Data-driven execution. Gap: Customer service operations enablement instead of financial or capacity planning."
-},
-"greenhouse:7868641": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "1c5c4d6d43c5",
-"score": 25,
-"why": "Some match: Perform deep-dives and gain an understanding of current stat, Provide recommendations on how to improve broken processes. Gap: Heavy focus on accounting operations, financial close, and GAAP conversion."
-},
 "greenhouse:7871515003": {
 "at": "2026-11-06",
 "by": "model",
@@ -19804,6 +19551,17 @@
 "n": "ce3908c28ff544",
 "score": 55,
 "why": "Some match: build and own the reporting layer that drives insights, size their potential impact, and develop a plan to capture t, improve conversion, increase revenue, reduce costs. Gap: Revenue operations focus rather than corporate or strategic finance."
+},
+"greenhouse:7966426003": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "f5877a529dd8",
+"n": "d17931267b6718",
+"pv": 1,
+"score": 40,
+"why": "Some match: monthly close process, GL consolidation, analytics over operating expenses. Gap: heavy accounting operations and controllership focus."
 },
 "greenhouse:7975554": {
 "at": "2026-11-02",
@@ -20148,14 +19906,6 @@
 "n": "46c8fc182857a1",
 "score": 68,
 "why": "Some match: marketplace monetization and economics, loan-level profitability analyses, dashboards and reporting, pricing and profitability. Gap: More product and pricing analytics than traditional FP&A."
-},
-"greenhouse:8011158": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Treasury / investment / adjacent finance",
-"h": "3c6d81709666",
-"score": 55,
-"why": "Some match: financial modeling, strategic assessment. Gap: product strategy and corporate development."
 },
 "greenhouse:8011608003": {
 "at": "2026-11-02",
@@ -20732,14 +20482,6 @@
 "score": 68,
 "why": "Some match: resource planning, business analytics, monthly business reviews, forecasting. Gap: Sales strategy and operations focus rather than finance or FP&A."
 },
-"greenhouse:8091819": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "fae5f6f68db9",
-"score": 40,
-"why": "Some match: build models to evaluate value and opportunity costs, data-driven decision-making. Gap: merchant operations and product strategy, not core finance."
-},
 "greenhouse:8092065": {
 "at": "2026-11-02",
 "by": "model",
@@ -20795,14 +20537,6 @@
 "n": "1b589acb3b349a",
 "score": 45,
 "why": "Some match: support operational processes. Gap: trading and investment operations focus."
-},
-"greenhouse:8105742": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "9a114ca2ee65",
-"score": 20,
-"why": "Some match: business applications management, revenue strategy support. Gap: sales and revenue systems operations role, not finance."
 },
 "greenhouse:8107308003": {
 "at": "2026-11-04",
@@ -21335,14 +21069,6 @@
 "score": 50,
 "why": "Some match: advanced AI to reshape access to credit, fintech industry analytics. Gap: Lacks specific FP&A or capacity planning responsibilities."
 },
-"greenhouse:8189143": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "68333badb7c2",
-"score": 40,
-"why": "Some match: create quarterly and annual plans, analyze data to drive business decision-making. Gap: fulfillment strategy and operations, not core finance."
-},
 "greenhouse:8189933": {
 "at": "2026-11-14",
 "by": "model",
@@ -21685,15 +21411,6 @@
 "score": 45,
 "why": "Some match: Build dashboards and reports, Pipeline and bookings visibility. Gap: Sales operations and partner program management rather than FP&A."
 },
-"greenhouse:8205265": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "961bb6f149a9",
-"n": "880a464b66244d",
-"score": 85,
-"why": "Strong match: building financial models, margin analysis, unit economics across model providers, partnering with Finance, Data Science, Product. Gap: Heavy focus on pricing strategy and product margins rather than broad FP&A."
-},
 "greenhouse:8205464": {
 "at": "2026-11-12",
 "by": "model",
@@ -21754,14 +21471,6 @@
 "pv": 1,
 "score": 20,
 "why": "Some match: Partner with finance team, Build centralized metrics. Gap: Pure data engineering and analytics engineering role, not finance."
-},
-"greenhouse:8209236": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "b5837cccfdac",
-"score": 45,
-"why": "Some match: build models that evaluate economics. Gap: role is centered on product testing, operations, and feature improvement rather than finance."
 },
 "greenhouse:8209639": {
 "at": "2026-11-06",
@@ -21828,14 +21537,6 @@
 "n": "366210bd386b97",
 "score": 65,
 "why": "Some match: workforce planning, setting priorities and operating mechanisms, operational planning. Gap: Heavy focus on credit operations and risk management rather than core FP&A."
-},
-"greenhouse:8214274": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Treasury / investment / adjacent finance",
-"h": "50892e4de151",
-"score": 60,
-"why": "Some match: financial modeling, valuation, due diligence on prospective investments, tracking key performance indicators. Gap: focus is on venture investing rather than corporate FP&A."
 },
 "greenhouse:8215063": {
 "at": "2026-11-02",
@@ -21911,14 +21612,6 @@
 "score": 65,
 "why": "Some match: Workforce Management (WFM) partnership, Compliance operations, Scaling programs. Gap: Program management and compliance focus rather than direct capacity planning."
 },
-"greenhouse:8231811": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "89dc1f62f264",
-"score": 30,
-"why": "Some match: stakeholder relationships, validating use cases. Gap: IT systems and business systems analysis role, not finance."
-},
 "greenhouse:8231822": {
 "at": "2026-11-02",
 "by": "model",
@@ -21963,14 +21656,6 @@
 "n": "f96f28537aecc4",
 "score": 55,
 "why": "Some match: strategic planning and budgeting processes, conduct spend benchmarking and market analysis. Gap: Specialized legal operations and outside counsel management rather than corporate finance."
-},
-"greenhouse:8234190": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "c32641800b1f",
-"score": 15,
-"why": "Some match: analytical and reporting skills. Gap: human resources business partner role."
 },
 "greenhouse:8237197": {
 "at": "2026-11-02",
@@ -22071,14 +21756,6 @@
 "n": "54b6c42a9ede37",
 "score": 92,
 "why": "Strong match: capacity and retention planning, forecasting process end to end, development of new forecasting models, target setting and capacity modeling."
-},
-"greenhouse:8247250": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "8ae92da2b981",
-"score": 60,
-"why": "Some match: product roadmap for GTM data products, sales productivity tools, scaling processes, business impact analysis. Gap: heavy product management and tooling focus."
 },
 "greenhouse:8247381": {
 "at": "2026-11-04",
@@ -22301,14 +21978,6 @@
 "score": 20,
 "why": "Some match: test plans. Gap: Quality assurance and inventory operations role."
 },
-"greenhouse:8262870": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "6065da65a7e0",
-"score": 20,
-"why": "Some match: build the presentations, spot growth opportunities. Gap: sales and partnership management focus."
-},
 "greenhouse:8264615": {
 "at": "2026-11-02",
 "by": "model",
@@ -22362,6 +22031,17 @@
 "n": "c266de165bd705",
 "score": 60,
 "why": "Some match: unit economics, profit drivers, partner with finance. Gap: General business intelligence and product analytics rather than dedicated FP&A or capacity planning."
+},
+"greenhouse:8267437": {
+"at": "2026-11-23",
+"by": "model",
+"category": "FP&A / forecasting / budgeting",
+"ev": "grounded",
+"h": "464f675a3285",
+"n": "736a2efea3b76f",
+"pv": 1,
+"score": 85,
+"why": "Strong match: recurring forecast updates, review cycles, and board-ready m, forecast models across Excel and Pigment, capacity planning, Partner with FP&A leadership. Gap: Some accounting close support tasks."
 },
 "greenhouse:8267509": {
 "at": "2026-11-03",
@@ -22436,14 +22116,6 @@
 "score": 10,
 "why": "Some match: strategic partner to senior leaders. Gap: Human resources and People Business Partner role."
 },
-"greenhouse:8274746": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "53605a15003a",
-"score": 10,
-"why": "Gap: Human resources and people business partner role."
-},
 "greenhouse:8274778": {
 "at": "2026-11-02",
 "by": "model",
@@ -22480,6 +22152,17 @@
 "pv": 1,
 "score": 25,
 "why": "Some match: using performance data to identify gaps. Gap: marketing and sales lead operations systems management."
+},
+"greenhouse:8278668": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Corporate / strategic finance",
+"ev": "grounded",
+"h": "6beadd1fcd4b",
+"n": "1a88fff9b75cee",
+"pv": 1,
+"score": 95,
+"why": "Strong match: capital allocation and budgeting, paid-subscriber and subscription-fee forecast, long-range plan, zero-to-one analysis and modeling for net-new initiatives."
 },
 "greenhouse:8279370": {
 "at": "2026-11-14",
@@ -22545,14 +22228,6 @@
 "n": "48a175a54e5568",
 "score": 20,
 "why": "Some match: portfolio management, cross-functional collaboration. Gap: fundraising and donor relations role."
-},
-"greenhouse:8282252": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "fb32dc17f52f",
-"score": 0,
-"why": "Gap: Human resources business partner role."
 },
 "greenhouse:8282526": {
 "at": "2026-11-02",
@@ -22625,15 +22300,6 @@
 "n": "dbe433083d2f21",
 "score": 20,
 "why": "Some match: Set campaign calendars, Manage campaign operations. Gap: marketing operations and campaign execution role."
-},
-"greenhouse:8289304": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "af84af56db30",
-"n": "4149faec025cba",
-"score": 75,
-"why": "Strong match: Annual Planning, developing business plans, operating models, resource allocation. Gap: Focused on sales operations and GTM strategy rather than core FP&A."
 },
 "greenhouse:8294673002": {
 "at": "2026-11-03",
@@ -23897,6 +23563,17 @@
 "score": 10,
 "why": "Gap: Sales and account executive role."
 },
+"greenhouse:8507305002": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "partial",
+"h": "652695a30398",
+"n": "2fe0bf7b41c243",
+"pv": 1,
+"score": 10,
+"why": "Some match: programmatic campaign execution. Gap: Sales and marketing advertising role."
+},
 "greenhouse:8549214002": {
 "at": "2026-11-03",
 "by": "model",
@@ -23961,15 +23638,6 @@
 "reused": true,
 "score": 45,
 "why": "Some match: Reconcile investment positions, transactions, valuations, Use SQL to analyze relational data, Investigate data-quality exceptions. Gap: Investment operations and data feed management rather than financial planning."
-},
-"greenhouse:8590413002": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Corporate / strategic finance",
-"h": "ff273ba9f318",
-"n": "589c9e0ec83f24",
-"score": 85,
-"why": "Strong match: COGS and gross margin analysis, Model cost-saving opportunities, build scenario analyses, deliver recommendations on profitability levers, partner closely with finance."
 },
 "greenhouse:8596631002": {
 "at": "2026-11-03",
@@ -24099,14 +23767,6 @@
 "n": "9030609ad958d2",
 "score": 20,
 "why": "Some match: maintaining platform operations, client relationship management. Gap: sales and client support role rather than finance."
-},
-"greenhouse:8658435002": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "eafcfbf1ea00",
-"score": 30,
-"why": "Some match: operational reporting and analytics, metrics and reporting. Gap: customer success and revenue operations focus."
 },
 "greenhouse:8662388002": {
 "at": "2026-11-14",
@@ -24296,6 +23956,17 @@
 "n": "e142fc49c79870",
 "score": 30,
 "why": "Some match: build models, proactively surface answers. Gap: marketing analytics and data science seat."
+},
+"greenhouse:8766868002": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Treasury / investment / adjacent finance",
+"ev": "grounded",
+"h": "715699884da2",
+"n": "265e52fb3addf8",
+"pv": 1,
+"score": 55,
+"why": "Some match: building analytical models, conduct macroeconomic and sector research, financial datasets. Gap: investment research and strategy rather than corporate finance or FP&A."
 },
 "greenhouse:8782088002": {
 "at": "2026-11-02",
@@ -24694,6 +24365,17 @@
 "score": 10,
 "why": "Gap: Restaurant supply chain and physical operations management."
 },
+"greenhouse:8860479002": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "partial",
+"h": "898e9745c701",
+"n": "044ea3a677301e",
+"pv": 1,
+"score": 30,
+"why": "Some match: data modeling for capital allocation. Gap: Generalist data analytics role supporting marketing and product."
+},
 "greenhouse:8860535002": {
 "at": "2026-11-20",
 "by": "model",
@@ -24704,14 +24386,6 @@
 "pv": 1,
 "score": 65,
 "why": "Some match: analyze product performance and funnel conversion, build and maintain dashboards and reporting, support ad hoc financial and market analysis, pricing optimization efforts. Gap: focused on pricing operations rather than core FP&A or planning."
-},
-"greenhouse:8863955002": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Workforce & capacity planning",
-"h": "639c551b6b91",
-"score": 60,
-"why": "Some match: territory planning, AE capacity tracking, headcount and productivity planning, dashboards for sales leadership. Gap: Sales and revenue operations focus rather than financial FP&A."
 },
 "greenhouse:8864858002": {
 "at": "2026-11-02",
@@ -25045,6 +24719,17 @@
 "score": 20,
 "why": "Some match: Tracking outreach and status, Maintaining executive dashboard. Gap: Network contracting and vendor management role."
 },
+"greenhouse:8907694002": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "79d23575354e",
+"n": "dd9c567fdc1929",
+"pv": 1,
+"score": 20,
+"why": "Some match: process partner quote requests, standard issue resolution. Gap: sales operations and partner support role."
+},
 "greenhouse:8908995002": {
 "at": "2026-11-02",
 "by": "model",
@@ -25142,14 +24827,6 @@
 "reused": true,
 "score": 10,
 "why": "Gap: HR Business Partner role."
-},
-"greenhouse:8912963002": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "88ea22732656",
-"score": 45,
-"why": "Some match: structure pricing, build quotes. Gap: deal desk and sales operations focus rather than finance or FP&A."
 },
 "greenhouse:8912988002": {
 "at": "2026-11-03",
@@ -25292,15 +24969,6 @@
 "n": "0934ba801d2832",
 "score": 20,
 "why": "Some match: Data-driven client-focused role. Gap: Customer success and implementation role, completely unrelated to finance."
-},
-"greenhouse:8923085002": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Corporate / strategic finance",
-"h": "5e26e42c1c47",
-"n": "0056bda4b210a0",
-"score": 75,
-"why": "Strong match: Own the forecasting and business intelligence, Develop deep understanding of business performance, Execute in-depth analyses and make recommendations, Present strategic insights to leadership. Gap: More operational strategy and GTM than core financial planning."
 },
 "greenhouse:8924332002": {
 "at": "2026-11-22",
@@ -32520,6 +32188,17 @@
 "score": 60,
 "why": "Some match: investment tape generation, due diligence activities, financial reporting capabilities. Gap: Capital markets and securitization focus rather than corporate FP&A."
 },
+"lever:0d08fc76-9a70-4819-927c-2225cdf45905": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "ef8fe33e1e87",
+"n": "f4638a83cdff1d",
+"pv": 1,
+"score": 5,
+"why": "Gap: insurance sales presentation role."
+},
 "lever:0d68e344-370a-4ef1-a8fe-031f13b4c1b3": {
 "at": "2026-11-09",
 "by": "model",
@@ -32756,14 +32435,6 @@
 "score": 10,
 "why": "Some match: structured days. Gap: Sales and insurance protection services."
 },
-"lever:16a1b500-13fe-4c22-ad89-372093b462da": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "3bb6ed62b2f4",
-"score": 50,
-"why": "Some match: forecasting impact across all levels, partnering with finance and sales teams, structuring and negotiation of deal terms. Gap: heavy legal and deal structuring focus rather than core FP&A."
-},
 "lever:16c1a060-5ed6-4dc8-b9a8-6b73c484b720": {
 "at": "2026-11-06",
 "by": "model",
@@ -32829,14 +32500,6 @@
 "n": "72c830f2f9d288",
 "score": 10,
 "why": "Gap: operations and supply chain management."
-},
-"lever:18383723-04a2-44ae-ae58-1166a76f0859": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "dba56a1906e0",
-"score": 20,
-"why": "Some match: develop and execute solutions, performance metrics. Gap: legal operations role."
 },
 "lever:188dfccf-4021-45bb-b466-d825610d3a15": {
 "at": "2026-11-19",
@@ -33011,6 +32674,17 @@
 "n": "a3ae8af831ed45",
 "score": 80,
 "why": "Strong match: Develop financial models that forecast revenue impact, Analyze key pricing metrics and discounting rates, Own pricing models and monetization experiments. Gap: Pricing strategy focus rather than core FP&A."
+},
+"lever:1dea8c7e-12b1-4e09-b795-c166d8c8d3e4": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Corporate / strategic finance",
+"ev": "partial",
+"h": "db55560b9648",
+"n": "d13ed9ea76067f",
+"pv": 1,
+"score": 40,
+"why": "Some match: Shape new services, workflows, and strategic direction. Gap: vague strategic marketing/sales role description."
 },
 "lever:1e9eb087-1ca4-4688-91d2-8db9538133c7": {
 "at": "2026-11-06",
@@ -33709,6 +33383,16 @@
 "score": 0,
 "why": "Some match: Inventory accuracy. Gap: Retail barista and fulfillment operations role."
 },
+"lever:345765c6-2ac1-46d9-90b5-8345e10f87cf": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"h": "1130a35ef23f",
+"n": "5140d5abea2fca",
+"reused": true,
+"score": 10,
+"why": "Some match: electronic files processing. Gap: Legal eDiscovery analytics role."
+},
 "lever:34b8f3cd-5da9-42a6-9c62-cfb1ae8de71f": {
 "at": "2026-11-09",
 "by": "model",
@@ -33972,6 +33656,16 @@
 "pv": 1,
 "score": 30,
 "why": "Some match: Analyze complex information, Proficiency in Microsoft Office. Gap: IT and systems business analyst role."
+},
+"lever:3d8bf144-f44d-4e09-9607-16a143acc566": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"h": "ac317c0b2d0b",
+"n": "5554eb676924eb",
+"reused": true,
+"score": 0,
+"why": "Some match: Enter request data in tracking database. Gap: Legal and FOIA request processing, completely unrelated to finance or analysis."
 },
 "lever:3dea7e9c-5b0e-4a19-b744-3d43d10404ee": {
 "at": "2026-11-13",
@@ -34556,14 +34250,6 @@
 "score": 45,
 "why": "Some match: Plan and run workstreams across operating model, process, da. Gap: Banking operations, reconciliations, and trade capture focus."
 },
-"lever:5174e95b-2e0a-46f8-8db7-e2c837a0ac94": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "1d26609512ef",
-"score": 20,
-"why": "Some match: process optimization, streamline workflows. Gap: engineering site reliability and IT operations role."
-},
 "lever:518eface-acb7-4de4-9679-3dcf215369ea": {
 "at": "2026-11-19",
 "by": "model",
@@ -34573,6 +34259,17 @@
 "reused": true,
 "score": 35,
 "why": "Some match: defines system and project requirements, data validation specifications. Gap: Litigation IT and systems analysis, not financial analysis."
+},
+"lever:51e1d13b-db35-4e0c-8ef2-20dcdbe08fbf": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "07407c274e72",
+"n": "790e431787fe00",
+"pv": 1,
+"score": 0,
+"why": "Gap: Insurance or sales role."
 },
 "lever:5211c4ec-3dc3-45f8-a122-eeb190489d80": {
 "at": "2026-11-20",
@@ -35906,6 +35603,17 @@
 "score": 0,
 "why": "Gap: Theatre costume shop operations."
 },
+"lever:8616e7b9-09c5-45d8-90ff-081100d7bbef": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "309bc0c4321e",
+"n": "d5bd88c4c0a759",
+"pv": 1,
+"score": 10,
+"why": "Gap: client protection planning and sales role."
+},
 "lever:86231ecb-2ee2-46c6-82cf-527e6dc1babf": {
 "at": "2026-11-06",
 "by": "model",
@@ -36366,6 +36074,17 @@
 "score": 0,
 "why": "Gap: Sales and insurance/benefits advisory role, completely unrelated to finance or analysis."
 },
+"lever:95d40909-a9b6-407c-86e4-1425481b4ee9": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "27fec5887c92",
+"n": "bdf236a3537217",
+"pv": 1,
+"score": 0,
+"why": "Gap: Insurance or sales role."
+},
 "lever:96e36f66-20a8-4acf-ab54-ea3a23bbf9bf": {
 "at": "2026-11-07",
 "by": "model",
@@ -36801,6 +36520,18 @@
 "pv": 1,
 "score": 30,
 "why": "Gap: Healthcare systems analysis."
+},
+"lever:a626cd55-2eed-4202-aa4b-5af027162203": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "559f17d24118",
+"n": "6e9db07a43dbe1",
+"pv": 1,
+"reused": true,
+"score": 5,
+"why": "Gap: client portfolio and insurance sales role."
 },
 "lever:a68d3907-9f28-4308-941e-e5e3d68e8992": {
 "at": "2026-11-20",
@@ -38271,6 +38002,17 @@
 "score": 0,
 "why": "Gap: Benefits navigation and sales role."
 },
+"lever:e20bdf1e-934e-4ac7-bf51-93f719b0908a": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "559f17d24118",
+"n": "6e9db07a43dbe1",
+"pv": 1,
+"score": 5,
+"why": "Gap: client portfolio and insurance sales role."
+},
 "lever:e292ef0b-d056-4319-a865-0a42df815899": {
 "at": "2026-11-06",
 "by": "model",
@@ -38904,6 +38646,18 @@
 "pv": 1,
 "score": 10,
 "why": "Some match: Evaluate AI model outputs. Gap: AI data labeling and evaluation role with no finance or planning tasks."
+},
+"lever:f9310e4e-a932-40d2-82aa-10e622128531": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "partial",
+"h": "fc086a99c9dc",
+"n": "ce487890355ca3",
+"pv": 1,
+"reused": true,
+"score": 0,
+"why": "Some match: IT data management. Gap: IT data archiving role, completely unrelated to finance."
 },
 "lever:f95336d1-7c3d-4487-aac7-4cbb25963c68": {
 "at": "2026-11-22",
@@ -42620,6 +42374,17 @@
 "score": 40,
 "why": "Some match: partnering cross-functionally with Finance. Gap: Partner operations and success management."
 },
+"rippling:0a5695bc-53a8-4f17-8bb6-bfb23a4ae8e0": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "62b342df5398",
+"n": "56e424ac89e798",
+"pv": 1,
+"score": 60,
+"why": "Some match: Corporate forecasting and budgeting, Maintaining detailed headcount and expense schedules, variance analysis, annual budget process and long-term modelling. Gap: Substantial month-end close, accruals, and general ledger maintenance duties."
+},
 "rippling:0ca409d9-03a3-42d0-80fd-a25c1cc9f6ed": {
 "at": "2026-11-06",
 "by": "model",
@@ -43849,14 +43614,6 @@
 "n": "fce591f33c8ad9",
 "score": 65,
 "why": "Some match: business partner to sales leadership, drives forecasting process, delivers scorecard metrics, budget attainment. Gap: heavy sales and revenue operations focus rather than core FP&A."
-},
-"rippling:f031a400-4631-4e89-8a67-a6ecee5bd275": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Accounting-heavy / unsuitable",
-"h": "9fe6464508ae",
-"score": 0,
-"why": "Gap: human resources and employee relations role."
 },
 "rippling:f400331b-a6da-4da5-bf0e-d71f74d4f976": {
 "at": "2026-11-08",
@@ -45445,6 +45202,28 @@
 "score": 50,
 "why": "Some match: own the full P&L, revenue growth, margin performance. Gap: Client business unit leadership and sales rather than FP&A."
 },
+"smartrecruiters:744000157220899": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "33a16f6ff480",
+"n": "7b7eb36cf6cf7e",
+"pv": 1,
+"score": 30,
+"why": "Some match: deep-dive and exploratory analyses, monitor digital performance metrics. Gap: digital analytics and data science seat."
+},
+"smartrecruiters:744000157220929": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "grounded",
+"h": "e37376300d04",
+"n": "f436d59b9590bc",
+"pv": 1,
+"score": 40,
+"why": "Some match: commercial evaluation, bid analysis. Gap: Procurement and sourcing role."
+},
 "smartrecruiters:744000157366226": {
 "at": "2026-11-21",
 "by": "model",
@@ -46342,6 +46121,17 @@
 "score": 25,
 "why": "Some match: Build attribution and funnel reporting, Create dashboards and weekly reporting. Gap: Marketing and revenue operations focus."
 },
+"smartrecruiters:744000161353718": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "485918ed463c",
+"n": "d8f16d3c51180f",
+"pv": 1,
+"score": 0,
+"why": "Gap: Graphic and apparel design role."
+},
 "smartrecruiters:744000161358437": {
 "at": "2026-11-13",
 "by": "model",
@@ -46539,6 +46329,17 @@
 "reused": true,
 "score": 10,
 "why": "Some match: Provide effort estimates to the Project Manager. Gap: Software implementation and IT business analyst role."
+},
+"smartrecruiters:744000162551949": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "partial",
+"h": "12442b0b463b",
+"n": "05cfcbf2574ca9",
+"pv": 1,
+"score": 10,
+"why": "Some match: Provide internal reports to management. Gap: full cycle sales role."
 },
 "smartrecruiters:744000162576921": {
 "at": "2026-11-20",
@@ -49007,6 +48808,17 @@
 "score": 15,
 "why": "Some match: Order-to-cash cycle, Prepare journal entries and account reconciliations. Gap: heavy accounting operations and AP/AR role."
 },
+"workable:A4EE6D6090": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Workforce & capacity planning",
+"ev": "grounded",
+"h": "7323059898c9",
+"n": "58d7c89985248e",
+"pv": 1,
+"score": 60,
+"why": "Some match: Assist in mapping critical roles, succession gaps, and workf, Support development of risk dashboards, Analyze industry trends. Gap: enterprise risk management focus rather than capacity planning."
+},
 "workable:A52A7967FB": {
 "at": "2026-11-11",
 "by": "model",
@@ -49433,6 +49245,17 @@
 "pv": 1,
 "score": 20,
 "why": "Some match: AI conversation systems, Monitor live conversations. Gap: Technical AI operations and conversational platform configuration."
+},
+"workable:BF71DACCE6": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "partial",
+"h": "58ae0b9db95f",
+"n": "97b4462e8a81ae",
+"pv": 1,
+"score": 30,
+"why": "Some match: Track recurring rental payments. Gap: rental operations and customer support."
 },
 "workable:C15FBEF1EB": {
 "at": "2026-11-21",
@@ -54078,6 +53901,17 @@
 "score": 75,
 "why": "Strong match: pricing decision-making through analytics, commercial planning, growth plans and trade-off analysis, cross-functional business partnering. Gap: Revenue Growth Management strategy rather than core budgeting and forecasting FP&A."
 },
+"workday:JR119419": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Corporate / strategic finance",
+"ev": "grounded",
+"h": "b15b80074dab",
+"n": "2d0cf31ea1a3da",
+"pv": 1,
+"score": 70,
+"why": "Strong match: forecast business expectations, develop financial analytics solutions for strategic planning, develop investment values, deal analysis associated with M&A. Gap: Consulting/client-facing advisory focus rather than internal operational FP&A."
+},
 "workday:JR119983": {
 "at": "2026-11-02",
 "by": "model",
@@ -54824,6 +54658,17 @@
 "pv": 1,
 "score": 65,
 "why": "Some match: growth opportunities evaluation, business case development, M&A transaction execution, financial foundations. Gap: Corporate development M&A focus rather than core FP&A or planning."
+},
+"workday:PT-JR045838": {
+"at": "2026-11-23",
+"by": "model",
+"category": "FP&A / forecasting / budgeting",
+"ev": "grounded",
+"h": "7e6808dd0431",
+"n": "664078e253f429",
+"pv": 1,
+"score": 90,
+"why": "Strong match: financial forecasts, budgets, and long-term plans, financial modeling and analysis, Balance Sheet analysis, Revenue & Expense analysis, Collaborate with Business Units and Segment FP&A."
 },
 "workday:PT-JR046188": {
 "at": "2026-11-03",
@@ -60504,17 +60349,8 @@
 },
 "usage": {
 "ceiling": 160,
-"day": "2026-11-22",
+"day": "2026-11-23",
 "history": [
-{
-"ceiling": 160,
-"day": "2026-11-07",
-"limited": false,
-"requests": 32,
-"tokens": 92931,
-"tokens_in": 70349,
-"tokens_out": 22582
-},
 {
 "ceiling": 160,
 "day": "2026-11-08",
@@ -60631,14 +60467,23 @@
 "tokens": 48646,
 "tokens_in": 37078,
 "tokens_out": 11568
+},
+{
+"ceiling": 160,
+"day": "2026-11-22",
+"limited": false,
+"requests": 17,
+"tokens": 39736,
+"tokens_in": 30296,
+"tokens_out": 9440
 }
 ],
 "limited": false,
-"requests": 17,
+"requests": 13,
 "requests_at_limit": 0,
-"tokens": 39736,
-"tokens_in": 30296,
-"tokens_out": 9440,
+"tokens": 13629,
+"tokens_in": 10311,
+"tokens_out": 3318,
 "tokens_thinking": 0
 },
 "v": 1
