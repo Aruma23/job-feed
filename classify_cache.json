@@ -3317,15 +3317,6 @@
 "score": 10,
 "why": "Gap: Partnership and sales role."
 },
-"ashby:5bca0902-d919-4267-a827-8ddd7072c73a": {
-"at": "2026-11-01",
-"by": "model",
-"category": "Commercial finance / business partnering",
-"h": "6c5cb90eefdb",
-"n": "1f1defe7f48481",
-"score": 65,
-"why": "Some match: sales pipeline and forecast reviews, fiscal year planning, monthly/quarterly business reviews, Partner closely with the business partners. Gap: heavily focused on sales operations and RevOps rather than pure FP&A."
-},
 "ashby:5c3f818b-c27e-48a8-88f8-3898a5d4a96b": {
 "at": "2026-11-04",
 "by": "model",
@@ -20301,11 +20292,12 @@
 "why": "Strong match: headcount and organizational mapping, resource reporting systems, automating Workday people-data pipelines, supporting resource planning. Gap: More data engineering and operations focused than strategic workforce planning."
 },
 "greenhouse:8044954003": {
-"at": "2026-11-02",
+"at": "2026-11-23",
 "by": "model",
 "category": "Accounting-heavy / unsuitable",
-"h": "dfe6f98dc770",
+"h": "2430b5946b50",
 "n": "22b3b24824db28",
+"reused": true,
 "score": 0,
 "why": "Gap: Pure communications and public relations role."
 },
@@ -31756,6 +31748,17 @@
 "score": 55,
 "why": "Some match: cost reduction levers, budgeting and forecasting inputs, interpreting spend. Gap: procurement and strategic sourcing focus."
 },
+"lever:0058bb9b-161b-4c4e-93c9-c907479ebe73": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"h": "38880a71e782",
+"n": "794ce4c1f31da1",
+"pv": 1,
+"reused": true,
+"score": 10,
+"why": "Gap: client enrollment role."
+},
 "lever:0077ca77-26b5-4f57-bd3b-a44e3aca5197": {
 "at": "2026-11-13",
 "by": "model",
@@ -33837,6 +33840,18 @@
 "score": 30,
 "why": "Some match: Strategic Problem Solving, Project Leadership. Gap: Data analytics consulting rather than corporate FP&A or finance."
 },
+"lever:451e3ca8-c08f-446c-bcbd-4b2fc658cddc": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"ev": "unsupported",
+"h": "c30a8e30d935",
+"n": "97db89691a593f",
+"pv": 1,
+"reused": true,
+"score": 15,
+"why": "Gap: Insurance sales and client advisory role."
+},
 "lever:45241c61-11af-45b5-86a0-a5302c028d6d": {
 "at": "2026-11-06",
 "by": "model",
@@ -34665,6 +34680,16 @@
 "n": "2fa5ce3ff33f5a",
 "score": 75,
 "why": "Strong match: operational demand and resource allocation, manage increasing demand efficiently, make workload, capacity, and service levels visible. Gap: Clinical operations focus rather than contact center workforce planning."
+},
+"lever:616bbfa8-fbf7-4084-ad82-96399025cd19": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"h": "da93ac1cef05",
+"n": "041264e8b241a2",
+"reused": true,
+"score": 10,
+"why": "Some match: CRM hygiene, admin work. Gap: Sales and consulting role."
 },
 "lever:61751390-7628-46d9-b52a-7aff1d72a475": {
 "at": "2026-11-06",
@@ -36320,6 +36345,16 @@
 "n": "30575a0d87e952",
 "score": 10,
 "why": "Gap: IT operations and security role."
+},
+"lever:9c481d2b-263c-4fe8-8533-62504bb29474": {
+"at": "2026-11-23",
+"by": "model",
+"category": "Accounting-heavy / unsuitable",
+"h": "8e7bf4b8d23a",
+"n": "adadf69cac6135",
+"reused": true,
+"score": 0,
+"why": "Gap: Sales and insurance advisory role."
 },
 "lever:9c65ec56-b373-4579-9133-23d717723fac": {
 "at": "2026-11-07",
@@ -60479,7 +60514,7 @@
 }
 ],
 "limited": false,
-"requests": 13,
+"requests": 24,
 "requests_at_limit": 0,
 "tokens": 13629,
 "tokens_in": 10311,
