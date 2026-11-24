@@ -1,8 +1,8 @@
 # Feed audit
 
-2026-11-24T12:38+00:00 · **OK** · All checks passed.
+2026-11-24T16:41+00:00 · **OK** · All checks passed.
 
-## INFO: 380 jobs are shown from earlier runs (279 job-site listings past the 3-day search window, 47 missed by this run only, 37 on unchanged boards not due for a read, 17 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-20.
+## INFO: 377 jobs are shown from earlier runs (279 job-site listings past the 3-day search window, 47 missed by this run only, 35 on unchanged boards not due for a read, 16 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-20.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
   - Bank of America: Business Control Associate (last 2026-11-22)
@@ -11,7 +11,7 @@
   - Amazon.com: Partner Solutions Architect, Global Partner Tech (last 2026-11-22)
   - Intuit: Senior Staff Product Designer (AI-Native) (last 2026-11-22)
 
-## INFO: 58 sets of rows share employer, title, place and description.
+## INFO: 59 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
