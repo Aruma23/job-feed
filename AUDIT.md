@@ -1,13 +1,8 @@
 # Feed audit
 
-2026-11-26T00:28+00:00 · **OK** · All checks passed.
+2026-11-26T20:30+00:00 · **OK** · All checks passed.
 
-## INFO: 1 indeed job(s) left the feed without a confirmed closing.
-
-- What the feed did: Left out (too few to suggest a broken reader).
-  - Voya Financial: IM Entry Level Analyst Program - Product Management Analyst
-
-## INFO: 651 jobs are shown from earlier runs (232 on unchanged boards not due for a read, 217 job-site listings past the 3-day search window, 132 missed by this run only, 70 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-22.
+## INFO: 364 jobs are shown from earlier runs (217 job-site listings past the 3-day search window, 66 missed by this run only, 46 not shown by their source for 2+ days, 35 on unchanged boards not due for a read); the oldest was last confirmed 2026-11-22.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
   - ana luisa: Floor Lead, Merchandising (last 2026-11-23)
