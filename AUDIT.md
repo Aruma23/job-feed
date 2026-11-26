@@ -1,22 +1,22 @@
 # Feed audit
 
-2026-11-25T20:29+00:00 · **WARN** · Published, with warnings.
+2026-11-26T00:28+00:00 · **OK** · All checks passed.
 
-## WARN: Read 382 of the 1226 company boards due this run.
+## INFO: 1 indeed job(s) left the feed without a confirmed closing.
 
-- What the feed did: Boards not read keep their jobs for a few days.
-- What to do: Check direct.adapter_health for failing or late systems.
+- What the feed did: Left out (too few to suggest a broken reader).
+  - Voya Financial: IM Entry Level Analyst Program - Product Management Analyst
 
-## INFO: 353 jobs are shown from earlier runs (258 job-site listings past the 3-day search window, 39 missed by this run only, 36 on unchanged boards not due for a read, 20 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-21.
+## INFO: 651 jobs are shown from earlier runs (232 on unchanged boards not due for a read, 217 job-site listings past the 3-day search window, 132 missed by this run only, 70 not shown by their source for 2+ days); the oldest was last confirmed 2026-11-22.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
-  - United Nations: LOGISTICS OFFICER, Supply Chain Planning, P3 (last 2026-11-22)
-  - Hearst: Finance Analyst - Accounts Receivable - New York (last 2026-11-23)
-  - Hearst: Analyst, Aerospace & Defense / Transports (New York) (last 2026-11-23)
-  - Hearst: US Corporates - Senior Analyst, Healthcare & Pharmaceuticals - New York (last 2026-11-23)
-  - Hearst: Senior Analyst - Funds & Asset Management - New York (last 2026-11-23)
+  - ana luisa: Floor Lead, Merchandising (last 2026-11-23)
+  - JPMorganChase: Software Engineer III - Agent Builder Platform (last 2026-11-23)
+  - Bayer: Global Customer Data & AI Lead (last 2026-11-23)
+  - BBVA: AI, Data Transformation and RCA Analyst (last 2026-11-23)
+  - Elise A.I. Technologies Corp.: Associate Deployment Strategist, Future Platforms | Housing (last 2026-11-23)
 
-## INFO: 62 sets of rows share employer, title, place and description.
+## INFO: 64 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
