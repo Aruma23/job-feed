@@ -1,13 +1,8 @@
 # Feed audit
 
-2026-11-27T05:19+00:00 · **OK** · All checks passed.
+2026-11-27T20:17+00:00 · **OK** · All checks passed.
 
-## INFO: 1 indeed job(s) left the feed without a confirmed closing.
-
-- What the feed did: Left out (too few to suggest a broken reader).
-  - Voya Financial: IM Entry Level Analyst Program - Product Management Analyst
-
-## INFO: 586 jobs are shown from earlier runs (227 job-site listings past the 3-day search window, 190 on unchanged boards not due for a read, 87 not shown by their source for 2+ days, 82 missed by this run only); the oldest was last confirmed 2026-11-23.
+## INFO: 358 jobs are shown from earlier runs (227 job-site listings past the 3-day search window, 56 on unchanged boards not due for a read, 48 not shown by their source for 2+ days, 27 missed by this run only); the oldest was last confirmed 2026-11-23.
 
 - What the feed did: Kept for up to 4 days after they were last seen; the confirm column says which, and 2+ days unconfirmed holds a job at C.
   - Optimum: Sr. FP&A Analyst (last 2026-11-25)
@@ -16,7 +11,7 @@
   - Baselane: Strategic Growth Lead, Partnerships Hybrid — Full-time New York City / Toronto (last 2026-11-24)
   - Christian Health: Maintenance Technician I (last 2026-11-24)
 
-## INFO: 60 sets of rows share employer, title, place and description.
+## INFO: 59 sets of rows share employer, title, place and description.
 
 - What the feed did: Kept apart: employers sometimes post several seats with one description.
 - What to do: If the tracker shows these twice, tell Claude so identity can merge them.
